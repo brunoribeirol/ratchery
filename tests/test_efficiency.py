@@ -410,6 +410,8 @@ class TestBenchmarkCli(unittest.TestCase):
                 "user.name=Benchmark Fixture",
                 "-c",
                 "user.email=fixture@example.invalid",
+                "-c",
+                "commit.gpgSign=false",
                 "commit",
                 "-q",
                 "-m",

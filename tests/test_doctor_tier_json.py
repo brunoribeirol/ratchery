@@ -135,7 +135,16 @@ class TestDoctorJson(_IsolatedHome):
         })
         steps = [
             ["git", "init", "-q"],
-            ["git", "commit", "-q", "--allow-empty", "-m", "init"],
+            [
+                "git",
+                "-c",
+                "commit.gpgSign=false",
+                "commit",
+                "-q",
+                "--allow-empty",
+                "-m",
+                "init",
+            ],
         ]
         for step in steps:
             try:
