@@ -1,0 +1,85 @@
+name: "Ratchetry doctor gate"
+description: >-
+  Fails a workflow run when a project's ratchery setup (managed files,
+  sandbox config, tier requirements) does not pass `ratchery doctor`.
+  Runs the checked-out tool's own `lib/agent_workspace.py`; no install step,
+  no dependency beyond Python 3.11+ (already stdlib-only).
+author: "brunoribeirol"
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Existing project directory relative to GITHUB_WORKSPACE; escapes are rejected."
+    required: false
+    default: "."
+  deep:
+    description: "Run doctor's additional, slower security probe checks."
+    required: false
+    default: "true"
+
+outputs:
+  doctor-result:
+    description: "Raw JSON emitted by `ratchery doctor --json` (errors, warnings, tier, tier_name, commit, dirty)."
+    value: ${{ steps.run-doctor.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: run-doctor
+      shell: bash
+      # inputs.* are passed via env: (not interpolated directly into the script
+      # below) so a downstream workflow that ever binds path/deep to
+      # attacker-influenced data (a PR title/label, say) can't inject shell
+      # syntax -- the values only ever reach bash as data, through a quoted
+      # variable expansion.
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_DEEP: ${{ inputs.deep }}
+      run: |
+        set -euo pipefail
+        if [ -z "$INPUT_PATH" ] || [ "${INPUT_PATH#/}" != "$INPUT_PATH" ]; then
+          echo "::error::path must be a non-empty path relative to GITHUB_WORKSPACE"
+          exit 1
+        fi
+        WORKSPACE_ROOT="$(cd "$GITHUB_WORKSPACE" && pwd -P)"
+        if ! PROJECT_PATH="$(cd "$WORKSPACE_ROOT/$INPUT_PATH" 2>/dev/null && pwd -P)"; then
+          echo "::error::path does not resolve to an existing directory"
+          exit 1
+        fi
+        case "$PROJECT_PATH" in
+          "$WORKSPACE_ROOT"|"$WORKSPACE_ROOT"/*) ;;
+          *)
+            echo "::error::path must remain inside GITHUB_WORKSPACE after resolving symlinks"
+            exit 1
+            ;;
+        esac
+        case "$INPUT_DEEP" in
+          true) DEEP_FLAG="--deep" ;;
+          false) DEEP_FLAG="" ;;
+          *)
+            echo "::error::deep must be exactly 'true' or 'false'"
+            exit 1
+            ;;
+        esac
+        set +e
+        RESULT="$(python3 "${{ github.action_path }}/lib/agent_workspace.py" doctor --path "$PROJECT_PATH" $DEEP_FLAG --json)"
+        STATUS=$?
+        set -e
+        echo "$RESULT"
+        # Randomized delimiter: GITHUB_OUTPUT's heredoc form is only safe if
+        # the delimiter can't appear inside $RESULT. doctor --json's content is
+        # already proven not to contain raw newlines (see docs/CI_GATE.md),
+        # but a fixed delimiter still relies on every future doctor check
+        # remembering that -- generate one per run instead.
+        EOF_MARKER="DOCTOR_JSON_EOF_$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
+        {
+          echo "result<<$EOF_MARKER"
+          echo "$RESULT"
+          echo "$EOF_MARKER"
+        } >> "$GITHUB_OUTPUT"
+        if [ "$STATUS" -ne 0 ]; then
+          echo "::error::ratchery doctor failed -- see the JSON above, or run \`ratchery doctor --deep\` locally for human-readable output."
+          exit 1
+        fi

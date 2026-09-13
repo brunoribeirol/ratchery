@@ -1,0 +1,149 @@
+name: Client compatibility canary
+
+on:
+  schedule:
+    - cron: "17 5 * * 1" # weekly, Monday 05:17 UTC
+  workflow_dispatch:
+
+# The canary installs public CLI packages but has no repository write scope,
+# persisted checkout credential, model credential, or inference step.
+permissions:
+  contents: read
+
+jobs:
+  generated-config:
+    name: ${{ matrix.client }} (${{ matrix.channel }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - client: claude
+            channel: minimum
+            package: "@anthropic-ai/claude-code"
+            version: "2.1.187"
+          - client: claude
+            channel: current
+            package: "@anthropic-ai/claude-code"
+            version: "latest"
+          - client: codex
+            channel: minimum
+            package: "@openai/codex"
+            version: "0.138.0"
+          - client: codex
+            channel: current
+            package: "@openai/codex"
+            version: "latest"
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js for exact public CLI packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Install selected client in the ephemeral runner
+        env:
+          CLIENT_PACKAGE: ${{ matrix.package }}
+          CLIENT_VERSION: ${{ matrix.version }}
+          NPM_CONFIG_UPDATE_NOTIFIER: "false"
+        run: npm install --global --ignore-scripts "${CLIENT_PACKAGE}@${CLIENT_VERSION}"
+
+      - name: Generate hardened project configuration
+        env:
+          CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
+        run: |
+          set -eu
+          export HOME="$CANARY_ROOT/home"
+          export XDG_CONFIG_HOME="$CANARY_ROOT/config"
+          export XDG_STATE_HOME="$CANARY_ROOT/state"
+          project="$CANARY_ROOT/project"
+          mkdir -p "$HOME" "$project"
+          git -C "$project" init -q
+          python3 lib/agent_workspace.py init --path "$project"
+          python3 lib/agent_workspace.py tier-set --path "$project" \
+            --users internal --no-pii --no-payments --no-life-safety \
+            --no-regulated --data-sensitivity none --no-external-exposure \
+            --maturity prototype
+          python3 lib/agent_workspace.py mcp enable context7 --path "$project"
+          python3 lib/agent_workspace.py doctor --path "$project" --json > "$CANARY_ROOT/doctor.json"
+          python3 - "$CANARY_ROOT/doctor.json" <<'PY'
+          import json
+          import sys
+
+          report = json.load(open(sys.argv[1], encoding="utf-8"))
+          if report["errors"]:
+              raise SystemExit("generated config failed Ratchetry doctor: " + repr(report["errors"]))
+          PY
+
+      - name: Validate with Claude Code without connecting or inferring
+        if: matrix.client == 'claude'
+        env:
+          CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
+          DISABLE_AUTOUPDATER: "1"
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        run: |
+          set -eu
+          export HOME="$CANARY_ROOT/home"
+          export XDG_CONFIG_HOME="$CANARY_ROOT/config"
+          export XDG_STATE_HOME="$CANARY_ROOT/state"
+          claude --version
+          cd "$CANARY_ROOT/project"
+          claude doctor
+          # Project MCPs are intentionally pending approval, so `get` parses
+          # the definition without contacting the remote server.
+          claude mcp get context7
+
+      - name: Validate with Codex without authenticating or inferring
+        if: matrix.client == 'codex'
+        env:
+          CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
+        run: |
+          set -eu
+          export HOME="$CANARY_ROOT/home"
+          export XDG_CONFIG_HOME="$CANARY_ROOT/config"
+          export XDG_STATE_HOME="$CANARY_ROOT/state"
+          project="$CANARY_ROOT/project"
+          mkdir -p "$HOME/.codex"
+          PROJECT_PATH="$project" python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          project = os.environ["PROJECT_PATH"].replace("\\", "\\\\").replace('"', '\\"')
+          Path.home().joinpath(".codex/config.toml").write_text(
+              f'[projects."{project}"]\ntrust_level = "trusted"\n',
+              encoding="utf-8",
+          )
+          PY
+          codex --version
+          # The management subcommand reads CODEX_HOME rather than repository
+          # config, so point an ephemeral CODEX_HOME at the exact generated
+          # TOML to parse/inspect its MCP contract without starting the server.
+          mcp_home="$CANARY_ROOT/codex-mcp-home"
+          mkdir -p "$mcp_home"
+          cp "$project/.codex/config.toml" "$mcp_home/config.toml"
+          CODEX_HOME="$mcp_home" codex mcp get context7 --json > "$CANARY_ROOT/codex-mcp.json"
+          python3 - "$CANARY_ROOT/codex-mcp.json" <<'PY'
+          import json
+          import sys
+
+          server = json.load(open(sys.argv[1], encoding="utf-8"))
+          if server.get("name") != "context7" or not server.get("enabled"):
+              raise SystemExit("Codex did not load the generated Context7 profile")
+          if server.get("enabled_tools") != ["resolve-library-id", "query-docs"]:
+              raise SystemExit("Codex changed or ignored the generated MCP tool allowlist")
+          PY
+          # Separately prove that the trusted repository resolves the named
+          # permission profile. This runs only /usr/bin/true inside Codex's
+          # sandbox; it performs no authentication, inference, or network call.
+          codex sandbox -C "$project" -P project-edit /usr/bin/true

@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # The framework itself (lib/) is deliberately stdlib-only Python (see
+  # docs/ARCHITECTURE.md) -- no dependency set to track there. The runnable
+  # examples under examples/ are a separate matter: examples/t1-backend-api/
+  # ships a real requirements.txt, so it needs the same update mechanism the
+  # GitHub Actions already get.
+  - package-ecosystem: "pip"
+    directory: "/examples/t1-backend-api"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
