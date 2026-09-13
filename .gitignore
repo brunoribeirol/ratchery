@@ -1,0 +1,58 @@
+# agent-workspace:v8:start
+# Python bytecode cache (any directory, not just the hook runtime -- this
+# framework's own repo ships real Python source under lib/, and running any
+# python3 command against it generates __pycache__/*.pyc that must never be
+# committed).
+__pycache__/
+*.pyc
+
+# Agent workspace local state
+.agents/state/
+CLAUDE.local.md
+
+# Claude Code's own ephemeral worktree-isolation directories for background
+# agents (each is a real, separate git working tree -- committing one nests
+# a full second .git inside this repo).
+.claude/worktrees/
+
+# Optional generated indexes
+graphify-out/cache/
+# agent-workspace:v8:end
+
+# --- project-specific exception, added deliberately, not by the framework ---
+# This repo IS the Adaptive Engine's own showcase, so shared tier, identity,
+# active-agent, and MCP opt-in state is committed instead of staying local-only.
+# Machine/session-specific profile and task-policy files remain ignored. See
+# docs/decision-matrix.md and CONTRIBUTING.md for the rationale.
+# ownership.json and project-id are required by doctor_project(); excluding them made a
+# fresh clone of this very repo fail `doctor --deep` -- caught by an independent
+# review (docs/audits/2026-09-05-pre-publish-review.md, finding 3) that a
+# committed working copy never surfaces since the file already exists on disk.
+# Git cannot re-include a file whose parent directory is excluded, so the
+# directory itself must be un-ignored first, then re-ignored file-by-file.
+!.agents/state/
+.agents/state/*
+!.agents/state/tier.json
+!.agents/state/tier.md
+!.agents/state/tier-history.jsonl
+!.agents/state/risk-answers.json
+!.agents/state/active-agents.json
+!.agents/state/ownership.json
+!.agents/state/project-id
+!.agents/state/mcp-enabled.json
+
+# --- second project-specific exception, opposite direction from the one above ---
+# docs/CURRENT_STATE.md is normally committed by the framework's own default
+# (ratchery init installs it expecting a team to track it) -- this repo
+# deliberately does NOT commit its own copy. It holds session-to-session
+# development notes for whoever is actively working on this codebase, not
+# something a downstream user or contributor needs to see. See CONTRIBUTING.md
+# "This repo runs its own tooling on itself" for the rationale. The file still
+# exists locally; `doctor` treats the exact ignore entry as a deliberate
+# opt-out instead of warning in every clean clone. The audit linked below
+# flagged the load-bearing references to check before doing this; verified none
+# needed code changes, only this ignore + untrack.
+docs/CURRENT_STATE.md
+
+# Local release output; tagged releases are published by GitHub Actions.
+dist/
