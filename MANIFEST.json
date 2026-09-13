@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0-rc.1",
   "channel": "prerelease",
-  "generated_at": "2026-09-13T17:49:43+00:00",
+  "generated_at": "2026-09-13T20:31:50+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -16,7 +16,7 @@
     "default_session_end_hook": false
   },
   "file_count_excluding_manifest": 274,
-  "total_bytes_excluding_manifest": 1287178,
+  "total_bytes_excluding_manifest": 1293420,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "4fc078fde827b3a0db25580d637135f6477be1b4e90f5130c41e00a5479c1b22",
-      "size_bytes": 22020
+      "sha256": "3dc3c2173441bbe359121ed17f2de76fc15da8375cc97cce2973d1c9ab9ac7af",
+      "size_bytes": 22970
     },
     {
       "path": "CLAUDE.md",
@@ -940,8 +940,8 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "c79a4309a00ca8669674c332519c4536da9d3d103c8c390feecfd8db06798f73",
-      "size_bytes": 9982
+      "sha256": "acb00375d184432d8ca6eb2999d2432b05ec11acbd37082fad644a29f2e282a5",
+      "size_bytes": 14566
     },
     {
       "path": "docs/ROADMAP.md",
@@ -990,8 +990,8 @@
     },
     {
       "path": "docs/decisions/ADR-005-private-staging-and-release-provenance.md",
-      "sha256": "0304601bd6b18959b027216861ef621ea73530dc1715466e2806e576fb981781",
-      "size_bytes": 2396
+      "sha256": "8a0e1e0d6efaa598ee13009691c9ef23381f9b8223380a562676018020083494",
+      "size_bytes": 2547
     },
     {
       "path": "docs/decisions/ADR_TEMPLATE.md",
@@ -1000,8 +1000,8 @@
     },
     {
       "path": "docs/decisions/README.md",
-      "sha256": "5aff5ccd3942c6358bf87c69dd9c47bba5cd12ef508d193aed28395d67ac12ba",
-      "size_bytes": 1003
+      "sha256": "6ee7967c8a4e17e46c73b8839e9961b2c13a5b783116fbcaf0edf65d6bf5367e",
+      "size_bytes": 1114
     },
     {
       "path": "docs/research-external.md",
@@ -1105,8 +1105,8 @@
     },
     {
       "path": "docs/work/2026-09-12-ratchery-rebrand-and-private-launch.md",
-      "sha256": "48529b13f150e19e702119e74cf6a9af6f983063645872e9ab0cce0bc1587521",
-      "size_bytes": 4988
+      "sha256": "ba9427f43914b3cc322b3f593b82b430bdb6e0a4e47da0931ba03e2a94dfef08",
+      "size_bytes": 5199
     },
     {
       "path": "docs/work/2026-09-13-ratchery-memory-reconstruction.md",
@@ -1165,7 +1165,7 @@
     },
     {
       "path": "examples/t1-backend-api/requirements.txt",
-      "sha256": "f84e2050260c9a44b7fd173a8579efaa352dbd84067928f6bfd776860b7a7a84",
+      "sha256": "2d6d8eb8662c42125d522e1e4abf5448a481cfd4d53c9751246263f4be9985a5",
       "size_bytes": 33
     },
     {
@@ -1335,13 +1335,13 @@
     },
     {
       "path": "tests/test_doctor_tier_json.py",
-      "sha256": "aff503d8186a8bbf4b0897452e287f987e66d37677244f1870a07b3cd97cbe57",
-      "size_bytes": 43218
+      "sha256": "9655e7bf63435ff980ec51239b314003d23d3c1a7621d9b0e14341c4b9593b90",
+      "size_bytes": 43391
     },
     {
       "path": "tests/test_efficiency.py",
-      "sha256": "e41e7c6407bea7c385622b53b9e2b4ae87fead01658849655d64ecb8c21b6454",
-      "size_bytes": 49285
+      "sha256": "d1a85b925d12835b2cd4197e6eee1172bf8d18e88dfb692f7ef86a05228c3d7e",
+      "size_bytes": 49347
     },
     {
       "path": "tests/test_memory_cli.py",

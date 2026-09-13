@@ -2,6 +2,7 @@
 
 - Status: accepted
 - Date: 2026-09-12
+- Refined by: [ADR-006](ADR-006-plan-aware-public-prerelease.md)
 
 ## Context
 
@@ -25,8 +26,9 @@ commits. The installer and release builder consume only a hash/size-verified
 Git inventory. Releases contain a deterministic source archive, SPDX 2.3 SBOM,
 manifest, and SHA-256 checksums. A read-only build job executes the tag; a
 no-checkout OIDC job attests fixed outputs; a separate contents-write job
-publishes them. Stable public release follows a verified private prerelease and
-an explicit visibility decision.
+publishes them. Private staging precedes an explicit visibility decision;
+ADR-006 defines when plan constraints require the first attested prerelease to
+follow that decision instead of preceding it.
 
 ## Rationale
 

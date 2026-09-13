@@ -10,6 +10,7 @@ it.
 - [ADR-003: Keep durable memory explicit and provider-neutral](ADR-003-explicit-provider-neutral-memory.md)
 - [ADR-004: Rebrand without breaking persisted ownership markers](ADR-004-compatibility-safe-ratchery-rebrand.md)
 - [ADR-005: Stage privately and publish provenance-backed releases](ADR-005-private-staging-and-release-provenance.md)
+- [ADR-006: Gate the first prerelease on hosted feature availability](ADR-006-plan-aware-public-prerelease.md)
 
 Use [ADR_TEMPLATE.md](ADR_TEMPLATE.md) for a new durable decision. Superseded
 records stay in this directory with their status and replacement link updated;

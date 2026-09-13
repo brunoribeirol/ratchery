@@ -83,21 +83,27 @@ make release-smoke
 
 ## Maintainer release procedure
 
-1. Add a dated `CHANGELOG.md` entry and bump `VERSION` in
+1. Inspect the repository visibility and actual hosted-feature availability
+   before creating a tag. On GitHub Free, Pro, or Team, artifact attestations
+   require a public repository; private attestations require Enterprise Cloud.
+   Never push a private tag that the mandatory attestation job cannot process.
+2. Add a dated `CHANGELOG.md` entry and bump `VERSION` in
    `lib/agent_workspace.py`; the installer derives the same version through
    the validated manifest.
-2. Run `python3 scripts/gen-manifest.py` last, then commit the resulting
+3. Run `python3 scripts/gen-manifest.py` last, then commit the resulting
    `MANIFEST.json` with the release changes.
-3. Run `make test` and `make release-smoke` (including the Action-pin and exact
+4. Run `make test` and `make release-smoke` (including the Action-pin and exact
    artifact-install gates), manually dispatch the
    credential-free client compatibility canary, and confirm every
    minimum/current Claude/Codex leg passes without inference.
-4. Build once locally with the command above and inspect all four outputs.
-5. Merge through the protected `main` branch.
-6. Create a new signed annotated tag:
+5. Build once locally with the command above and inspect all four outputs.
+6. Merge through the protected `main` branch. For the first release on a plan
+   without private Rulesets, validate the final private commit first, then use
+   the ordered public-launch procedure below before tagging.
+7. Create a new signed annotated tag:
    `git tag -s vX.Y.Z -m "vX.Y.Z" <commit>`, then push it. Never move,
    replace, or reuse a published tag.
-7. Confirm the Release contains all four assets and both attestations verify.
+8. Confirm the Release contains all four assets and both attestations verify.
 
 ## Homebrew tap after first publication
 
@@ -127,9 +133,32 @@ the supported distribution mechanism.
 ## GitHub settings checklist for private staging and public launch
 
 These settings do not travel with a clean-history copy. Configure and verify
-them after the private `brunoribeirol/ratchery` repository exists. Keep its
-visibility private through the `v1.0.0-rc.1` verification; changing visibility
-and publishing stable `v1.0.0` are separate maintainer decisions.
+them after the private `brunoribeirol/ratchery` repository exists. Changing
+visibility, tagging `v1.0.0-rc.1`, and publishing stable `v1.0.0` are three
+separate maintainer decisions.
+
+### Capability preflight
+
+Record actual availability before changing settings or pushing a tag; do not
+infer it from a green local test:
+
+- Artifact attestations work for public repositories on current GitHub plans,
+  but private/internal repositories require Enterprise Cloud. If unavailable
+  privately, stop private staging at a validated commit and tag only after a
+  separately approved public launch.
+- Rulesets work for public repositories on GitHub Free and for private
+  repositories on Pro, Team, or Enterprise Cloud. If unavailable privately,
+  prepare the intended rules and activate them immediately after the visibility
+  change, before tagging or announcing the repository.
+- SARIF upload works for public repositories. Private/internal use requires an
+  eligible organization repository with GitHub Code Security enabled. The
+  workflow therefore runs private Scorecard analysis without that write scope.
+- Private vulnerability reporting is a public-repository intake feature. Enable
+  it during the public-launch transaction, not while the repository is private.
+
+Do not buy a higher GitHub plan solely to make the staging order match this
+guide. The fail-closed public sequence below preserves attestations without
+adding recurring infrastructure cost.
 
 ### Repository basics
 
@@ -148,7 +177,8 @@ and publishing stable `v1.0.0` are separate maintainer decisions.
 ### `main` branch ruleset
 
 - [ ] Create an **active GitHub Ruleset** targeting the default branch, not
-  only a legacy branch-protection rule.
+  only a legacy branch-protection rule. Do this privately when the plan permits;
+  otherwise make it the first control applied after public visibility.
 - [ ] Require a pull request, all six `test (<os>, py<version>)` matrix checks,
   the branch to be up to date, and conversation resolution.
 - [ ] Block force pushes and deletion and require verified signed commits.
@@ -162,11 +192,13 @@ Required signing has contributor cost. `CONTRIBUTING.md` therefore calls it
 out explicitly; test a PR from a fork and a Dependabot PR before launch so the
 chosen GitHub merge method does not strand unsigned commits.
 
-### Release-tag ruleset
+### Release-tag rulesets
 
-- [ ] Create a separate active tag ruleset targeting `v*`.
-- [ ] Restrict tag creation to the maintainer/release role; restrict updates
-  and deletions; block force pushes.
+- [ ] Protect `v*`, privately when the plan permits or immediately after public
+  visibility otherwise. Use a creation ruleset whose only bypass actor is the
+  maintainer/release identity, plus a no-bypass immutability ruleset that blocks
+  updates, deletions, and force pushes. Keeping these separate prevents the
+  creator's necessary bypass from also bypassing immutability.
 - [ ] Require signed commits for tagged revisions. GitHub's ruleset does not
   replace verification of an annotated tag's own signature, so keep tag
   creation restricted and verify that signature as a manual release gate.
@@ -178,18 +210,56 @@ chosen GitHub merge method does not strand unsigned commits.
 - [ ] Allow only GitHub-owned actions plus the pinned OpenSSF Scorecard action;
   keep every `uses:` reference pinned to a full commit SHA and review
   Dependabot's proposed SHA changes.
-- [ ] Enable dependency graph, Dependabot alerts/security updates, secret
-  scanning, push protection, private vulnerability reporting, and code
-  scanning/SARIF upload where the plan supports them.
+- [ ] Enable dependency graph and Dependabot alerts/security updates privately.
+  Enable secret scanning, push protection, code scanning/SARIF upload, and
+  private vulnerability reporting as soon as the repository visibility/plan
+  supports each feature. Record unavailable controls as deferred, not enabled.
 - [ ] Run the Scorecard workflow once and verify its badge points at the final
-  owner/repository. During private staging, keep `publish_results: false` and
-  omit `id-token: write` plus the public README badge. Immediately before the
-  visibility change, set it to `true`, restore only that permission, run the
-  workflow, and add the badge after a real result exists.
+  owner/repository. The workflow automatically routes private runs to a
+  read-only, non-publishing job and retains its SARIF artifact for one day. Only
+  the public job receives `id-token: write` and `security-events: write`; add a
+  badge only after that job publishes a real result.
 - [ ] Run the client compatibility canary once; it should have no API secrets,
   model inference, or MCP connection and should pass all minimum/current legs.
-- [ ] Confirm artifact attestations are visible and
-  `gh attestation verify` succeeds for the first release archive.
+- [ ] After the signed tag is pushed, confirm artifact attestations are visible
+  and `gh attestation verify` succeeds for the first release archive. A failed
+  attestation must block publication; do not bypass the `attest` job.
+
+### Private ready-for-public checkpoint
+
+Before requesting a visibility change:
+
+- [ ] Final `main` commit is signed, pushed over HTTPS, manifest-valid, and the
+  worktree is clean.
+- [ ] All six CI matrix checks and all four credential-free client-canary legs
+  pass for that exact commit.
+- [ ] Private Scorecard analysis passes; inspect its short-lived SARIF artifact.
+- [ ] Repository metadata, read-only default `GITHUB_TOKEN`, allowed Actions,
+  dependency graph, and Dependabot settings are verified.
+- [ ] Plan-supported private Rulesets/security features are active. Every
+  unavailable control is recorded with the public step that will enable it.
+- [ ] Local installation and Vault diagnostics pass against the same candidate.
+- [ ] No `v*` tag or GitHub Release exists unless private attestations were
+  positively verified as supported.
+
+### Ordered public-launch transaction
+
+This section still requires a separate explicit maintainer approval. For a plan
+without private attestations, execute in order:
+
+1. Reconfirm the private ready-for-public checkpoint and exact commit SHA.
+2. Change visibility to public; do not announce it yet.
+3. Immediately create/verify the `main` and `v*` Rulesets and enable public
+   secret scanning, push protection, code scanning, and private vulnerability
+   reporting.
+4. Run the public Scorecard job and verify SARIF upload and published results.
+5. Create and locally verify the signed annotated `v1.0.0-rc.1` tag, then push
+   it once.
+6. Require the release workflow, all four assets, checksums, archive smoke, and
+   both attestations to pass. Verify the downloaded archive with
+   `gh attestation verify`.
+7. Re-run unauthenticated links/install/security-contact checks. Only then
+   announce the repository. Stable `v1.0.0` remains a later decision.
 
 ### Trust signals that require real evidence
 
@@ -201,6 +271,9 @@ chosen GitHub merge method does not strand unsigned commits.
   license/provenance checks, and security contact from an unauthenticated
   account before announcement.
 
-Official references: [GitHub artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations),
+Official references: [GitHub artifact-attestation availability](https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations),
+[Ruleset availability](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets),
+[SARIF/code-scanning availability](https://docs.github.com/en/code-security/how-tos/scan-code-for-vulnerabilities/integrate-with-existing-tools/uploading-a-sarif-file-to-github),
+[private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately),
 [ruleset rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets),
 and [social preview guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).

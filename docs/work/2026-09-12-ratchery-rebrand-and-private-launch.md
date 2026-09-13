@@ -1,5 +1,9 @@
 # Work Plan: Ratchetry rebrand and private launch
 
+Status: **Implemented**. Hosted prerelease sequencing continues in
+[Private prerelease validation](2026-09-13-private-prerelease-validation.md)
+under [ADR-006](../decisions/ADR-006-plan-aware-public-prerelease.md).
+
 ## Objective
 
 Transform the validated pre-public worktree into Ratchetry, preserve a narrow
@@ -10,8 +14,8 @@ exercise hosted publication controls before making anything public.
 ## Non-goals
 
 - Do not make the repository public without a separate explicit instruction.
-- Do not publish a stable release or Homebrew formula before the private
-  prerelease and attestations verify.
+- Do not publish a stable release or Homebrew formula before the first
+  plan-supported prerelease and attestations verify.
 - Do not add optional infrastructure during a naming/history migration.
 - Do not rewrite the frozen `agent-workspace:v8` managed-block format.
 - Do not copy `.git`, ignored state, local Vault content, credentials, caches,
@@ -84,13 +88,13 @@ exercise hosted publication controls before making anything public.
 Run targeted identity/migration tests first, then compilation, shell syntax,
 Ruff, full integration/unit suites, manifest, action pins, Markdown links,
 release reproducibility/install smoke, a focused security scan, and clean-tree
-inspection. After push, inspect Actions, Rulesets, security features, release
-assets, checksums, SBOM, provenance, and tag signature from GitHub itself.
+inspection. After push, inspect Actions, plan-supported Rulesets/security
+features, and hosted checks. Release assets, checksums, SBOM, provenance, and
+tag signature move to the first plan-supported tag under ADR-006.
 
 ## Handoff
 
-Current state: the local migration and review are complete. Remote creation is
-blocked by invalid GitHub authentication/unavailable API, and the current Git
-identity has no signing method configured. Do not infer remote success or expose
-the repository publicly. Resume clean signed-history creation and the hosted
-phase after `gh auth login` and commit/tag signing are configured.
+Completed: the private GitHub repository, clean signed history, HTTPS push, and
+durable memory migration exist. The remaining hosted gates and local-install
+refresh are owned by the linked 2026-09-13 plan. Do not expose the repository or
+push a release tag as part of this completed migration plan.

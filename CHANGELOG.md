@@ -4,11 +4,12 @@
 
 - No changes yet.
 
-## v1.0.0-rc.1 - 2026-09-12
+## v1.0.0-rc.1 - 2026-09-13
 
-First private release candidate under the Ratchetry identity. It is intended
-for hosted CI, repository-policy, installation, migration, and attestation
-verification before the repository becomes public or `v1.0.0` is tagged.
+First release candidate under the Ratchetry identity. Its commit is validated
+privately, but the tag is created only when the repository visibility and plan
+support the mandatory provenance workflow. Stable `v1.0.0` remains a later,
+separate release decision.
 
 ### Changed (Ratchetry identity)
 
@@ -55,6 +56,19 @@ verification before the repository becomes public or `v1.0.0` is tagged.
 
 ### Added (release and experiment evidence)
 
+- Scorecard now separates private read-only analysis from public publication.
+  Private runs retain SARIF for one day as a private workflow artifact without
+  OIDC or code-scanning write permission; only the public visibility-gated job
+  can publish signed results and upload SARIF. Release guidance now fails closed
+  when the GitHub plan cannot attest a private repository instead of creating an
+  unverifiable prerelease tag.
+- The optional T1 FastAPI example keeps FastAPI at current `0.141.1` and moves
+  Uvicorn from `0.52.0` to the current patch release `0.52.4`; these packages
+  remain example-only and are not Ratchetry runtime dependencies.
+- Git-backed unit fixtures now explicitly disable commit signing while keeping
+  production/release signing untouched. This prevents a maintainer's global
+  `commit.gpgSign=true` from making isolated fixture commits prompt for or fail
+  to access a personal key.
 - The release workflow now installs and exercises the exact manifest-backed
   archive before it can reach attestation/publication. The stdlib-only smoke
   command rejects traversal, links, special files, duplicate paths, unsafe
