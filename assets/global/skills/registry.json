@@ -1,0 +1,136 @@
+{
+  "_comment": "Activation and installation registry. Agent entries are consumed by lib/adaptive_engine.resolve_active_agents() and lib/agent_workspace.install_agents(): tier-gated agents activate at a minimum effective tier, conditional agents activate from detected capabilities, and on-demand agents are installed only by `ratchery agents enable <name>`. The 4 original baseline agents (explorer, reviewer, security-reviewer, test-runner) also remain hardcoded in agent_workspace.ALWAYS_ON_AGENTS for backward compatibility. The skills.available inventory is consumed by global_guidance(); every listed global Skill is installed and advertised to both clients, while its full instructions load only when the client's description matching selects it. There is no fictitious always-on/on-demand split for globally installed Skills. The 4 project-level conditional Skills remain capability-triggered in install_conditional_skills().",
+  "schema_version": "1.0.0",
+  "agents": {
+    "explorer": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T0",
+      "enforced": false,
+      "note": "Active by convention from T0 onward; not literally required by tier_requirements()."
+    },
+    "reviewer": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T0",
+      "enforced": false,
+      "note": "Active by convention from T0 onward; not literally required by tier_requirements()."
+    },
+    "developer": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T0",
+      "enforced": false,
+      "note": "Active by convention from T0 onward; not literally required by tier_requirements()."
+    },
+    "test-runner": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T1",
+      "enforced": false,
+      "note": "Recommended from T1 onward by convention; not a literal tier_requirements() entry."
+    },
+    "debugger": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T1",
+      "enforced": false,
+      "note": "Recommended from T1 onward by convention; not a literal tier_requirements() entry."
+    },
+    "architect": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T2",
+      "enforced": true,
+      "note": "Listed verbatim in tier_requirements()['T2'/'T3']['required_agents']."
+    },
+    "security-reviewer": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T2",
+      "enforced": true,
+      "note": "Listed verbatim in tier_requirements()['T2'/'T3']['required_agents']."
+    },
+    "qa": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T3",
+      "enforced": true,
+      "note": "Listed verbatim in tier_requirements()['T3']['required_agents'] (added on top of T2's set)."
+    },
+    "devops-engineer": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T2",
+      "enforced": false,
+      "note": "Recommended from T2 onward by convention (CI required at T2); not a literal tier_requirements() entry."
+    },
+    "documentation": {
+      "activation": "tier-gated",
+      "activates_at_tier": "T1",
+      "enforced": false,
+      "note": "Recommended from T1 onward, aligned with required_docs first appearing at T1; not a literal tier_requirements() entry."
+    },
+    "backend-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "api"
+    },
+    "frontend-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "frontend"
+    },
+    "data-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "data"
+    },
+    "database-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "database"
+    },
+    "cloud-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "cloud_infra"
+    },
+    "ai-ml-engineer": {
+      "activation": "conditional",
+      "trigger_capability": "ai_ml"
+    },
+    "embedded-engineer": {
+      "activation": "on-demand",
+      "note": "No reliable static repo signal for embedded work exists in profile(); invoked explicitly rather than guessed."
+    },
+    "performance-engineer": {
+      "activation": "on-demand",
+      "note": "Performance work is task-driven, not repo-shape-driven; no static signal is reliable enough to auto-trigger this."
+    },
+    "security-engineer": {
+      "activation": "on-demand"
+    },
+    "context-optimizer": {
+      "activation": "on-demand"
+    },
+    "cost-optimizer": {
+      "activation": "on-demand"
+    },
+    "architecture-auditor": {
+      "activation": "on-demand"
+    },
+    "release-manager": {
+      "activation": "on-demand"
+    },
+    "migration-agent": {
+      "activation": "on-demand"
+    }
+  },
+  "skills": {
+    "_comment": "All global Skills are installed and discoverable. Clients inspect compact metadata and load a Skill's body only when its trigger matches; none of these bodies should be described as loaded every session. This list must exactly match the Skill directories on disk.",
+    "available": [
+      "architecture-map",
+      "dependency-audit",
+      "focused-review",
+      "record-bug",
+      "record-decision",
+      "repo-explore",
+      "repo-investigate",
+      "search-vault",
+      "security-rules-check",
+      "security-scan",
+      "spec-driven-change",
+      "structural-search",
+      "work-plan",
+      "workspace-resume",
+      "workspace-save"
+    ]
+  }
+}

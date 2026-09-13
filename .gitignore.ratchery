@@ -1,0 +1,7 @@
+# Agent workspace local state
+.agents/state/
+.agents/runtime/__pycache__/
+CLAUDE.local.md
+
+# Optional generated indexes
+graphify-out/cache/

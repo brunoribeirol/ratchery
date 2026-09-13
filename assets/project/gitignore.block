@@ -1,0 +1,31 @@
+# Python bytecode cache (any directory, not just the hook runtime -- this
+# framework's own repo ships real Python source under lib/, and running any
+# python3 command against it generates __pycache__/*.pyc that must never be
+# committed).
+__pycache__/
+*.pyc
+
+# Agent workspace state: shared/durable tier-ratchet facts are committed (doctor
+# requires them, and the risk ratchet only means anything if the whole team sees
+# the same recorded history); ephemeral per-machine/session state stays ignored.
+# Git cannot re-include a file whose parent directory is excluded, so the
+# directory itself must be un-ignored first, then re-ignored file-by-file.
+!.agents/state/
+.agents/state/*
+!.agents/state/tier.json
+!.agents/state/tier.md
+!.agents/state/tier-history.jsonl
+!.agents/state/risk-answers.json
+!.agents/state/active-agents.json
+!.agents/state/ownership.json
+!.agents/state/project-id
+!.agents/state/mcp-enabled.json
+CLAUDE.local.md
+
+# Claude Code's own ephemeral worktree-isolation directories for background
+# agents (each is a real, separate git working tree -- committing one nests
+# a full second .git inside this repo).
+.claude/worktrees/
+
+# Optional generated indexes
+graphify-out/cache/

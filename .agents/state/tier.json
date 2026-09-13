@@ -1,0 +1,22 @@
+{
+  "complexity_score": 0,
+  "computed_tier": "T1",
+  "criticality_score": 5,
+  "downgrade_acknowledged": false,
+  "downgrade_reason": null,
+  "effective_tier": "T1",
+  "floor_reasons": [],
+  "ratcheted": false,
+  "requirements": {
+    "required_agents": [],
+    "required_docs": [
+      "docs/PROJECT_CONTEXT.md"
+    ],
+    "required_skills": [],
+    "security_bar": "sandbox + secondary hook (framework default)",
+    "spec_mode": "openspec-light",
+    "testing_bar": "smoke tests for changed behavior"
+  },
+  "tier_name": "Standard project",
+  "timestamp": "2026-09-04T03:15:17+00:00"
+}

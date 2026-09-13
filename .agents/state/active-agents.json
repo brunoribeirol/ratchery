@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-09-04T00:15:17-03:00",
+  "tier": "T1",
+  "active": {
+    "explorer": "tier-gated at T0; project is T1",
+    "reviewer": "tier-gated at T0; project is T1",
+    "developer": "tier-gated at T0; project is T1",
+    "test-runner": "tier-gated at T1; project is T1",
+    "debugger": "tier-gated at T1; project is T1",
+    "documentation": "tier-gated at T1; project is T1",
+    "security-reviewer": "baseline agent, always installed"
+  }
+}

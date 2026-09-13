@@ -1,0 +1,77 @@
+# agent-workspace:v8:start
+approval_policy = "on-request"
+default_permissions = "project-edit"
+
+[permissions.project-edit]
+description = "Write access limited to the active workspace, with secret files denied and network disabled."
+extends = ":workspace"
+
+[permissions.project-edit.filesystem.":workspace_roots"]
+"**/*.env" = "deny"
+"**/.env" = "deny"
+"**/.env.local" = "deny"
+"**/.env.development" = "deny"
+"**/.env.development.local" = "deny"
+"**/.env.test" = "deny"
+"**/.env.test.local" = "deny"
+"**/.env.production" = "deny"
+"**/.env.production.local" = "deny"
+"**/.env.staging" = "deny"
+"**/.env.staging.local" = "deny"
+"**/*.pem" = "deny"
+"**/id_rsa" = "deny"
+"**/id_ed25519" = "deny"
+"**/credentials.json" = "deny"
+"**/.npmrc" = "deny"
+"**/.pypirc" = "deny"
+"**/.netrc" = "deny"
+"**/.aws/credentials" = "deny"
+"**/.config/gcloud/application_default_credentials.json" = "deny"
+
+[permissions.project-edit.filesystem]
+"~/.ssh" = "deny"
+"~/.aws/credentials" = "deny"
+"~/.config/gcloud/application_default_credentials.json" = "deny"
+"~/.netrc" = "deny"
+"~/.npmrc" = "deny"
+"~/.pypirc" = "deny"
+
+[permissions.project-edit.network]
+enabled = false
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+
+[shell_environment_policy.filters]
+"ANTHROPIC_*" = "exclude"
+"OPENAI_*" = "exclude"
+"AWS_*" = "exclude"
+"GITHUB_TOKEN" = "exclude"
+"GH_TOKEN" = "exclude"
+"NPM_TOKEN" = "exclude"
+
+[features]
+hooks = true
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 4
+interrupt_message = false
+
+[agents.explorer]
+description = "Read-only codebase explorer for gathering evidence before changes."
+config_file = "agents/explorer.toml"
+
+[agents.reviewer]
+description = "Read-only reviewer focused on correctness, security, regressions, and test gaps."
+config_file = "agents/reviewer.toml"
+
+[agents.security_reviewer]
+description = "Read-only security specialist for sensitive changes."
+config_file = "agents/security_reviewer.toml"
+
+[agents.test_runner]
+description = "Read-only test specialist that runs targeted validation and summarizes failures."
+config_file = "agents/test_runner.toml"
+# agent-workspace:v8:end

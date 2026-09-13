@@ -1,0 +1,13 @@
+{
+  "version": "1.0.1",
+  "updated_at": "2026-09-04T00:15:17-03:00",
+  "project_id": "d979ec15-6311-480b-a5d3-0a0d9b1db44d",
+  "managed_markers": [
+    "<!-- agent-workspace:v8:start -->",
+    "# agent-workspace:v8:start",
+    "<!-- agent-workspace:v8:commands:start -->"
+  ],
+  "owned_hook_command_contains": ".agents/runtime/agent_workspace.py",
+  "runtime": ".agents/runtime/agent_workspace.py",
+  "conditional_skills": []
+}

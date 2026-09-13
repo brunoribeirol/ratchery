@@ -1,0 +1,30 @@
+{
+  "description": "Ratchetry deterministic safety and lifecycle hooks.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=\"$(env -i PATH=/usr/bin:/bin git -C . rev-parse --show-toplevel)\" && case \"$ROOT\" in /*) python3 \"$ROOT/.agents/runtime/agent_workspace.py\" ;; *) exit 1 ;; esac",
+            "timeout": 5,
+            "statusMessage": "Classifying task risk"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=\"$(env -i PATH=/usr/bin:/bin git -C . rev-parse --show-toplevel)\" && case \"$ROOT\" in /*) python3 \"$ROOT/.agents/runtime/agent_workspace.py\" ;; *) exit 1 ;; esac",
+            "timeout": 5,
+            "statusMessage": "Checking workspace safety policy"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "data_sensitivity": "internal",
+  "external_exposure": false,
+  "handles_payments": false,
+  "handles_pii": false,
+  "life_safety": false,
+  "maturity": "active",
+  "regulated": false,
+  "users": "public"
+}
