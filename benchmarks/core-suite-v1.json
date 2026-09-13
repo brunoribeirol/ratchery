@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "core-suite-v1",
+  "title": "Core cost-per-success benchmark",
+  "description": "Six small, client-neutral tasks covering repository discovery, code change, tests, documentation retrieval, and noisy-output analysis.",
+  "minimum_trials_per_arm": 3,
+  "protocol": {
+    "execution": "manual",
+    "fixture": "benchmarks/fixtures/core-suite-v1",
+    "reset_between_tasks": true,
+    "network": "disabled",
+    "secrets": "none",
+    "requirements": [
+      "Use the same repository commit, model, client version, permission profile, environment, and task order for every arm.",
+      "Start every task from a fresh checkout or worktree at the recorded commit so the fixture and Git verification commands begin clean.",
+      "Run each complete arm at least three times in fresh sessions.",
+      "Record a task as successful only when every listed success criterion passes."
+    ]
+  },
+  "tasks": [
+    {
+      "id": "T1-onboarding",
+      "category": "repository-onboarding",
+      "prompt": "Explain this fixture's architecture, public functions, test layout, and the two intentionally broken behaviors. Do not modify files.",
+      "success_criteria": [
+        "Identifies app.py as the implementation and tests/test_app.py as its contract.",
+        "Identifies the discount arithmetic defect and the unimplemented email normalization behavior.",
+        "Does not modify the fixture."
+      ],
+      "verification": [
+        "test -z \"$(git status --porcelain=v1 --untracked-files=all -- benchmarks/fixtures/core-suite-v1)\""
+      ]
+    },
+    {
+      "id": "T2-bug-fix",
+      "category": "bug-fix",
+      "prompt": "Fix discounted_total so it implements the documented flat-discount behavior. Keep validation and rounding behavior unchanged. Run the focused discount tests.",
+      "success_criteria": [
+        "A subtotal of 100 with a discount of 15 returns 85.",
+        "Negative inputs still raise ValueError.",
+        "Only the relevant implementation is changed."
+      ],
+      "verification": [
+        "(cd benchmarks/fixtures/core-suite-v1 && python3 -m unittest tests.test_app.DiscountedTotalTests)",
+        "git diff --exit-code -- benchmarks/fixtures/core-suite-v1/tests/test_app.py"
+      ]
+    },
+    {
+      "id": "T3-feature",
+      "category": "feature",
+      "prompt": "Implement normalize_customer_email according to README.md. Preserve the function signature and add no dependency. Run its focused tests.",
+      "success_criteria": [
+        "Surrounding whitespace is removed.",
+        "The result is lowercase.",
+        "A value without exactly one @ raises ValueError."
+      ],
+      "verification": [
+        "(cd benchmarks/fixtures/core-suite-v1 && python3 -m unittest tests.test_app.NormalizeEmailTests)",
+        "git diff --exit-code -- benchmarks/fixtures/core-suite-v1/tests/test_app.py"
+      ]
+    },
+    {
+      "id": "T4-test-repair",
+      "category": "tests",
+      "prompt": "Run the complete fixture test suite, diagnose every failure, and make the smallest implementation changes that satisfy the existing contract. Do not weaken or delete tests.",
+      "success_criteria": [
+        "All fixture tests pass.",
+        "No test is removed, skipped, or weakened.",
+        "No dependency or network access is added."
+      ],
+      "verification": [
+        "(cd benchmarks/fixtures/core-suite-v1 && python3 -m unittest discover -s tests -p 'test_*.py')",
+        "git diff --exit-code -- benchmarks/fixtures/core-suite-v1/tests/test_app.py"
+      ]
+    },
+    {
+      "id": "T5-decision-retrieval",
+      "category": "documentation-retrieval",
+      "prompt": "Using the fixture documentation, explain why totals use decimal half-up rounding, where that rule is authoritative, and what behavior a code change must preserve. Do not modify files.",
+      "success_criteria": [
+        "Cites docs/DECISION.md as the authority.",
+        "States that monetary totals round to two decimal places using decimal half-up.",
+        "Does not modify the fixture."
+      ],
+      "verification": [
+        "test -z \"$(git status --porcelain=v1 --untracked-files=all -- benchmarks/fixtures/core-suite-v1)\""
+      ]
+    },
+    {
+      "id": "T6-log-analysis",
+      "category": "noisy-output-analysis",
+      "prompt": "Analyze logs/ci.log. Report the failing job, root cause, first corrective action, and the irrelevant repeated noise. Do not paste the full log and do not modify files.",
+      "success_criteria": [
+        "Identifies unit-tests as the failing job.",
+        "Identifies an expected 85.00 versus actual 115.00 discount assertion.",
+        "Recommends correcting the discount arithmetic before rerunning the focused test.",
+        "Summarizes rather than reproducing the repeated cache lines."
+      ],
+      "verification": [
+        "test -z \"$(git status --porcelain=v1 --untracked-files=all -- benchmarks/fixtures/core-suite-v1)\""
+      ]
+    }
+  ]
+}

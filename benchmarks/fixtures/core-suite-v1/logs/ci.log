@@ -1,0 +1,15 @@
+2026-09-01T10:00:00Z job=lint status=passed duration=2s
+2026-09-01T10:00:03Z job=unit-tests status=started
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:04Z cache=python status=hit
+2026-09-01T10:00:05Z test=DiscountedTotalTests.test_subtracts_flat_discount status=failed
+AssertionError: Decimal('115.00') != Decimal('85.00')
+2026-09-01T10:00:05Z hint="expected subtotal minus flat discount"
+2026-09-01T10:00:05Z job=unit-tests status=failed failures=1
+2026-09-01T10:00:06Z job=package status=skipped reason=dependency-failed
