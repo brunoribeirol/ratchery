@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0-rc.1",
   "channel": "prerelease",
-  "generated_at": "2026-09-13T16:27:26+00:00",
+  "generated_at": "2026-09-13T17:49:43+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 267,
-  "total_bytes_excluding_manifest": 1270714,
+  "file_count_excluding_manifest": 274,
+  "total_bytes_excluding_manifest": 1287178,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -900,8 +900,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "e08dfa3c7e552c5a72cde9ad132f290c8ebe0fed09d7f527b9f40a82e8cca70f",
-      "size_bytes": 17544
+      "sha256": "9fe3368496f3e11149bd211dec5557acca707850bd6ea0e5686b8533984f25a3",
+      "size_bytes": 17662
     },
     {
       "path": "docs/BENCHMARKING.md",
@@ -969,9 +969,39 @@
       "size_bytes": 21120
     },
     {
+      "path": "docs/decisions/ADR-001-cost-security-adaptive-product.md",
+      "sha256": "9837e00234f6e8a0541b8b597ee87131531de473391df9b1899bbbf98a47ac22",
+      "size_bytes": 2163
+    },
+    {
+      "path": "docs/decisions/ADR-002-evidence-gated-optional-tools.md",
+      "sha256": "a368b11e0a441bf6c34c6d03f7bd3031f81e9bc8a372d6dc0a5036a16d74aca6",
+      "size_bytes": 2079
+    },
+    {
+      "path": "docs/decisions/ADR-003-explicit-provider-neutral-memory.md",
+      "sha256": "cc427b1e7355739975a0b4c0895077921c2875b303a1b7df732f59dbe7ecfb40",
+      "size_bytes": 2234
+    },
+    {
+      "path": "docs/decisions/ADR-004-compatibility-safe-ratchery-rebrand.md",
+      "sha256": "b1125d92c9de2db3b4979c3fb8d0a2b1b4acb2be6c7a5639b0fde6c630dcd5ac",
+      "size_bytes": 2158
+    },
+    {
+      "path": "docs/decisions/ADR-005-private-staging-and-release-provenance.md",
+      "sha256": "0304601bd6b18959b027216861ef621ea73530dc1715466e2806e576fb981781",
+      "size_bytes": 2396
+    },
+    {
       "path": "docs/decisions/ADR_TEMPLATE.md",
       "sha256": "b0448d507cff40a292311bd8be9d6b619b8a59acf5ce39773e5ed1d068d7eb09",
       "size_bytes": 209
+    },
+    {
+      "path": "docs/decisions/README.md",
+      "sha256": "5aff5ccd3942c6358bf87c69dd9c47bba5cd12ef508d193aed28395d67ac12ba",
+      "size_bytes": 1003
     },
     {
       "path": "docs/research-external.md",
@@ -1077,6 +1107,11 @@
       "path": "docs/work/2026-09-12-ratchery-rebrand-and-private-launch.md",
       "sha256": "48529b13f150e19e702119e74cf6a9af6f983063645872e9ab0cce0bc1587521",
       "size_bytes": 4988
+    },
+    {
+      "path": "docs/work/2026-09-13-ratchery-memory-reconstruction.md",
+      "sha256": "d3fae30e9585e3e2c9c8a29c7768386eb4f1738702deec9528de9574cee717ff",
+      "size_bytes": 4313
     },
     {
       "path": "docs/work/TASK_TEMPLATE.md",

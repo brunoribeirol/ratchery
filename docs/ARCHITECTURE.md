@@ -11,7 +11,9 @@ standalone risk product with a workspace attached. Product scope, principles,
 users, and non-goals are canonical in `docs/PROJECT_CONTEXT.md`.
 
 For day-to-day usage see `USER-GUIDE.md`. For extending the framework see
-`DEVELOPER-GUIDE.md`. The numbered `docs/00-START-HERE.md` … `docs/18-QMD-SECURITY.md` set
+`DEVELOPER-GUIDE.md`. Durable architecture decisions and their review triggers
+are indexed in [`decisions/README.md`](decisions/README.md). The numbered
+`docs/00-START-HERE.md` … `docs/18-QMD-SECURITY.md` set
 remains the detailed reference for individual subsystems (Vault migration, hooks, QMD
 security, etc.) and is cross-referenced below rather than duplicated.
 
