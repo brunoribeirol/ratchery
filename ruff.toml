@@ -1,0 +1,12 @@
+# Lint scope is deliberately narrow: pyflakes ("F") only -- unused
+# imports, undefined names, unused variables, and similar real bugs.
+# NOT pycodestyle ("E"/"W") style rules: this codebase's established
+# idiom is dense one-liners (`if x: y; z`), which pycodestyle's default
+# E701/E702 would flag ~200 times with no bug behind any of them. Ruff
+# here is a bug-catching gate, not a style-enforcement tool -- changing
+# that is a separate, deliberate decision, not a side effect of turning
+# linting on.
+target-version = "py310"
+
+[lint]
+select = ["F"]
