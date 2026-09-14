@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Regenerate MANIFEST.json from the files actually shipped in the package.
 
-Run this any time files are added/removed/modified, and always as the last
-step before packaging a release archive. It is the single source of truth for
-the integrity check exercised by tests/run-tests.sh.
+Review and stage intended release changes before running this command. Run it
+any time files are added/removed/modified, and always as the last step before
+packaging a release archive. It is the single source of truth for the integrity
+check exercised by tests/run-tests.sh.
 """
 from __future__ import annotations
 
@@ -26,27 +27,64 @@ EXCLUDE_DIRS = {".github"}
 EXCLUDE_FILES = {"MANIFEST.json"}
 
 
+class ManifestGenerationError(ValueError):
+    """Raised when the release inventory is ambiguous or unsafe."""
+
+
+def is_release_path(rel: Path) -> bool:
+    return rel.name not in EXCLUDE_FILES and not any(
+        part in EXCLUDE_DIRS for part in rel.parts
+    )
+
+
+def git_paths(*arguments: str) -> list[Path]:
+    try:
+        raw_paths = subprocess.run(
+            ["git", "-C", str(ROOT), *arguments, "-z"],
+            check=True,
+            capture_output=True,
+            env=clean_git_environment(),
+        ).stdout.split(b"\0")
+        return [Path(raw.decode("utf-8")) for raw in raw_paths if raw]
+    except (OSError, subprocess.CalledProcessError, UnicodeDecodeError) as exc:
+        raise ManifestGenerationError("could not read the Git release inventory") from exc
+
+
+def path_preview(paths: list[Path]) -> str:
+    preview = ", ".join(repr(rel.as_posix()) for rel in paths[:5])
+    if len(paths) > 5:
+        preview += f", ... ({len(paths)} total)"
+    return preview
+
+
 def iter_files() -> list[Path]:
-    # Enumerate via `git ls-files` rather than a raw filesystem walk: a
-    # walk has no notion of .gitignore, so it previously picked up local,
-    # untracked, and even gitignored scratch state (e.g.
-    # .agents/state/task-policy.json) that has no business in a release
-    # manifest. Tracked-in-git is the correct definition of "shipped" for
-    # a project that installs by cloning/downloading this repo.
-    out_bytes = subprocess.run(
-        ["git", "-C", str(ROOT), "ls-files", "-z"],
-        check=True,
-        capture_output=True,
-        env=clean_git_environment(),
-    ).stdout
+    # Build only from the explicit Git index. A raw filesystem walk would
+    # silently package ignored/local state, while silently ignoring untracked
+    # release files lets a manifest pass locally and fail after those files are
+    # committed. Require an explicit staging decision for every new file.
+    unstaged = sorted(
+        rel for rel in git_paths("diff", "--name-only") if is_release_path(rel)
+    )
+    if unstaged:
+        raise ManifestGenerationError(
+            "unstaged release changes must be reviewed and staged first: "
+            + path_preview(unstaged)
+        )
+
+    untracked = sorted(
+        rel
+        for rel in git_paths("ls-files", "--others", "--exclude-standard")
+        if is_release_path(rel)
+    )
+    if untracked:
+        raise ManifestGenerationError(
+            "untracked release candidates must be reviewed and staged first: "
+            + path_preview(untracked)
+        )
+
     out = []
-    for raw in out_bytes.split(b"\0"):
-        if not raw:
-            continue
-        rel = Path(raw.decode())
-        if any(part in EXCLUDE_DIRS for part in rel.parts):
-            continue
-        if rel.name in EXCLUDE_FILES:
+    for rel in git_paths("ls-files"):
+        if not is_release_path(rel):
             continue
         if (ROOT / rel).is_file():
             out.append(rel)
@@ -65,9 +103,14 @@ def main(argv: list[str] | None = None) -> int:
         and isinstance(node.value, ast.Constant)
         and isinstance(node.value.value, str)
     )
+    try:
+        release_files = iter_files()
+    except ManifestGenerationError as exc:
+        print(f"MANIFEST.json generation FAILED: {exc}", file=sys.stderr)
+        return 1
     files = []
     total_bytes = 0
-    for rel in iter_files():
+    for rel in release_files:
         data = (ROOT / rel).read_bytes()
         total_bytes += len(data)
         files.append(

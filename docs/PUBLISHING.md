@@ -90,8 +90,11 @@ make release-smoke
 2. Add a dated `CHANGELOG.md` entry and bump `VERSION` in
    `lib/agent_workspace.py`; the installer derives the same version through
    the validated manifest.
-3. Run `python3 scripts/gen-manifest.py` last, then commit the resulting
-   `MANIFEST.json` with the release changes.
+3. Stage every intended release change using explicit paths, including new
+   files, then run `python3 scripts/gen-manifest.py` last. The generator refuses
+   untracked or partially staged release candidates instead of guessing what
+   should ship. Review and stage the resulting `MANIFEST.json` with the release
+   changes.
 4. Run `make test` and `make release-smoke` (including the Action-pin and exact
    artifact-install gates), manually dispatch the
    credential-free client compatibility canary, and confirm every

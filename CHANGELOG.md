@@ -69,6 +69,8 @@ separate release decision.
   production/release signing untouched. This prevents a maintainer's global
   `commit.gpgSign=true` from making isolated fixture commits prompt for or fail
   to access a personal key.
+- Manifest generation now rejects untracked or partially staged release files,
+  preventing a local pass from becoming a different committed CI inventory.
 - The release workflow now installs and exercises the exact manifest-backed
   archive before it can reach attestation/publication. The stdlib-only smoke
   command rejects traversal, links, special files, duplicate paths, unsafe

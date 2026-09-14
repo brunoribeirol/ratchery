@@ -383,6 +383,7 @@ class TestReleaseArtifacts(unittest.TestCase):
         victim = self.base / "generator-victim"
         (victim / "lib").mkdir(parents=True)
         (victim / "scripts").mkdir()
+        (victim / ".gitignore").write_text("__pycache__/\n*.py[cod]\n")
         (victim / "README.md").write_text("# Victim\n")
         (victim / "lib/agent_workspace.py").write_text('VERSION = "1.2.3"\n')
         shutil.copy2(GENERATOR, victim / "scripts/gen-manifest.py")
@@ -420,6 +421,72 @@ class TestReleaseArtifacts(unittest.TestCase):
 
 
 class TestManifestGeneratorCli(unittest.TestCase):
+    def test_generator_rejects_untracked_release_candidate_until_staged(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            victim = Path(temporary) / "repository"
+            (victim / "lib").mkdir(parents=True)
+            (victim / "scripts").mkdir()
+            (victim / ".gitignore").write_text("__pycache__/\n*.py[cod]\n")
+            (victim / "README.md").write_text("# Fixture\n")
+            (victim / "lib/agent_workspace.py").write_text('VERSION = "1.2.3"\n')
+            shutil.copy2(GENERATOR, victim / "scripts/gen-manifest.py")
+            shutil.copy2(
+                ROOT / "scripts/git_environment.py",
+                victim / "scripts/git_environment.py",
+            )
+            subprocess.run(["git", "-C", str(victim), "init", "-q"], check=True)
+            subprocess.run(["git", "-C", str(victim), "add", "."], check=True)
+            (victim / "docs").mkdir()
+            (victim / "docs/new.md").write_text("# New release documentation\n")
+            (victim / ".github/workflows").mkdir(parents=True)
+            (victim / ".github/workflows/ci.yml").write_text("name: fixture\n")
+
+            rejected = subprocess.run(
+                [sys.executable, str(victim / "scripts/gen-manifest.py")],
+                cwd=victim,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("untracked release candidates", rejected.stderr)
+            self.assertIn("docs/new.md", rejected.stderr)
+            self.assertNotIn(".github", rejected.stderr)
+
+            subprocess.run(
+                ["git", "-C", str(victim), "add", "docs/new.md"], check=True
+            )
+            accepted = subprocess.run(
+                [sys.executable, str(victim / "scripts/gen-manifest.py")],
+                cwd=victim,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+            paths = {
+                item["path"]
+                for item in json.loads((victim / "MANIFEST.json").read_text())["files"]
+            }
+            self.assertIn("docs/new.md", paths)
+            self.assertNotIn(".github/workflows/ci.yml", paths)
+
+            (victim / "README.md").write_text("# Intended staged content\n")
+            subprocess.run(
+                ["git", "-C", str(victim), "add", "README.md"], check=True
+            )
+            (victim / "README.md").write_text("# Partially staged content\n")
+            unstaged = subprocess.run(
+                [sys.executable, str(victim / "scripts/gen-manifest.py")],
+                cwd=victim,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertNotEqual(unstaged.returncode, 0)
+            self.assertIn("unstaged release changes", unstaged.stderr)
+            self.assertIn("README.md", unstaged.stderr)
+
     def test_help_does_not_modify_manifest(self) -> None:
         manifest_path = ROOT / "MANIFEST.json"
         before = manifest_path.read_bytes()
