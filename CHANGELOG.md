@@ -56,15 +56,16 @@ separate release decision.
 
 ### Added (release and experiment evidence)
 
-- Scorecard now separates private read-only analysis from public publication.
-  Private runs retain SARIF for one day as a private workflow artifact without
-  OIDC or code-scanning write permission; only the public visibility-gated job
-  can publish signed results and upload SARIF. Release guidance now fails closed
-  when the GitHub plan cannot attest a private repository instead of creating an
-  unverifiable prerelease tag.
-- The optional T1 FastAPI example keeps FastAPI at current `0.141.1` and moves
-  Uvicorn from `0.52.0` to the current patch release `0.52.4`; these packages
-  remain example-only and are not Ratchetry runtime dependencies.
+- Scorecard now runs only through a public visibility-gated job. Private
+  staging deliberately skips the Action instead of requiring GitHub Advanced
+  Security or granting the additional repository read scopes its private mode
+  needs; public runs alone can publish signed results and upload SARIF. Release
+  guidance also fails closed when the GitHub plan cannot attest a private
+  repository instead of creating an unverifiable prerelease tag.
+- The optional T1 FastAPI example keeps FastAPI at reviewed `0.141.1` and moves
+  Uvicorn from `0.52.0` to reviewed `0.52.4`; these exact example-only pins are
+  install- and vulnerability-checked rather than churned merely because a newer
+  release exists. They are not Ratchetry runtime dependencies.
 - Git-backed unit fixtures now explicitly disable commit signing while keeping
   production/release signing untouched. This prevents a maintainer's global
   `commit.gpgSign=true` from making isolated fixture commits prompt for or fail
@@ -156,9 +157,10 @@ separate release decision.
 - Replaced the 1,291-line baseline `~/Projects/README.md` template with a concise workspace
   index. Installation, architecture, security, and tool guidance now stay in the canonical
   repository docs instead of being duplicated into every user's projects directory.
-- Refreshed the two direct dependencies in the runnable FastAPI example to the current
-  stable upstream releases; the framework runtime remains Python-stdlib-only and Dependabot
-  continues to monitor that example separately.
+- Refreshed the two direct dependencies in the runnable FastAPI example to the
+  stable upstream releases reviewed during that phase; the later release-gate
+  entry records the exact retained pins. The framework runtime remains
+  Python-stdlib-only and Dependabot continues to monitor that example separately.
 
 ### Fixed (setup trust boundaries)
 

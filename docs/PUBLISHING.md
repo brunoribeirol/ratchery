@@ -99,6 +99,10 @@ make release-smoke
    artifact-install gates), manually dispatch the
    credential-free client compatibility canary, and confirm every
    minimum/current Claude/Codex leg passes without inference.
+   For optional example dependencies, treat a newer upstream release as an
+   advisory: retain the reviewed exact pins unless compatibility or a known
+   vulnerability justifies change, but require isolated install/import checks
+   and a vulnerability audit before release.
 5. Build once locally with the command above and inspect all four outputs.
 6. Merge through the protected `main` branch. For the first release on a plan
    without private Rulesets, validate the final private commit first, then use
@@ -155,7 +159,10 @@ infer it from a green local test:
   change, before tagging or announcing the repository.
 - SARIF upload works for public repositories. Private/internal use requires an
   eligible organization repository with GitHub Code Security enabled. The
-  workflow therefore runs private Scorecard analysis without that write scope.
+  OpenSSF Scorecard Action separately limits private-repository support to
+  GitHub Advanced Security and recommends additional read scopes for private
+  repository metadata. Ratchetry therefore skips Scorecard while private and
+  runs its single analysis job only after public visibility.
 - Private vulnerability reporting is a public-repository intake feature. Enable
   it during the public-launch transaction, not while the repository is private.
 
@@ -218,10 +225,10 @@ chosen GitHub merge method does not strand unsigned commits.
   private vulnerability reporting as soon as the repository visibility/plan
   supports each feature. Record unavailable controls as deferred, not enabled.
 - [ ] Run the Scorecard workflow once and verify its badge points at the final
-  owner/repository. The workflow automatically routes private runs to a
-  read-only, non-publishing job and retains its SARIF artifact for one day. Only
-  the public job receives `id-token: write` and `security-events: write`; add a
-  badge only after that job publishes a real result.
+  owner/repository. While private, its only job is visibility-gated off: do not
+  add GitHub Advanced Security, a PAT, or broader read scopes solely to run this
+  prerelease gate. After public launch, the job receives `id-token: write` and
+  `security-events: write`; add a badge only after it publishes a real result.
 - [ ] Run the client compatibility canary once; it should have no API secrets,
   model inference, or MCP connection and should pass all minimum/current legs.
 - [ ] After the signed tag is pushed, confirm artifact attestations are visible
@@ -236,7 +243,8 @@ Before requesting a visibility change:
   worktree is clean.
 - [ ] All six CI matrix checks and all four credential-free client-canary legs
   pass for that exact commit.
-- [ ] Private Scorecard analysis passes; inspect its short-lived SARIF artifact.
+- [ ] Scorecard is recorded as deferred until public launch, and the private
+  workflow contains no runnable analysis job.
 - [ ] Repository metadata, read-only default `GITHUB_TOKEN`, allowed Actions,
   dependency graph, and Dependabot settings are verified.
 - [ ] Plan-supported private Rulesets/security features are active. Every
@@ -277,6 +285,7 @@ without private attestations, execute in order:
 Official references: [GitHub artifact-attestation availability](https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations),
 [Ruleset availability](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets),
 [SARIF/code-scanning availability](https://docs.github.com/en/code-security/how-tos/scan-code-for-vulnerabilities/integrate-with-existing-tools/uploading-a-sarif-file-to-github),
+[OpenSSF Scorecard Action private-repository requirements](https://github.com/ossf/scorecard-action#additional-permissions-for-private-repositories),
 [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately),
 [ruleset rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets),
 and [social preview guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).

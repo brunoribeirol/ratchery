@@ -26,9 +26,9 @@ make the mandatory release job fail or encourage disabling provenance.
 ## Decision
 
 Private staging ends at a clean, signed, pushed commit with local validation,
-hosted CI, read-only Scorecard analysis, the no-inference client canary, and all
-plan-supported repository controls verified. Before any tag, the maintainer
-records actual visibility and feature availability.
+hosted CI, the no-inference client canary, and all plan-supported repository
+controls verified. Before any tag, the maintainer records actual visibility
+and feature availability.
 
 If private attestations are unavailable, Ratchetry does not create an
 unattested or predictably failing private tag. A separate explicit approval is
@@ -38,16 +38,21 @@ is run, and only then is the signed `v1.0.0-rc.1` tag pushed. The release
 workflow remains fail-closed: publication depends on successful provenance and
 SBOM attestations.
 
-Scorecard uses two visibility-gated jobs. The private job receives only
-`contents: read`, publishes nothing, and retains SARIF briefly as a private
-artifact. The public job alone receives OIDC and code-scanning write scopes.
+Scorecard has one public visibility-gated job. Private staging deliberately
+skips the Action: upstream supports private Action runs only with GitHub
+Advanced Security and recommends additional read access to issues, pull
+requests, and checks. The project does not buy that capability or broaden the
+private workflow token merely to move a gate earlier. The public job receives
+only the repository read, OIDC, and code-scanning write scopes needed for its
+published result.
 
 ## Rationale
 
 This preserves the security property that every published release is attested
 without buying infrastructure that the project does not otherwise need. It
 also prevents unsupported hosted features from being presented as completed
-gates and keeps elevated workflow tokens out of private analysis.
+gates and keeps unnecessary workflow permissions and plan costs out of private
+staging.
 
 ## Trade-offs
 
@@ -55,8 +60,9 @@ gates and keeps elevated workflow tokens out of private analysis.
   repository is public.
 - Public launch becomes a short ordered transaction rather than one visibility
   toggle, and its public controls need immediate verification.
-- The Scorecard workflow duplicates a small analysis stanza so permissions can
-  remain least-privilege; GitHub does not conditionally grant job permissions.
+- Scorecard evidence is unavailable until the ordered public-launch
+  transaction. CI, client compatibility, and local security gates remain the
+  private checkpoint evidence.
 
 ## Consequences
 
@@ -67,6 +73,10 @@ gates and keeps elevated workflow tokens out of private analysis.
   not block the private ready-for-public checkpoint.
 - The project does not need Enterprise Cloud merely to satisfy its own release
   process.
+
+Revisit the Scorecard boundary separately if upstream adds private Action
+support without GitHub Advanced Security and without materially broader token
+permissions.
 
 ## Reversal conditions
 
