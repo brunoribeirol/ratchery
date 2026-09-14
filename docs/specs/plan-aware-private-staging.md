@@ -12,12 +12,22 @@ requires GitHub Code Security on an eligible organization repository. A tag on
 an unsupported private repository would therefore start a release workflow that
 cannot satisfy its provenance gate.
 
+OpenSSF separately documents that its GitHub Action supports private
+repositories only with GitHub Advanced Security. Its default-token setup for a
+private repository also recommends `issues`, `pull-requests`, and `checks` read
+access; the observed failure without those reads is `Resource not accessible by
+integration` during commit discovery.
+
 ## What changes
 
-- Scorecard analysis runs in a read-only private job and retains its SARIF as a
-  short-lived private workflow artifact. Public repositories use a separate job
-  with only the OIDC and `security-events` scopes required to publish Scorecard
-  results and upload SARIF.
+- The Scorecard Action is visibility-gated to public repositories. Private
+  staging deliberately skips it because upstream supports private Action runs
+  only with GitHub Advanced Security and recommends additional repository read
+  scopes. Ratchetry does not add that plan dependency or permission surface for
+  a gate that can run immediately after public launch.
+- The public job receives only the repository read, OIDC, and
+  `security-events` scopes required to publish Scorecard results and upload
+  SARIF.
 - Release instructions must inspect repository visibility and account/feature
   availability before creating a tag.
 - If private attestations are unavailable, private staging stops at a validated,
@@ -46,7 +56,7 @@ cannot satisfy its provenance gate.
 ## Tasks
 
 - [x] Record the availability constraints and safe sequencing.
-- [x] Isolate private and public Scorecard privileges.
+- [x] Defer Scorecard execution until public launch.
 - [x] Add workflow contract coverage.
 - [x] Reconcile publishing documentation and changelog.
 - [x] Run full repository and release validation.
@@ -63,8 +73,9 @@ git diff --check
 ```
 
 Hosted validation must additionally inspect actual repository visibility and
-available features, then run CI, private Scorecard analysis, and the client
-canary before any visibility change or tag.
+available features, then run CI and the client canary before any visibility
+change or tag. It must verify that Scorecard has no runnable private job and
+record the public Scorecard run as a deferred launch gate.
 
 ## Status
 

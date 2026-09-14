@@ -37,14 +37,16 @@ well-defined ready-for-public state without publishing or tagging prematurely.
 - `CHANGELOG.md`, `MANIFEST.json`, and ignored `docs/CURRENT_STATE.md`
 - Local installed runtime and configured Vault state
 - GitHub repository metadata, Actions defaults, supported security features,
-  hosted CI, Scorecard analysis, client canary, and Rulesets where available
+  hosted CI, client canary, public-only Scorecard deferral, and Rulesets where
+  available
 
 ## Risks
 
 - A premature tag can start a release workflow whose mandatory attestation job
   is unsupported and leave a misleading failed release event.
-- Granting OIDC or `security-events: write` to private Scorecard analysis would
-  exceed least privilege without providing a usable private feature.
+- Running the Scorecard Action privately would require GitHub Advanced Security
+  plus broader repository reads; granting those solely for staging would add
+  cost and permission surface without improving the published artifact.
 - Enabling a Ruleset before the final preparation commit lands can lock the sole
   maintainer out of the intended direct push.
 - Automated GitHub settings must fail closed on unexpected owner, repository,
@@ -67,10 +69,10 @@ well-defined ready-for-public state without publishing or tagging prematurely.
 
 ## Acceptance criteria
 
-- Private Scorecard execution has read-only repository scope and cannot mint an
-  OIDC token or upload SARIF to code scanning.
-- Public Scorecard publication exists in a distinct visibility-gated job with
-  only its documented scopes.
+- Scorecard has no runnable private job and is explicitly deferred until public
+  launch.
+- Public Scorecard publication exists in a visibility-gated job with only its
+  documented scopes.
 - Documentation never promises a private prerelease on a plan that cannot
   attest it.
 - The final private `main` commit is GPG-signed, pushed over HTTPS, clean,
