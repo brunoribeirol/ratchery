@@ -271,6 +271,36 @@ class TestDoctorSecurityRegressions(_IsolatedHome):
         self.install_secure_fixture()
         self.assert_secure_fixture()
 
+    def test_missing_codex_thread_cap_is_rejected(self):
+        self.install_secure_fixture()
+        config_path = self.project / ".codex/config.toml"
+        config_path.write_text(
+            config_path.read_text().replace("max_threads = 4\n", "")
+        )
+
+        result = self.run_cli("doctor", "--path", str(self.project), "--json")
+        payload = json.loads(result.stdout)
+
+        self.assertTrue(
+            any("four-thread cost cap" in item for item in payload["errors"]),
+            payload,
+        )
+
+    def test_mixed_codex_agents_table_is_rejected(self):
+        self.install_secure_fixture()
+        config_path = self.project / ".codex/config.toml"
+        config_path.write_text(
+            config_path.read_text().replace("[agents]\n", "[agents]\nenabled = true\n", 1)
+        )
+
+        result = self.run_cli("doctor", "--path", str(self.project), "--json")
+        payload = json.loads(result.stdout)
+
+        self.assertTrue(
+            any("only named role tables" in item for item in payload["errors"]),
+            payload,
+        )
+
     def test_missing_baseline_agent_is_rejected_even_at_t0(self):
         self.install_secure_fixture()
         (self.project / ".claude/agents/reviewer.md").unlink()

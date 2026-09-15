@@ -127,10 +127,16 @@ PreToolUse binding before the deep probe tests the runtime behavior.
 Codex applies repository-local `.codex/config.toml` only after the user has
 reviewed and trusted the repository. Ratchetry validates the file but never
 self-authorizes that user-level trust decision. The scheduled/manual
-`client-canary.yml` workflow grants trust only inside an ephemeral credential-
-free home, parses generated config with minimum/current supported clients, and
-does not run model inference. It is compatibility evidence, not an end-to-end
-proof of sandbox containment or MCP safety.
+`client-canary.yml` preparation job has read-only repository access; its four
+client jobs have no GitHub token scope or checkout. They install each public
+package before downloading only the generated fixture, then parse it with
+minimum/current supported clients without model inference. Claude's official
+package is the sole exception to the no-lifecycle-script rule because its
+documented native binary is installed by that step. Codex's hosted check proves
+the permission-profile CLI and strictly parsed config schema, not `bwrap`
+execution: nested network namespaces are unavailable on GitHub-hosted runners. This is
+compatibility evidence, not an end-to-end proof of sandbox containment or MCP
+safety.
 
 `doctor --deep` simulates `cat .env` and requires denial. Never weaken controls simply to silence a tool warning.
 

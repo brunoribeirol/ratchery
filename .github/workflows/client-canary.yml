@@ -5,36 +5,18 @@ on:
     - cron: "17 5 * * 1" # weekly, Monday 05:17 UTC
   workflow_dispatch:
 
-# The canary installs public CLI packages but has no repository write scope,
-# persisted checkout credential, model credential, or inference step.
-permissions:
-  contents: read
+# The preparation job reads the repository. Client jobs start on separate
+# runners with no GitHub token scope, checkout, model credential, or inference
+# step; their package installers cannot inspect the private source tree.
+permissions: {}
 
 jobs:
-  generated-config:
-    name: ${{ matrix.client }} (${{ matrix.channel }})
+  prepare:
+    name: prepare generated configuration
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - client: claude
-            channel: minimum
-            package: "@anthropic-ai/claude-code"
-            version: "2.1.187"
-          - client: claude
-            channel: current
-            package: "@anthropic-ai/claude-code"
-            version: "latest"
-          - client: codex
-            channel: minimum
-            package: "@openai/codex"
-            version: "0.138.0"
-          - client: codex
-            channel: current
-            package: "@openai/codex"
-            version: "latest"
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - name: Checkout without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,19 +27,6 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-
-      - name: Set up Node.js for exact public CLI packages
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          package-manager-cache: false
-
-      - name: Install selected client in the ephemeral runner
-        env:
-          CLIENT_PACKAGE: ${{ matrix.package }}
-          CLIENT_VERSION: ${{ matrix.version }}
-          NPM_CONFIG_UPDATE_NOTIFIER: "false"
-        run: npm install --global --ignore-scripts "${CLIENT_PACKAGE}@${CLIENT_VERSION}"
 
       - name: Generate hardened project configuration
         env:
@@ -85,6 +54,81 @@ jobs:
           if report["errors"]:
               raise SystemExit("generated config failed Ratchetry doctor: " + repr(report["errors"]))
           PY
+          tar -czf "$CANARY_ROOT/generated-config.tar.gz" -C "$CANARY_ROOT" project
+
+      - name: Upload only the generated client fixture
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ratchery-generated-client-config
+          path: ${{ runner.temp }}/ratchery-client-canary/generated-config.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+
+  generated-config:
+    name: ${{ matrix.client }} (${{ matrix.channel }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions: {}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - client: claude
+            channel: minimum
+            package: "@anthropic-ai/claude-code"
+            version: "2.1.187"
+          - client: claude
+            channel: current
+            package: "@anthropic-ai/claude-code"
+            version: "latest"
+          - client: codex
+            channel: minimum
+            package: "@openai/codex"
+            version: "0.138.0"
+          - client: codex
+            channel: current
+            package: "@openai/codex"
+            version: "latest"
+    steps:
+      - name: Set up Node.js for exact public CLI packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      # Claude's official npm package requires its lifecycle step to place the
+      # platform-native binary. It runs before any project artifact exists.
+      - name: Install Claude Code with its required native-binary step
+        if: matrix.client == 'claude'
+        env:
+          CLIENT_PACKAGE: ${{ matrix.package }}
+          CLIENT_VERSION: ${{ matrix.version }}
+          NPM_CONFIG_UPDATE_NOTIFIER: "false"
+          NPM_CONFIG_AUDIT: "false"
+          NPM_CONFIG_FUND: "false"
+        run: npm install --global "${CLIENT_PACKAGE}@${CLIENT_VERSION}"
+
+      - name: Install Codex without package lifecycle scripts
+        if: matrix.client == 'codex'
+        env:
+          CLIENT_PACKAGE: ${{ matrix.package }}
+          CLIENT_VERSION: ${{ matrix.version }}
+          NPM_CONFIG_UPDATE_NOTIFIER: "false"
+          NPM_CONFIG_AUDIT: "false"
+          NPM_CONFIG_FUND: "false"
+        run: npm install --global --ignore-scripts "${CLIENT_PACKAGE}@${CLIENT_VERSION}"
+
+      - name: Download the source-free generated fixture
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ratchery-generated-client-config
+          path: ${{ runner.temp }}/ratchery-client-canary
+
+      - name: Unpack the generated fixture
+        env:
+          CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
+        run: tar -xzf "$CANARY_ROOT/generated-config.tar.gz" -C "$CANARY_ROOT"
 
       - name: Validate with Claude Code without connecting or inferring
         if: matrix.client == 'claude'
@@ -115,16 +159,17 @@ jobs:
           export XDG_STATE_HOME="$CANARY_ROOT/state"
           project="$CANARY_ROOT/project"
           mkdir -p "$HOME/.codex"
-          PROJECT_PATH="$project" python3 - <<'PY'
-          import os
-          from pathlib import Path
-
-          project = os.environ["PROJECT_PATH"].replace("\\", "\\\\").replace('"', '\\"')
-          Path.home().joinpath(".codex/config.toml").write_text(
-              f'[projects."{project}"]\ntrust_level = "trusted"\n',
-              encoding="utf-8",
-          )
-          PY
+          PROJECT_PATH="$project" node <<'JS'
+          const fs = require("fs");
+          const project = process.env.PROJECT_PATH
+            .replaceAll("\\", "\\\\")
+            .replaceAll('"', '\\"');
+          fs.writeFileSync(
+            `${process.env.HOME}/.codex/config.toml`,
+            `[projects."${project}"]\ntrust_level = "trusted"\n`,
+            "utf8",
+          );
+          JS
           codex --version
           # The management subcommand reads CODEX_HOME rather than repository
           # config, so point an ephemeral CODEX_HOME at the exact generated
@@ -132,18 +177,25 @@ jobs:
           mcp_home="$CANARY_ROOT/codex-mcp-home"
           mkdir -p "$mcp_home"
           cp "$project/.codex/config.toml" "$mcp_home/config.toml"
+          cp -R "$project/.codex/agents" "$mcp_home/agents"
           CODEX_HOME="$mcp_home" codex mcp get context7 --json > "$CANARY_ROOT/codex-mcp.json"
-          python3 - "$CANARY_ROOT/codex-mcp.json" <<'PY'
-          import json
-          import sys
-
-          server = json.load(open(sys.argv[1], encoding="utf-8"))
-          if server.get("name") != "context7" or not server.get("enabled"):
-              raise SystemExit("Codex did not load the generated Context7 profile")
-          if server.get("enabled_tools") != ["resolve-library-id", "query-docs"]:
-              raise SystemExit("Codex changed or ignored the generated MCP tool allowlist")
-          PY
-          # Separately prove that the trusted repository resolves the named
-          # permission profile. This runs only /usr/bin/true inside Codex's
-          # sandbox; it performs no authentication, inference, or network call.
-          codex sandbox -C "$project" -P project-edit /usr/bin/true
+          CODEX_MCP_JSON="$CANARY_ROOT/codex-mcp.json" node <<'JS'
+          const fs = require("fs");
+          const server = JSON.parse(fs.readFileSync(process.env.CODEX_MCP_JSON, "utf8"));
+          if (server.name !== "context7" || !server.enabled) {
+            throw new Error("Codex did not load the generated Context7 profile");
+          }
+          const expected = ["resolve-library-id", "query-docs"];
+          if (JSON.stringify(server.enabled_tools) !== JSON.stringify(expected)) {
+            throw new Error("Codex changed or ignored the generated MCP tool allowlist");
+          }
+          JS
+          # Parsing the complete TOML above covers the named profile schema.
+          # GitHub-hosted Linux runners cannot nest Codex's bwrap network
+          # namespace, so the canary checks the profile CLI surface without
+          # misclassifying a runner restriction as a Ratchetry regression.
+          CODEX_HOME="$mcp_home" codex --strict-config sandbox --help \
+            > "$CANARY_ROOT/codex-sandbox-help.txt"
+          # 0.138 exposes --permissions-profile; current clients retain it as
+          # an alias while documenting the singular --permission-profile.
+          grep -Eq -- '--permissions?-profile' "$CANARY_ROOT/codex-sandbox-help.txt"

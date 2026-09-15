@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0-rc.1",
   "channel": "prerelease",
-  "generated_at": "2026-09-14T15:27:51+00:00",
+  "generated_at": "2026-09-15T02:20:07+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 279,
-  "total_bytes_excluding_manifest": 1316026,
+  "file_count_excluding_manifest": 280,
+  "total_bytes_excluding_manifest": 1326468,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -175,8 +175,8 @@
     },
     {
       "path": ".codex/config.toml",
-      "sha256": "c0f5ff211db65a1fc82bf70b3cf3c9ec26a235252c893bfd61485fc46f9f9b9f",
-      "size_bytes": 2138
+      "sha256": "e31cccdd789bce75eb3f8b55d29e2d33d15b2bed0cd9de6bc27a5ac3d9b27b61",
+      "size_bytes": 2252
     },
     {
       "path": ".codex/hooks.json",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "75f4c982ac561dcdee0861857b1d2ed18fcd8036a5e8e2c7db5fdc6443d18bf0",
-      "size_bytes": 23306
+      "sha256": "3c8a4c8806fc9470cb79b842e100e1250b64bbb3b4f21e8105e3fd490d912c16",
+      "size_bytes": 23950
     },
     {
       "path": "CLAUDE.md",
@@ -605,8 +605,8 @@
     },
     {
       "path": "assets/project/.codex/config.base.toml",
-      "sha256": "e73551de5b048e52062115070ddf64d57054c79246300e09875c01de8733e0eb",
-      "size_bytes": 2086
+      "sha256": "061f05062eb10b83c4f5a69fa855bf769395497e82c1c2ca32aea5f67aef7036",
+      "size_bytes": 2200
     },
     {
       "path": "assets/project/.codex/hooks.json",
@@ -835,8 +835,8 @@
     },
     {
       "path": "docs/06-CODEX.md",
-      "sha256": "ce00755dd7075f4ec650b29ac7de99d8545fab98cce481fa8a1eb538fa6ed8ee",
-      "size_bytes": 1353
+      "sha256": "dfd6e4ba6edfceda8e2c4d0c84cbf397f4c85280b8062e251bfe6a649ce4f2bc",
+      "size_bytes": 1789
     },
     {
       "path": "docs/07-DAILY-WORKFLOW.md",
@@ -855,8 +855,8 @@
     },
     {
       "path": "docs/10-SECURITY.md",
-      "sha256": "1b7591dc995f8caf157257312a0372dfd9a61dab411fff8317a13156d90ee0a4",
-      "size_bytes": 8087
+      "sha256": "ad68bcdd4b79da0dd888910201ee488bc6580c51c7554cc6b8ea579f0a7af1f9",
+      "size_bytes": 8514
     },
     {
       "path": "docs/11-HOOKS-AUTOMATION.md",
@@ -900,8 +900,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "9fe3368496f3e11149bd211dec5557acca707850bd6ea0e5686b8533984f25a3",
-      "size_bytes": 17662
+      "sha256": "e9eecb84fb5cacbbcd8e98a9f3c9af50709678185361568966c13c174bf18d30",
+      "size_bytes": 18364
     },
     {
       "path": "docs/BENCHMARKING.md",
@@ -940,8 +940,8 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "ff73a7cbe1b6434fe14acb421bfc62125d0a642fc15d14bb52e9b3383d873263",
-      "size_bytes": 15483
+      "sha256": "99c96331dc3340eab29e52a7e3adbe88c5304e242a617d4454602d320751d749",
+      "size_bytes": 15843
     },
     {
       "path": "docs/ROADMAP.md",
@@ -1027,6 +1027,11 @@
       "path": "docs/specs/ci-json-doctor-gate.md",
       "sha256": "07adece9088881b7870565c7ed2c1e59e3c385ca2aea8e7525197514f90410dd",
       "size_bytes": 4967
+    },
+    {
+      "path": "docs/specs/client-canary-runtime-contract.md",
+      "sha256": "4d424218403be840b0e938a6a61c8554ab4938995bee263817498b1cbf25dbcb",
+      "size_bytes": 2801
     },
     {
       "path": "docs/specs/codex-pre-publish-fixes.md",
@@ -1125,8 +1130,8 @@
     },
     {
       "path": "docs/work/2026-09-13-private-prerelease-validation.md",
-      "sha256": "3833fca6c118c92e6b632235858ed72107ff2da4f88e6d2e32372fc2fb9a9d2a",
-      "size_bytes": 4642
+      "sha256": "840d91f5c841ba8f64f22c75e2263915cd9ed7a4d4c8955f16bff1d5daed1df7",
+      "size_bytes": 5440
     },
     {
       "path": "docs/work/2026-09-13-ratchery-memory-reconstruction.md",
@@ -1250,8 +1255,8 @@
     },
     {
       "path": "lib/agent_workspace.py",
-      "sha256": "98b10fdddfe9cb93c75cedc2a47265524cb2466b856ce0c4b1eb2e390a50f9dd",
-      "size_bytes": 231547
+      "sha256": "a829c7375683b9b69601769622e78f2abea74999e187e641d66146a104260685",
+      "size_bytes": 232482
     },
     {
       "path": "lib/context_engine.py",
@@ -1340,8 +1345,8 @@
     },
     {
       "path": "tests/test_client_canary_contract.py",
-      "sha256": "980ae589ac99520d13fba92b55a43dc6b805939d7927aaee9810007ed0b82ff0",
-      "size_bytes": 2267
+      "sha256": "bfb7c34e97b63914b14c886aa5339e689311f26ac91c0565446d203f96cea436",
+      "size_bytes": 4304
     },
     {
       "path": "tests/test_context_engine.py",
@@ -1355,8 +1360,8 @@
     },
     {
       "path": "tests/test_doctor_tier_json.py",
-      "sha256": "9655e7bf63435ff980ec51239b314003d23d3c1a7621d9b0e14341c4b9593b90",
-      "size_bytes": 43391
+      "sha256": "89f70b369d9fc0ea8aa1f660a500333387fdc359869d57344ac327c699c9b684",
+      "size_bytes": 44465
     },
     {
       "path": "tests/test_efficiency.py",
