@@ -56,6 +56,9 @@ well-defined ready-for-public state without publishing or tagging prematurely.
 - A compatibility canary can itself create false failures by disabling a
   client's required installer step or by attempting to nest an OS sandbox in a
   hosted environment that forbids its namespace primitives.
+- Interactive/connectivity diagnostics such as older `claude doctor` releases
+  are not valid CI parsers; each real-client command must have closed stdin, a
+  short timeout, and its own named step.
 
 ## Workstreams and ownership
 

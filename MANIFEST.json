@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0-rc.1",
   "channel": "prerelease",
-  "generated_at": "2026-09-15T02:20:07+00:00",
+  "generated_at": "2026-09-15T12:03:20+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -16,7 +16,7 @@
     "default_session_end_hook": false
   },
   "file_count_excluding_manifest": 280,
-  "total_bytes_excluding_manifest": 1326468,
+  "total_bytes_excluding_manifest": 1328608,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "3c8a4c8806fc9470cb79b842e100e1250b64bbb3b4f21e8105e3fd490d912c16",
-      "size_bytes": 23950
+      "sha256": "ce489256d037a868e5d543b5b4845bbb4868e43db5956e99d412dc479ae417b1",
+      "size_bytes": 24168
     },
     {
       "path": "CLAUDE.md",
@@ -855,8 +855,8 @@
     },
     {
       "path": "docs/10-SECURITY.md",
-      "sha256": "ad68bcdd4b79da0dd888910201ee488bc6580c51c7554cc6b8ea579f0a7af1f9",
-      "size_bytes": 8514
+      "sha256": "a4101a9a3b7669216c2258b943295ae3e8bc0b6ea49f32f19e5f607158653ea2",
+      "size_bytes": 8856
     },
     {
       "path": "docs/11-HOOKS-AUTOMATION.md",
@@ -900,8 +900,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "e9eecb84fb5cacbbcd8e98a9f3c9af50709678185361568966c13c174bf18d30",
-      "size_bytes": 18364
+      "sha256": "48a1df32e7d86be87fa3c4156e984232aeee688a53108f20cbe5dab4056a8437",
+      "size_bytes": 18741
     },
     {
       "path": "docs/BENCHMARKING.md",
@@ -940,8 +940,8 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "99c96331dc3340eab29e52a7e3adbe88c5304e242a617d4454602d320751d749",
-      "size_bytes": 15843
+      "sha256": "ac6f4665fa65076e8fe4d1540cd4fcb3ca57c2d5153a836e3efca32d25c99e64",
+      "size_bytes": 15977
     },
     {
       "path": "docs/ROADMAP.md",
@@ -1030,8 +1030,8 @@
     },
     {
       "path": "docs/specs/client-canary-runtime-contract.md",
-      "sha256": "4d424218403be840b0e938a6a61c8554ab4938995bee263817498b1cbf25dbcb",
-      "size_bytes": 2801
+      "sha256": "f7d1d985c3c2ca2501d7ac3b9ad3e60b5ecf2bfe23059e8374f084dd3176a878",
+      "size_bytes": 3253
     },
     {
       "path": "docs/specs/codex-pre-publish-fixes.md",
@@ -1130,8 +1130,8 @@
     },
     {
       "path": "docs/work/2026-09-13-private-prerelease-validation.md",
-      "sha256": "840d91f5c841ba8f64f22c75e2263915cd9ed7a4d4c8955f16bff1d5daed1df7",
-      "size_bytes": 5440
+      "sha256": "8f16cc8a07ebe54dc3b6e38302d6e0fcb902ec11711d6730b763873359a3038d",
+      "size_bytes": 5638
     },
     {
       "path": "docs/work/2026-09-13-ratchery-memory-reconstruction.md",
@@ -1345,8 +1345,8 @@
     },
     {
       "path": "tests/test_client_canary_contract.py",
-      "sha256": "bfb7c34e97b63914b14c886aa5339e689311f26ac91c0565446d203f96cea436",
-      "size_bytes": 4304
+      "sha256": "05029b19567b1620a031cc1df467fd9d3f689fcdc00345c80ceb668f953f8579",
+      "size_bytes": 4723
     },
     {
       "path": "tests/test_context_engine.py",

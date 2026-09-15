@@ -73,6 +73,7 @@ class TestClientCanaryContract(unittest.TestCase):
             "codex exec",
             "claude --print",
             "claude -p",
+            "claude doctor",
         )
         for value in forbidden:
             with self.subTest(value=value):
@@ -83,6 +84,13 @@ class TestClientCanaryContract(unittest.TestCase):
         self.assertIn("server.enabled_tools", self.text)
         self.assertIn("grep -Eq -- '--permissions?-profile'", self.text)
         self.assertNotIn('codex sandbox -C "$project"', self.text)
+        self.assertIn("Verify Claude CLI without connecting or inferring", self.text)
+        self.assertIn("Parse Claude MCP config without connecting or inferring", self.text)
+        self.assertIn(
+            "timeout --signal=TERM --kill-after=5s 30s claude --version </dev/null",
+            self.text,
+        )
+        self.assertIn("claude mcp get context7 </dev/null", self.text)
 
     def test_codex_agent_controls_keep_the_minimum_compatible_shape(self):
         config = tomllib.loads(CODEX_TEMPLATE.read_text(encoding="utf-8"))

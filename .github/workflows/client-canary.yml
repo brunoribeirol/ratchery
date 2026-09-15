@@ -130,7 +130,7 @@ jobs:
           CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
         run: tar -xzf "$CANARY_ROOT/generated-config.tar.gz" -C "$CANARY_ROOT"
 
-      - name: Validate with Claude Code without connecting or inferring
+      - name: Verify Claude CLI without connecting or inferring
         if: matrix.client == 'claude'
         env:
           CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
@@ -141,12 +141,26 @@ jobs:
           export HOME="$CANARY_ROOT/home"
           export XDG_CONFIG_HOME="$CANARY_ROOT/config"
           export XDG_STATE_HOME="$CANARY_ROOT/state"
-          claude --version
+          mkdir -p "$HOME" "$XDG_CONFIG_HOME" "$XDG_STATE_HOME"
+          timeout --signal=TERM --kill-after=5s 30s claude --version </dev/null
+
+      - name: Parse Claude MCP config without connecting or inferring
+        if: matrix.client == 'claude'
+        env:
+          CANARY_ROOT: ${{ runner.temp }}/ratchery-client-canary
+          DISABLE_AUTOUPDATER: "1"
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        run: |
+          set -eu
+          export HOME="$CANARY_ROOT/home"
+          export XDG_CONFIG_HOME="$CANARY_ROOT/config"
+          export XDG_STATE_HOME="$CANARY_ROOT/state"
+          mkdir -p "$HOME" "$XDG_CONFIG_HOME" "$XDG_STATE_HOME"
           cd "$CANARY_ROOT/project"
-          claude doctor
           # Project MCPs are intentionally pending approval, so `get` parses
           # the definition without contacting the remote server.
-          claude mcp get context7
+          timeout --signal=TERM --kill-after=5s 30s \
+            claude mcp get context7 </dev/null
 
       - name: Validate with Codex without authenticating or inferring
         if: matrix.client == 'codex'
