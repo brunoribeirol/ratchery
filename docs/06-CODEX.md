@@ -9,6 +9,13 @@ scrubs caller-controlled Git routing again before accepting a discovered root.
 Codex filesystem rules deny home and nested project-local credential files;
 network remains disabled unless a reviewed workflow deliberately changes it.
 
+To keep the supported Codex 0.138 line and current clients on one committed
+configuration, Ratchetry writes `max_threads = 4` and
+`interrupt_message = false` as root keys. The `[agents]` table contains only
+named role tables. Do not move those controls into a mixed `[agents]` table
+without also raising and proving the client floor: older clients interpret
+every entry under `[agents]` as an `AgentRoleToml` and reject scalar values.
+
 Default hooks are `UserPromptSubmit` and `PreToolUse`; this setup does not depend on SessionEnd for persistence.
 
 `ratchery doctor-global --deep` runs `codex doctor` on CLIs that support it. Failures are reported as diagnostic warnings rather than silently ignored.

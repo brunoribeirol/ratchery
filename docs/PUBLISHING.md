@@ -97,8 +97,11 @@ make release-smoke
    changes.
 4. Run `make test` and `make release-smoke` (including the Action-pin and exact
    artifact-install gates), manually dispatch the
-   credential-free client compatibility canary, and confirm every
-   minimum/current Claude/Codex leg passes without inference.
+   credential-free client compatibility canary, and confirm its source-free
+   preparation job plus every minimum/current Claude/Codex leg passes without
+   inference. The client jobs must install packages before downloading the
+   generated fixture; only Claude's required native-binary lifecycle step may
+   run.
    For optional example dependencies, treat a newer upstream release as an
    advisory: retain the reviewed exact pins unless compatibility or a known
    vulnerability justifies change, but require isolated install/import checks
@@ -230,7 +233,9 @@ chosen GitHub merge method does not strand unsigned commits.
   prerelease gate. After public launch, the job receives `id-token: write` and
   `security-events: write`; add a badge only after it publishes a real result.
 - [ ] Run the client compatibility canary once; it should have no API secrets,
-  model inference, or MCP connection and should pass all minimum/current legs.
+  model inference, or MCP connection and should pass the preparation job plus
+  all minimum/current legs. Do not replace the Codex parser/profile check with
+  nested `bwrap` execution on a GitHub-hosted runner.
 - [ ] After the signed tag is pushed, confirm artifact attestations are visible
   and `gh attestation verify` succeeds for the first release archive. A failed
   attestation must block publication; do not bypass the `attest` job.
@@ -241,8 +246,8 @@ Before requesting a visibility change:
 
 - [ ] Final `main` commit is signed, pushed over HTTPS, manifest-valid, and the
   worktree is clean.
-- [ ] All six CI matrix checks and all four credential-free client-canary legs
-  pass for that exact commit.
+- [ ] All six CI matrix checks, the source-free canary preparation job, and all
+  four credential-free client-canary legs pass for that exact commit.
 - [ ] Scorecard is recorded as deferred until public launch, and the private
   workflow contains no runnable analysis job.
 - [ ] Repository metadata, read-only default `GITHUB_TOKEN`, allowed Actions,

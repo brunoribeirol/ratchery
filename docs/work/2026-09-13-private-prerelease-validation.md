@@ -53,6 +53,9 @@ well-defined ready-for-public state without publishing or tagging prematurely.
   visibility, branch, origin, dirty worktree, signature, or account capability.
 - Installing the candidate may touch managed home/Vault files; dry-run evidence
   and framework backups must precede mutation.
+- A compatibility canary can itself create false failures by disabling a
+  client's required installer step or by attempting to nest an OS sandbox in a
+  hosted environment that forbids its namespace primitives.
 
 ## Workstreams and ownership
 
@@ -81,6 +84,9 @@ well-defined ready-for-public state without publishing or tagging prematurely.
   private settings are explicitly deferred.
 - The installed `ratchery` command and Vault memory pass their diagnostics.
 - No visibility change, tag, Release, or Homebrew publication occurs.
+- The client canary generates its fixture in a read-only job, installs public
+  clients in separate zero-permission/source-free jobs, and passes its
+  preparation job plus all four minimum/current legs.
 
 ## Validation plan
 
@@ -88,6 +94,13 @@ Run the commands named in the linked delta spec, plus targeted secret/path
 scans, dependency-example installation in a temporary environment when network
 is available, GitHub workflow inspection, signed-commit verification, and
 read-only postcondition checks.
+
+The real-client remediation is specified in
+[`client-canary-runtime-contract.md`](../specs/client-canary-runtime-contract.md).
+Local evidence must include the generated fixture parsing under current
+Claude/Codex and under an available Codex version older than the declared
+floor. Hosted evidence remains mandatory for the exact minimum packages and
+the Claude npm native installer.
 
 ## Handoff
 

@@ -2076,11 +2076,16 @@ def validate_codex_security(config: dict[str, Any], hooks: dict[str, Any], error
     expected_workspace = expected_fs.get(":workspace_roots") if isinstance(expected_fs, dict) else None
     expected_shell_policy = expected.get("shell_environment_policy") if isinstance(expected, dict) else None
     expected_filters = expected_shell_policy.get("filters") if isinstance(expected_shell_policy, dict) else None
+    expected_agents = expected.get("agents") if isinstance(expected, dict) else None
     if not (
         isinstance(expected_profile, dict)
         and isinstance(expected_fs, dict)
         and isinstance(expected_workspace, dict)
         and isinstance(expected_filters, dict)
+        and expected.get("max_threads") == 4
+        and expected.get("interrupt_message") is False
+        and isinstance(expected_agents, dict)
+        and all(isinstance(role, dict) for role in expected_agents.values())
     ):
         errors.append("Bundled Codex security template is missing or invalid; cannot verify project policy")
         return
@@ -2104,6 +2109,17 @@ def validate_codex_security(config: dict[str, Any], hooks: dict[str, Any], error
     actual_filters = shell_policy.get("filters", {}) if isinstance(shell_policy.get("filters"), dict) else {}
     if any(actual_filters.get(name) != value for name, value in expected_filters.items()):
         errors.append("Codex shell environment policy is missing required secret filters")
+    if config.get("max_threads") != expected.get("max_threads"):
+        errors.append("Codex max_threads does not retain the managed four-thread cost cap")
+    if config.get("interrupt_message") is not expected.get("interrupt_message"):
+        errors.append("Codex interrupt_message does not match the managed agent policy")
+    actual_agents = config.get("agents")
+    if not isinstance(actual_agents, dict) or any(
+        not isinstance(role, dict) for role in actual_agents.values()
+    ):
+        errors.append(
+            "Codex [agents] must contain only named role tables for minimum-client compatibility"
+        )
     features = config.get("features", {}) if isinstance(config.get("features"), dict) else {}
     if features.get("hooks") is not True:
         errors.append("Codex hooks feature is not enabled")

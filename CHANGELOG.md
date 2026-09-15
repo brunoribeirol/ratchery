@@ -2,7 +2,17 @@
 
 ## Unreleased
 
-- No changes yet.
+### Fixed
+
+- The real-client canary no longer disables Claude Code's required native
+  installation step, feeds minimum Codex versions a newer mixed `[agents]`
+  table, or treats GitHub-hosted `bwrap` namespace restrictions as a Ratchetry
+  sandbox failure. Client packages now install in separate zero-permission
+  runners before receiving a source-free generated fixture; only the official
+  Claude package may run lifecycle scripts. Codex retains the four-thread cap
+  through the cross-version `max_threads` root key, and the canary validates
+  configuration parsing plus the named permission-profile CLI surface without
+  model inference or MCP connection.
 
 ## v1.0.0-rc.1 - 2026-09-13
 

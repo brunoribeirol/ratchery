@@ -1,5 +1,9 @@
 approval_policy = "on-request"
 default_permissions = "project-edit"
+# Keep these legacy-compatible root keys while Codex 0.138 remains supported.
+# Newer clients also accept them. Named roles belong under [agents] below.
+max_threads = 4
+interrupt_message = false
 
 [permissions.project-edit]
 description = "Write access limited to the active workspace, with secret files denied and network disabled."
@@ -54,10 +58,6 @@ ignore_default_excludes = false
 hooks = true
 
 [agents]
-enabled = true
-max_concurrent_threads_per_session = 4
-interrupt_message = false
-
 [agents.explorer]
 description = "Read-only codebase explorer for gathering evidence before changes."
 config_file = "agents/explorer.toml"

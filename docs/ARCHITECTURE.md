@@ -279,10 +279,22 @@ historical usage or prevent future spend. See
 
 The normal CI tests Ratchetry's own parsers and generated contracts without
 downloading changing clients. A separate scheduled/manual
-`.github/workflows/client-canary.yml` installs minimum-supported and current
-Claude Code/Codex packages in an ephemeral credential-free runner, generates a
-project, and asks each client to parse the configuration without model inference
-or MCP connection. Codex receives an ephemeral user-level trust entry because it
-correctly ignores repository configuration until the user trusts that checkout;
-Ratchetry never writes this decision during normal installation. The canary detects
-upstream compatibility drift, not sandbox containment or upstream MCP safety.
+`.github/workflows/client-canary.yml` generates and validates one project in a
+read-only preparation job, then passes only that source-free fixture to four
+separate zero-permission client jobs. Each public package installs before the
+fixture is downloaded. Claude's official npm package alone runs its required
+native-binary lifecycle step; Codex remains installed with lifecycle scripts
+disabled. Minimum-supported and current clients parse the configuration without
+model inference or MCP connection. Codex receives an ephemeral user-level trust
+entry because it correctly ignores repository configuration until the user
+trusts that checkout; Ratchetry never writes this decision during normal
+installation.
+
+The Codex legs verify complete MCP parsing, strict config parsing, and that the
+client exposes named permission profiles under either its minimum-version or
+current flag spelling. They deliberately do not execute `codex sandbox`:
+GitHub-hosted Linux runners prevent the nested `bwrap` network namespace before
+the fixture command can run. Native sandbox enforcement remains covered by the
+client itself and by Ratchetry's local security/doctor contract. The canary
+detects upstream compatibility drift, not sandbox containment or upstream MCP
+safety.
