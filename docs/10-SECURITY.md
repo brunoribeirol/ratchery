@@ -138,6 +138,12 @@ execution: nested network namespaces are unavailable on GitHub-hosted runners. T
 compatibility evidence, not an end-to-end proof of sandbox containment or MCP
 safety.
 
+The canary does not run `claude doctor`: that diagnostic may wait for terminal
+input or connectivity in older clients and is not a deterministic config
+parser. Claude version and pending-MCP parsing run as separate commands with
+closed stdin and a 30-second timeout, so an upstream hang fails quickly and
+identifies the exact contract step.
+
 `doctor --deep` simulates `cat .env` and requires denial. Never weaken controls simply to silence a tool warning.
 
 Example/template environment files such as `.env.example`, `.env.sample`, and `.env.template` remain readable for setup/documentation. Common real `.env` variants are denied explicitly, and the deterministic hook catches arbitrary secret-like `.env.*` variants except those example/template names.

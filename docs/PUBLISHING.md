@@ -101,7 +101,8 @@ make release-smoke
    preparation job plus every minimum/current Claude/Codex leg passes without
    inference. The client jobs must install packages before downloading the
    generated fixture; only Claude's required native-binary lifecycle step may
-   run.
+   run. Do not use `claude doctor` as canary evidence: require separate,
+   closed-stdin, time-bounded version and pending-MCP parsing steps.
    For optional example dependencies, treat a newer upstream release as an
    advisory: retain the reviewed exact pins unless compatibility or a known
    vulnerability justifies change, but require isolated install/import checks

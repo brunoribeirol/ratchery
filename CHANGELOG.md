@@ -12,7 +12,10 @@
   Claude package may run lifecycle scripts. Codex retains the four-thread cap
   through the cross-version `max_threads` root key, and the canary validates
   configuration parsing plus the named permission-profile CLI surface without
-  model inference or MCP connection.
+  model inference or MCP connection. Claude installation and configuration
+  parsing are separate, 30-second-bounded steps; `claude doctor` is excluded
+  because it is an interactive/connectivity diagnostic rather than a stable CI
+  configuration parser.
 
 ## v1.0.0-rc.1 - 2026-09-13
 

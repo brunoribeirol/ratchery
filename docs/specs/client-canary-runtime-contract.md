@@ -4,11 +4,12 @@ Mode: **openspec-light** (T1/T2 default).
 
 ## Why
 
-The first hosted client canary proved that its own test harness was invalid in
-three independent ways: it disabled Claude Code's required native-binary
+The hosted client-canary attempts proved that the harness itself was invalid in
+four independent ways: it disabled Claude Code's required native-binary
 installation step, emitted Codex agent-control keys in a shape rejected by the
-declared minimum client, and attempted to nest Codex's Linux sandbox inside a
-GitHub-hosted runner that cannot create the required network namespace. These
+declared minimum client, attempted to nest Codex's Linux sandbox inside a
+GitHub-hosted runner that cannot create the required network namespace, and
+used `claude doctor` as though it were a bounded non-interactive parser. These
 are release-gate defects, not evidence that Ratchetry's security boundaries
 failed.
 
@@ -26,6 +27,9 @@ failed.
 - Validate that Codex strictly parses the complete generated configuration and
   exposes named permission profiles under the minimum/current CLI spelling,
   without executing a nested OS sandbox in the hosted runner.
+- Validate Claude installation and pending-MCP parsing in separate closed-stdin
+  steps bounded to 30 seconds. Exclude `claude doctor`, whose interactive and
+  connectivity diagnostics are not a deterministic configuration contract.
 
 ## Affected contracts
 
@@ -49,6 +53,8 @@ failed.
 - [x] Add static regression coverage for installation and config contracts.
 - [x] Update operator/security documentation and release evidence.
 - [x] Run targeted and full local release validation.
+- [x] Remove the hosted minimum-client `claude doctor` hang exposed by run
+  `34921924521` and bound each remaining Claude command independently.
 
 ## Validation
 

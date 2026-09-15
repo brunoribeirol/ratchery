@@ -290,6 +290,12 @@ entry because it correctly ignores repository configuration until the user
 trusts that checkout; Ratchetry never writes this decision during normal
 installation.
 
+Claude validation deliberately excludes `claude doctor`, whose older-client
+behavior may be interactive or connectivity-dependent. Version discovery and
+pending-MCP config parsing are separate, closed-stdin operations bounded to 30
+seconds each; this keeps a live upstream diagnostic from masquerading as a
+Ratchetry configuration failure or consuming the entire job timeout.
+
 The Codex legs verify complete MCP parsing, strict config parsing, and that the
 client exposes named permission profiles under either its minimum-version or
 current flag spelling. They deliberately do not execute `codex sandbox`:
