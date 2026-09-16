@@ -4,6 +4,11 @@
 
 ### Fixed
 
+- The checkout-free release publication job now passes the immutable
+  `GITHUB_REPOSITORY` value explicitly to `gh release create`. Previously the
+  GitHub CLI tried to discover a repository from `.git`, even though the
+  least-privilege publish job deliberately receives only attested artifacts.
+
 - The real-client canary no longer disables Claude Code's required native
   installation step, feeds minimum Codex versions a newer mixed `[agents]`
   table, or treats GitHub-hosted `bwrap` namespace restrictions as a Ratchetry

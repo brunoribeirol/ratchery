@@ -61,6 +61,11 @@ class TestReleaseWorkflowContract(unittest.TestCase):
         self.assertIn('if [[ "$RELEASE_CHANNEL" == "prerelease" ]]', self.publish)
         self.assertIn("release_flags+=(--prerelease)", self.publish)
 
+    def test_publish_job_names_repository_without_checkout(self) -> None:
+        self.assertNotIn("actions/checkout@", self.publish)
+        self.assertIn('gh release create "$GITHUB_REF_NAME"', self.publish)
+        self.assertIn('--repo "$GITHUB_REPOSITORY"', self.publish)
+
 
 if __name__ == "__main__":
     unittest.main()
