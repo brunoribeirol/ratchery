@@ -95,7 +95,8 @@ make release-smoke
    untracked or partially staged release candidates instead of guessing what
    should ship. Review and stage the resulting `MANIFEST.json` with the release
    changes.
-4. Run `make test` and `make release-smoke` (including the Action-pin and exact
+4. Run `make test`, `make shellcheck`, and `make release-smoke` (including the
+   Action-pin and exact
    artifact-install gates), manually dispatch the
    credential-free client compatibility canary, and confirm its source-free
    preparation job plus every minimum/current Claude/Codex leg passes without
@@ -103,7 +104,9 @@ make release-smoke
    generated fixture; only Claude's required native-binary lifecycle step may
    run. Do not use `claude doctor` as canary evidence: require separate,
    closed-stdin, time-bounded version and pending-MCP parsing steps.
-   For optional example dependencies, treat a newer upstream release as an
+   Require the Python CodeQL workflow to complete without an unresolved
+   medium-or-higher exploitable finding on the exact release commit. For
+   optional example dependencies, treat a newer upstream release as an
    advisory: retain the reviewed exact pins unless compatibility or a known
    vulnerability justifies change, but require isolated install/import checks
    and a vulnerability audit before release.
@@ -116,24 +119,37 @@ make release-smoke
    replace, or reuse a published tag.
 8. Confirm the Release contains all four assets and both attestations verify.
 
-## Homebrew tap after first publication
+## Homebrew tap after stable v1.0.0
 
-Do not create a formula before the first Ratchetry artifact is verified. A
-package-manager install also cannot run the current interactive/user-specific
-`install.sh`, because Homebrew formulae must not configure a maintainer's Vault
-or write agent files into the build user's home. After the final identity and
-first verified release exist:
+The verified RC proves the artifact boundary, and `ratchery setup` now provides
+the separate user-onboarding boundary. Do not publish the tap until stable
+`v1.0.0` and its checksum/attestations exist. A package-manager install cannot
+run the source installer because Homebrew formulae must not choose a user's
+Vault or write agent files into the build user's home.
 
-1. Freeze the public command and installed runtime namespace, then provide a
-   supported post-install setup command for the user's Vault/projects paths.
+1. Pin the Formula to the immutable stable GitHub Release archive, verify the
+   release asset's SHA-256 against `SHA256SUMS.txt`, and depend on a current
+   Homebrew Python version that Ratchetry supports.
 2. Create `<final-owner>/homebrew-tap`; keep the formula small and install the
-   release archive into `libexec`, exposing only the stable command from `bin`.
-3. Pin the formula URL to an immutable `vX.Y.Z` asset and copy its SHA-256 from
-   the verified `SHA256SUMS.txt`; never use a moving `latest` URL.
-4. Make `brew test` run the installed command from the bottle and a temporary,
-   isolated setup/doctor smoke without network or real home configuration.
+   verified release tree into `libexec`, patch the launcher to the Formula's
+   Python interpreter, and expose only `ratchery` from `bin`. Do not expose the
+   legacy `agent-workspace` compatibility alias through a new package.
+3. Keep installation non-interactive. In `test do`, use Homebrew's temporary
+   `testpath`/`HOME`, create an empty Vault, then run a real no-network contract:
+
+   ```text
+   ratchery setup --vault <test-vault> --projects-root <test-projects> --yes
+   ratchery doctor-global
+   ratchery --version
+   ```
+
+4. Test both a source build and the installed/bottled command; a version-only
+   assertion is insufficient because it would not exercise package layout or
+   user-scoped setup.
 5. Run `brew audit --strict --online`, `brew style`, and install tests on
-   supported macOS and Linux runners before documenting the tap in README.
+   supported macOS and Linux runners before documenting `brew tap`/`brew
+   install` in README. For a future submission to homebrew/core, also run the
+   stricter new-formula audit required by Homebrew at that time.
 6. Automate formula bumps only after the signed tag, archive smoke,
    attestations, and GitHub Release all succeed; use a narrowly scoped token for
    the tap repository.
@@ -143,10 +159,10 @@ the supported distribution mechanism.
 
 ## GitHub settings checklist for private staging and public launch
 
-These settings do not travel with a clean-history copy. Configure and verify
-them after the private `brunoribeirol/ratchery` repository exists. Changing
-visibility, tagging `v1.0.0-rc.1`, and publishing stable `v1.0.0` are three
-separate maintainer decisions.
+These settings do not travel with a fork or repository transfer. The first
+public-launch transaction and `v1.0.0-rc.1` recovery are complete; retain this
+checklist as the reproducible control contract. Publishing stable `v1.0.0`
+remains a separate maintainer decision.
 
 ### Capability preflight
 
@@ -284,6 +300,10 @@ without private attestations, execute in order:
   URLs, release, contribution process, security channel, tests, and repository
   settings are live. Answer criteria literally; do not display the badge while
   an application is incomplete or self-claims have not been checked.
+- [ ] Use [`OPENSSF.md`](OPENSSF.md) as an evidence index, then answer both the
+  metal-series Passing and OSPS Baseline Level 1 forms literally. Do not infer
+  maintainer knowledge, response-time history, or absence of vulnerabilities
+  from repository files.
 - [ ] Re-run the public README links, clean-clone installation, CI Action,
   license/provenance checks, and security contact from an unauthenticated
   account before announcement.
@@ -294,4 +314,7 @@ Official references: [GitHub artifact-attestation availability](https://docs.git
 [OpenSSF Scorecard Action private-repository requirements](https://github.com/ossf/scorecard-action#additional-permissions-for-private-repositories),
 [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately),
 [ruleset rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets),
-and [social preview guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
+[social preview guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview),
+[Homebrew Formula Cookbook](https://docs.brew.sh/Formula-Cookbook),
+[OpenSSF Passing criteria](https://www.bestpractices.dev/en/criteria/0), and
+[current OSPS Baseline](https://baseline.openssf.org/).

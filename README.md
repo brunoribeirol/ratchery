@@ -1,6 +1,7 @@
 # Ratchetry
 
 [![CI](https://github.com/brunoribeirol/ratchery/actions/workflows/ci.yml/badge.svg)](https://github.com/brunoribeirol/ratchery/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/brunoribeirol/ratchery/badge)](https://scorecard.dev/viewer/?uri=github.com/brunoribeirol/ratchery)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](docs/INSTALLATION.md)
 [![Stdlib only](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](docs/ARCHITECTURE.md)
@@ -130,9 +131,28 @@ ratchery tools-status
 
 Full flag reference and upgrade/rollback behavior: `docs/INSTALLATION.md`.
 
+Package managers install only the immutable runtime. They must never guess a
+Vault path or write agent configuration during package installation. After any
+future package-manager install, preview and apply the same supported onboarding
+contract explicitly:
+
+```bash
+ratchery setup --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --dry-run
+ratchery setup --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --yes
+```
+
+The Homebrew tap is intentionally not advertised until its formula passes the
+stable-asset, checksum, macOS/Linux audit, and isolated setup/doctor gates in
+`docs/PUBLISHING.md`.
+
 Release archives are deterministic and ship with SHA-256 checksums, an SPDX
 2.3 SBOM, and GitHub/Sigstore provenance. Verification commands and the exact
 publication boundary are documented in `docs/PUBLISHING.md`.
+The public [OpenSSF evidence map](docs/OPENSSF.md) distinguishes the automated
+Scorecard from the separately self-certified Best Practices programs; Ratchetry
+does not display a Best Practices badge before the application earns it.
 
 ## New project
 

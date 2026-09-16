@@ -1,6 +1,6 @@
 # Start Here
 
-**Ratchetry 1.0 release candidate** is a batteries-included, low-overhead operating layer for Claude Code,
+**Ratchetry 1.0** is a batteries-included, low-overhead operating layer for Claude Code,
 Codex, and durable Obsidian memory. It installs a safe, curated workspace and uses its
 Adaptive Engine, Context Engine, and Tool Router to activate only the rigor, context, agents,
 Skills, and optional tools whose benefit justifies their cost. Product scope and non-goals
@@ -33,7 +33,8 @@ Read in this order when needed:
    [Developer Guide](DEVELOPER-GUIDE.md), and [CI Gate](CI_GATE.md) when changing
    or integrating the framework.
 9. Use [Publishing](PUBLISHING.md) for reproducible release artifacts and the
-   public-repository settings checklist. The [historical decision
+   public-repository settings checklist, and [OpenSSF Evidence](OPENSSF.md) for
+   the boundary between Scorecard and self-certified badges. The [historical decision
    matrix](decision-matrix.md) and [external research](research-external.md)
    are optional design provenance, not prerequisites or current behavior specs.
 
