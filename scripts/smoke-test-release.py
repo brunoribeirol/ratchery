@@ -239,6 +239,48 @@ def smoke_release(archive_path: Path) -> None:
         if compatibility_version.stdout != primary_version.stdout:
             raise ReleaseSmokeError("compatibility command does not run the primary runtime")
 
+        # Exercise the package-manager boundary from the installed artifact,
+        # not from the source tree. A Formula installs the runtime first and
+        # then asks the user to configure a separate HOME explicitly.
+        setup_home = base / "package-manager-home"
+        setup_vault = base / "package-manager-vault"
+        setup_projects = base / "package-manager-projects"
+        setup_home.mkdir()
+        setup_vault.mkdir()
+        setup_environment = dict(environment)
+        setup_environment.update(
+            {
+                "HOME": str(setup_home),
+                "XDG_CACHE_HOME": str(setup_home / ".cache"),
+                "XDG_CONFIG_HOME": str(setup_home / ".config"),
+                "XDG_STATE_HOME": str(setup_home / ".local" / "state"),
+            }
+        )
+        _run(
+            [
+                str(command),
+                "setup",
+                "--vault",
+                str(setup_vault),
+                "--projects-root",
+                str(setup_projects),
+                "--project-layout",
+                "categorized",
+                "--external-tools",
+                "none",
+                "--yes",
+            ],
+            cwd=base,
+            env=setup_environment,
+            label="installed package-manager setup",
+        )
+        _run(
+            [str(command), "doctor-global"],
+            cwd=base,
+            env=setup_environment,
+            label="installed package-manager doctor",
+        )
+
         project = projects / "smoke-project"
         project.mkdir()
         _run(["git", "init", "-q"], cwd=project, env=environment, label="fixture setup")

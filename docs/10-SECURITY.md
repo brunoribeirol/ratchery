@@ -118,6 +118,11 @@ directory/file modes, and record only a project-relative source path. MCP
 enable/disable validates both client representations before mutation and rolls
 back every project file if a replacement fails.
 
+Whole-Vault diagnostics, frontmatter repair, and the lexical search fallback
+do not follow symlinks. Diagnostics report each skipped link, while repair and
+search leave it untouched and do not inspect its target outside the configured
+Vault.
+
 Ratchetry supports the generated policy contract with Claude Code 2.1.187+ and
 Codex CLI 0.138.0+ when those clients are installed. `preflight`, project
 `doctor`, and `doctor-global` enforce that version floor. Project `doctor`

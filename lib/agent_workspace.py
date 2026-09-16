@@ -36,7 +36,7 @@ import efficiency as ef
 import memory_engine as me
 import tool_router as tr
 
-VERSION = "1.0.0-rc.1"
+VERSION = "1.0.0"
 # The "v8" embedded below is the managed-block MERGE-FORMAT version, not the
 # software's VERSION above -- it identifies the marker syntax merge_project_json()/
 # managed()/replace_managed_block() use to find and update their own content inside
@@ -644,17 +644,48 @@ def replace_managed_block(old: str, body: str, start: str, end: str) -> str:
     return (old.rstrip() + ("\n\n" if old.strip() else "") + block).rstrip() + "\n"
 
 
+def read_managed_text(path: Path) -> str:
+    """Read an existing managed file without following its final symlink."""
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+    )
+    try:
+        descriptor = os.open(path, flags)
+    except FileNotFoundError:
+        return ""
+    except OSError as exc:
+        raise ValueError(f"Cannot safely read managed file {path}: {exc}") from exc
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError(f"Managed path must be a regular file: {path}")
+        with os.fdopen(descriptor, "r", encoding="utf-8", errors="replace") as handle:
+            descriptor = -1
+            return handle.read()
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
 def managed(path: Path, body: str, start: str = MSTART, end: str = MEND) -> None:
-    old = read_text(path)
+    old = read_managed_text(path)
     new = replace_managed_block(old, body, start, end)
     if new != old:
         atomic_write_text(path, new)
 
 
 def copy_if_missing(src: Path, dst: Path) -> None:
-    if not dst.exists():
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, dst)
+    if dst.is_symlink():
+        raise ValueError(f"Refusing to write through symlinked file: {dst}")
+    if dst.exists():
+        if not dst.is_file():
+            raise ValueError(f"Expected a regular file: {dst}")
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
 
 
 def managed_directory_marker(path: Path) -> Path | None:
@@ -1413,15 +1444,29 @@ def project_files(path: Path, p: dict[str, Any], tier_state: dict[str, Any] | No
 
 
 def legacy_kit_detected(vault: Path) -> bool:
+    readme = vault / "README.md"
+    installer = vault / "install.sh"
+    index = vault / "VAULT-INDEX.md"
     return (
-        "Vault Agent Memory Kit v1.0" in read_text(vault / "README.md")
-        or ".vault-agent-kit-backups" in read_text(vault / "install.sh")
-        or "vault-agent-kit:" in read_text(vault / "VAULT-INDEX.md")
+        not readme.is_symlink()
+        and readme.is_file()
+        and "Vault Agent Memory Kit v1.0" in read_text(readme)
+    ) or (
+        not installer.is_symlink()
+        and installer.is_file()
+        and ".vault-agent-kit-backups" in read_text(installer)
+    ) or (
+        not index.is_symlink()
+        and index.is_file()
+        and "vault-agent-kit:" in read_text(index)
     )
 
 
 def legacy_owned(vault: Path, rel: str) -> bool:
-    p = vault / rel; text = read_text(p)
+    p = vault / rel
+    if p.is_symlink() or not p.is_file():
+        return False
+    text = read_text(p)
     checks = {
         "README.md": ["Vault Agent Memory Kit v1.0"],
         "install.sh": [".vault-agent-kit-backups", "Vault agent memory kit installed"],
@@ -1444,7 +1489,13 @@ def touched_vault_paths(vault: Path) -> list[str]:
     rels = ["AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md", "README.md", "install.sh", "related-note.md"]
     rels += [f"templates/{x}" for x in ["README.md", "project-home.md", "project-note.md", "session-log.md", "bug.md", "decision.md", "command.md", "reference.md"]]
     rels += [f"templates/ratchery/{x}" for x in ["project-home.md", "session-log.md", "bug.md", "decision.md", "command.md", "reference.md"]]
-    return [x for x in rels if (vault / x).exists() or x in ("AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md")]
+    return [
+        x
+        for x in rels
+        if (vault / x).exists()
+        or (vault / x).is_symlink()
+        or x in ("AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md")
+    ]
 
 
 def backup_vault(vault: Path, rels: list[str], reason: str) -> Path:
@@ -1566,7 +1617,7 @@ def vault_refresh(vault: Path | None = None) -> None:
         vp = cfg().get("vault_path")
         if not vp: raise SystemExit("Vault path is not configured. Run 'ratchery global-config --vault <path> --projects-root <path>' first.")
         vault = Path(vp)
-    vault = vault.expanduser().resolve()
+    vault = validate_vault_install_targets(vault)
     path = vault / "VAULT-INDEX.md"
     old = read_text(path)
     if not old or looks_like_legacy_canonical_index(old):
@@ -1578,7 +1629,7 @@ def vault_refresh(vault: Path | None = None) -> None:
 
 
 def vault_plan(vault: Path, migration: str = "safe") -> dict[str, Any]:
-    vault = vault.expanduser().resolve(); legacy = legacy_kit_detected(vault); actions: list[dict[str, Any]] = []; warnings: list[str] = []
+    vault = validate_vault_install_targets(vault); legacy = legacy_kit_detected(vault); actions: list[dict[str, Any]] = []; warnings: list[str] = []
     if legacy and migration == "safe":
         for rel in ["README.md", "install.sh", "AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md", "templates/README.md", "templates/project-home.md", "templates/project-note.md", "templates/session-log.md", "templates/bug.md", "templates/decision.md", "templates/command.md", "templates/reference.md"]:
             if legacy_owned(vault, rel):
@@ -1606,8 +1657,51 @@ def print_vault_plan(plan: dict[str, Any]) -> None:
         print("WARN:", warning)
 
 
+def validate_vault_root(vault: Path) -> Path:
+    """Resolve one real Vault root without following a caller-selected link."""
+    vault = vault.expanduser()
+    if vault.is_symlink():
+        raise ValueError("Vault path must not be a symlink")
+    try:
+        vault = vault.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("Vault path is unavailable") from exc
+    if not vault.is_dir():
+        raise ValueError("Vault path must be an existing directory")
+    return vault
+
+
+def validate_vault_install_targets(vault: Path) -> Path:
+    """Reject Vault roots/managed targets that could redirect setup writes."""
+    vault = validate_vault_root(vault)
+
+    for relative in (
+        "projects",
+        "session-logs",
+        "decisions",
+        "bugs-solved",
+        "commands",
+        "references",
+        "graphify",
+        "templates",
+        "templates/ratchery",
+    ):
+        directory = vault / relative
+        if directory.is_symlink():
+            raise ValueError(f"Vault managed directory must not be a symlink: {relative}")
+        if directory.exists() and not directory.is_dir():
+            raise ValueError(f"Vault managed directory must be a real directory: {relative}")
+    for relative in touched_vault_paths(vault):
+        target = vault / relative
+        if target.is_symlink():
+            raise ValueError(f"Vault managed file must not be a symlink: {relative}")
+        if target.exists() and not target.is_file():
+            raise ValueError(f"Vault managed file must be regular: {relative}")
+    return vault
+
+
 def vault_install(migration: str = "safe") -> Path | None:
-    conf = cfg(); vault = Path(conf["vault_path"]).expanduser().resolve(); assets = package_root() / "assets/vault"
+    conf = cfg(); vault = validate_vault_install_targets(Path(conf["vault_path"])); assets = package_root() / "assets/vault"
     plan = vault_plan(vault, migration); print_vault_plan(plan)
     rels = touched_vault_paths(vault); backup = backup_vault(vault, rels, "vault-install") if rels else None
     if migration == "safe" and plan["legacy_kit_detected"]:
@@ -1623,7 +1717,7 @@ def vault_install(migration: str = "safe") -> Path | None:
     managed(vault / "AGENTS.md", (assets / "AGENTS.block.md").read_text())
     managed(vault / "CLAUDE.md", (assets / "CLAUDE.block.md").read_text())
     for file in (assets / "templates").glob("*.md"):
-        shutil.copy2(file, vault / "templates/ratchery" / file.name)
+        atomic_write_bytes(vault / "templates/ratchery" / file.name, file.read_bytes())
     vault_refresh(vault)
     print("Vault backup:", backup or "not required")
     return backup
@@ -1645,8 +1739,10 @@ def frontmatter_issues(path: Path) -> list[str]:
 
 def fix_frontmatter_yaml(vault: Path | None = None, apply: bool = False) -> int:
     if vault is None: vault = Path(cfg()["vault_path"])
-    vault = vault.expanduser().resolve(); changes: list[tuple[Path, str]] = []
+    vault = validate_vault_root(vault); changes: list[tuple[Path, str]] = []
     for path in sorted(vault.rglob("*.md")):
+        if path.is_symlink() or not path.is_file():
+            continue
         text = read_text(path)
         if not text.startswith("---\n"): continue
         end = text.find("\n---\n", 4)
@@ -1675,15 +1771,23 @@ def fix_frontmatter_yaml(vault: Path | None = None, apply: bool = False) -> int:
 
 def vault_audit(vault: Path | None = None) -> int:
     if vault is None: vault = Path(cfg()["vault_path"])
-    vault = vault.expanduser().resolve(); errors: list[str] = []; warnings: list[str] = []
+    vault = validate_vault_root(vault); errors: list[str] = []; warnings: list[str] = []
+    index = ""
     for filename in ["AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md"]:
         path = vault / filename
-        if not path.exists(): errors.append(f"Missing {filename}")
-    index = read_text(vault / "VAULT-INDEX.md")
+        if path.is_symlink() or (path.exists() and not path.is_file()):
+            errors.append(f"{filename} must be a regular non-symlink file")
+        elif not path.exists():
+            errors.append(f"Missing {filename}")
+        elif filename == "VAULT-INDEX.md":
+            index = read_text(path)
     if index.count(INDEX_START) != 1 or index.count(INDEX_END) != 1:
         errors.append("VAULT-INDEX.md must contain exactly one managed activity block")
     if legacy_kit_detected(vault): warnings.append("Legacy vault-agent-kit artifacts are still present")
     for path in vault.rglob("*"):
+        if path.is_symlink():
+            warnings.append(f"Symlink in Vault was not inspected: {path.relative_to(vault)}")
+            continue
         if path.is_file():
             try:
                 if os.access(path, os.X_OK) and path.suffix in (".sh", ".py"):
@@ -1711,14 +1815,135 @@ def rollback_vault(backup_dir: Path) -> int:
     print("Restored backed-up files to:", target); return 0
 
 
+def validate_projects_workspace_targets(root: Path, layout: str) -> Path:
+    """Reject final-component symlinks in the package-manager workspace plan."""
+    root = root.expanduser()
+    if root.is_symlink():
+        raise ValueError("Projects root must not be a symlink")
+    root = root.resolve()
+    if root.exists() and not root.is_dir():
+        raise ValueError("Projects root must be a directory")
+    if layout != "categorized":
+        return root
+    readme = root / "README.md"
+    if readme.is_symlink() or (readme.exists() and not readme.is_file()):
+        raise ValueError("Projects workspace README must be a regular file")
+    for category in CATEGORIES:
+        directory = root / category
+        if directory.is_symlink():
+            raise ValueError(f"Projects category must not be a symlink: {category}")
+        if directory.exists() and not directory.is_dir():
+            raise ValueError(f"Projects category must be a directory: {category}")
+        category_readme = directory / "README.md"
+        if category_readme.is_symlink() or (
+            category_readme.exists() and not category_readme.is_file()
+        ):
+            raise ValueError(
+                f"Projects category README must be a regular file: {category}"
+            )
+    return root
+
+
 def setup_projects_workspace(root: Path, layout: str = "flat") -> None:
-    root = root.expanduser().resolve(); root.mkdir(parents=True, exist_ok=True)
+    root = validate_projects_workspace_targets(root, layout)
+    root.mkdir(parents=True, exist_ok=True)
     if layout != "categorized": return
     assets = package_root() / "assets/projects-workspace"
     copy_if_missing(assets / "README.md", root / "README.md")
     for category in CATEGORIES:
         (root / category).mkdir(parents=True, exist_ok=True)
         copy_if_missing(assets / "categories" / f"{category}.md", root / category / "README.md")
+
+
+def setup_workspace(
+    *,
+    vault: Path,
+    projects_root: Path,
+    project_layout: str = "flat",
+    vault_migration: str = "safe",
+    external_tools: str = "none",
+    dry_run: bool = False,
+    assume_yes: bool = False,
+) -> int:
+    """Configure user-owned state after a package manager installs Ratchetry.
+
+    Package managers own the immutable runtime; this command owns only the
+    explicit, user-scoped configuration step. It deliberately reuses the same
+    managed merge and backup paths as the source installer and never installs
+    third-party tools.
+    """
+    try:
+        vault = validate_vault_install_targets(vault)
+        projects_root = validate_projects_workspace_targets(projects_root, project_layout)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    if preflight() != 0:
+        return 1
+
+    plan = vault_plan(vault, vault_migration)
+    # Surface deterministic ownership collisions before confirmation or any
+    # write. global_guidance() revalidates at the mutation boundary to close
+    # the ordinary check/use gap as far as this local process can.
+    validate_global_guidance_targets()
+    print_vault_plan(plan)
+    print()
+    print("Ratchetry setup")
+    print(f"  Vault:           {vault}")
+    print(f"  Projects root:   {projects_root}")
+    print(f"  Project layout:  {project_layout}")
+    print(f"  Vault migration: {vault_migration}")
+    print(f"  External tools:  {external_tools}")
+
+    if dry_run:
+        print("\nDry run only. No files were changed.")
+        print("No third-party tool is installed by this command.")
+        return 0
+
+    if not assume_yes:
+        try:
+            answer = input("\nConfigure this user account? [y/N] ")
+        except EOFError:
+            print("Setup cancelled: confirmation input was unavailable.", file=sys.stderr)
+            return 1
+        if answer.strip().lower() not in {"y", "yes"}:
+            print("Setup cancelled.")
+            return 1
+
+    data = {
+        "version": VERSION,
+        "vault_path": str(vault),
+        "projects_root": str(projects_root),
+        "project_layout": project_layout,
+        "external_tools": external_tools,
+        "thresholds": {
+            "medium_files": 150,
+            "medium_lines": 25000,
+            "large_files": 800,
+            "large_lines": 120000,
+            "large_packages": 5,
+        },
+    }
+    save_cfg(data)
+    setup_projects_workspace(projects_root, project_layout)
+    global_guidance()
+    vault_install(vault_migration)
+    if external_tools == "recommended":
+        tools_install()
+
+    doctor_result = global_doctor()
+    if doctor_result != 0:
+        print(
+            "Setup completed, but doctor found Vault/content issues. Review the "
+            "errors, use vault-fix-yaml if appropriate, then rerun doctor-global.",
+            file=sys.stderr,
+        )
+        return doctor_result
+
+    print("\nRatchetry setup completed successfully.")
+    print("Next: initialize a repository with `ratchery init`.")
+    return 0
 
 
 def _frontmatter_field_from_text(text: str, key: str) -> str | None:
@@ -1886,14 +2111,32 @@ def vault_project(path: Path, p: dict[str, Any]) -> None:
     vault_refresh(vault)
 
 
-def global_guidance() -> None:
-    assets = package_root() / "assets/global"
+def validate_global_guidance_targets() -> tuple[Path, Path, list[str]]:
+    """Validate global Skill ownership and return the resolved install plan."""
     canonical = Path.home() / ".agents/skills"; claude = Path.home() / ".claude/skills"
     skill_names = registered_global_skills()
 
-    # Validate every collision before writing any global guidance or Skill.
-    # User-owned same-name directories/symlinks are preserved, but the install
-    # must fail visibly rather than claiming the framework catalog is present.
+    directories = (
+        Path.home() / ".agents",
+        canonical,
+        Path.home() / ".claude",
+        claude,
+        Path.home() / ".codex",
+    )
+    for directory in directories:
+        if directory.is_symlink():
+            raise ValueError(f"Refusing a symlinked global directory: {directory}")
+        if directory.exists() and not directory.is_dir():
+            raise ValueError(f"Global managed directory must be real: {directory}")
+    for target in (
+        Path.home() / ".claude/CLAUDE.md",
+        Path.home() / ".codex/AGENTS.md",
+    ):
+        if target.is_symlink():
+            raise ValueError(f"Refusing a symlinked global managed file: {target}")
+        if target.exists() and not target.is_file():
+            raise ValueError(f"Global managed path must be a regular file: {target}")
+
     for name in skill_names:
         target = canonical / name
         if target.is_symlink() or (
@@ -1907,6 +2150,16 @@ def global_guidance() -> None:
         elif link.exists():
             if managed_directory_marker(link) is None:
                 raise ValueError(f"Refusing to overwrite user-owned Claude Skill {link}")
+    return canonical, claude, skill_names
+
+
+def global_guidance() -> None:
+    assets = package_root() / "assets/global"
+
+    # Validate every collision before writing any global guidance or Skill.
+    # User-owned same-name directories/symlinks are preserved, but the install
+    # must fail visibly rather than claiming the framework catalog is present.
+    canonical, claude, skill_names = validate_global_guidance_targets()
 
     managed(Path.home() / ".claude/CLAUDE.md", (assets / "CLAUDE.block.md").read_text())
     managed(Path.home() / ".codex/AGENTS.md", (assets / "AGENTS.block.md").read_text())
@@ -2634,10 +2887,11 @@ def vault_qmd_reindex(apply: bool = False) -> int:
 
 
 def fallback_vault_search(query: str, limit: int = 8) -> int:
-    vault = Path(cfg()["vault_path"]).expanduser().resolve(); tokens = [t.lower() for t in re.findall(r"[A-Za-zÀ-ÿ0-9_-]{3,}", query)]
+    vault = validate_vault_root(Path(cfg()["vault_path"])); tokens = [t.lower() for t in re.findall(r"[A-Za-zÀ-ÿ0-9_-]{3,}", query)]
     scored: list[tuple[int, Path, str]] = []
     for path in vault.rglob("*.md"):
         if any(part.startswith(".") for part in path.relative_to(vault).parts): continue
+        if path.is_symlink() or not path.is_file(): continue
         text = read_text(path); low = text.lower(); score = sum(low.count(t) for t in tokens)
         if score:
             first = next((line.strip() for line in text.splitlines() if line.strip() and not line.startswith("---")), "")
@@ -4700,6 +4954,14 @@ def main() -> None:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     gc = sub.add_parser("global-config", help="Write the global ~/.ratchery config (vault path, projects root, layout)."); gc.add_argument("--vault", required=True); gc.add_argument("--projects-root", required=True); gc.add_argument("--project-layout", choices=["flat", "categorized"], default="flat"); gc.add_argument("--external-tools", choices=["none", "recommended"], default="none")
+    setup = sub.add_parser("setup", help="Configure this user account after a package manager installs Ratchetry.")
+    setup.add_argument("--vault", required=True, help="Existing Obsidian Vault path.")
+    setup.add_argument("--projects-root", default=str(Path.home() / "Projects"), help="Default parent for projects (default: ~/Projects).")
+    setup.add_argument("--project-layout", choices=["flat", "categorized"], default="flat")
+    setup.add_argument("--vault-migration", choices=["safe", "preserve"], default="safe")
+    setup.add_argument("--external-tools", choices=["none", "recommended"], default="none")
+    setup.add_argument("--dry-run", action="store_true", help="Show the plan without writing files.")
+    setup.add_argument("--yes", action="store_true", help="Apply without interactive confirmation.")
     sub.add_parser("install-global", help="Install/refresh the global CLAUDE.md and AGENTS.md managed blocks.")
     pf = sub.add_parser("preflight", help="Check environment prerequisites (Python, git, etc.) before install."); pf.add_argument("--strict", action="store_true", help="Treat warnings as errors.")
     vi = sub.add_parser("vault-install", help="Install or update the Vault kit at the configured vault path."); vi.add_argument("--migration", choices=["safe", "preserve"], default="safe")
@@ -4942,15 +5204,31 @@ def main() -> None:
 
 def _dispatch(args: argparse.Namespace) -> None:
     if args.cmd == "global-config":
+        vault = validate_vault_install_targets(Path(args.vault))
+        projects_root = validate_projects_workspace_targets(
+            Path(args.projects_root), args.project_layout
+        )
         data = {
             "version": VERSION,
-            "vault_path": str(Path(args.vault).expanduser().resolve()),
-            "projects_root": str(Path(args.projects_root).expanduser().resolve()),
+            "vault_path": str(vault),
+            "projects_root": str(projects_root),
             "project_layout": args.project_layout,
             "external_tools": args.external_tools,
             "thresholds": {"medium_files": 150, "medium_lines": 25000, "large_files": 800, "large_lines": 120000, "large_packages": 5},
         }
         save_cfg(data); setup_projects_workspace(Path(data["projects_root"]), data["project_layout"])
+    elif args.cmd == "setup":
+        raise SystemExit(
+            setup_workspace(
+                vault=Path(args.vault),
+                projects_root=Path(args.projects_root),
+                project_layout=args.project_layout,
+                vault_migration=args.vault_migration,
+                external_tools=args.external_tools,
+                dry_run=args.dry_run,
+                assume_yes=args.yes,
+            )
+        )
     elif args.cmd == "install-global": global_guidance()
     elif args.cmd == "preflight": raise SystemExit(preflight(args.strict))
     elif args.cmd == "vault-install": vault_install(args.migration)
