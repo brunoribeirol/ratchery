@@ -2,7 +2,48 @@
 
 ## Unreleased
 
+## v1.0.0 - 2026-09-16
+
+First stable Ratchetry release. It retains the verified RC's security and
+release boundaries, adds an explicit package-manager onboarding contract, and
+requires source static analysis and reviewed shell analysis before release.
+
+### Added
+
+- `ratchery setup` configures an existing Vault, projects root, managed global
+  guidance, and optional-tool policy after a package manager installs the
+  immutable runtime. It supports a no-write dry run, fails closed when
+  confirmation is unavailable, preserves human-owned content, and is covered
+  by isolated idempotency and release-artifact smoke tests.
+- A least-privilege Python CodeQL workflow runs on pull requests and `main`
+  pushes. Only its analysis job can read source and upload SARIF; it receives
+  no contents write, OIDC, secret, or release permission.
+- `docs/OPENSSF.md` maps public evidence for the metal Passing and OSPS
+  Baseline Level 1 applications while leaving maintainer attestations and the
+  badge itself explicitly unclaimed.
+
+### Changed
+
+- ShellCheck is now blocking on the existing Linux CI matrix legs. macOS keeps
+  the portable Bash syntax and integration gates without adding a new required
+  Ruleset context.
+- README displays the already-published automated Scorecard result, and the
+  reusable CI Action documentation now uses the exact immutable `@v1.0.0` tag
+  instead of a nonexistent moving `@v1` ref.
+- Homebrew guidance now requires `libexec` runtime installation, the explicit
+  `ratchery setup` user step, a current supported Homebrew Python, immutable
+  release checksums, and real isolated setup/doctor tests on macOS and Linux.
+
 ### Fixed
+
+- Managed text updates and package-manager setup now reject symlinked or
+  special Vault, projects-workspace, and global-guidance targets before the
+  first write. Existing managed files are opened with no-follow semantics, so
+  a crafted link cannot make setup read an outside file into public Vault
+  content or redirect a template write outside the reviewed directories.
+- Whole-Vault diagnostics, frontmatter repair, and lexical search now report
+  or skip symlinks instead of reading their targets outside the configured
+  Vault.
 
 - The checkout-free release publication job now passes the immutable
   `GITHUB_REPOSITORY` value explicitly to `gh release create`. Previously the
