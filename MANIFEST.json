@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0",
   "channel": "stable",
-  "generated_at": "2026-09-16T04:06:32+00:00",
+  "generated_at": "2026-09-16T04:27:07+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -16,7 +16,7 @@
     "default_session_end_hook": false
   },
   "file_count_excluding_manifest": 285,
-  "total_bytes_excluding_manifest": 1385136,
+  "total_bytes_excluding_manifest": 1385725,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -1340,8 +1340,8 @@
     },
     {
       "path": "tests/run-tests.sh",
-      "sha256": "341ec475fb7f1538612f579545a936a14323e6660a3465eca2ddf5c29832210f",
-      "size_bytes": 23838
+      "sha256": "77938e343ad9ac2a4e6afcfa75136a05d6056f51535f76983670ccd1eac40571",
+      "size_bytes": 24427
     },
     {
       "path": "tests/test_action_contract.py",

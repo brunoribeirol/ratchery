@@ -196,7 +196,10 @@ ratchery tier-set --path "$P" >/dev/null
 grep -q '^permissionMode: plan$' "$P/.claude/agents/explorer.md"
 grep -q '^permissionMode: plan$' "$P/.claude/agents/reviewer.md"
 grep -q '^permissionMode: plan$' "$P/.claude/agents/security-reviewer.md"
-! grep -q '^permissionMode: plan$' "$P/.claude/agents/test-runner.md"
+if grep -q '^permissionMode: plan$' "$P/.claude/agents/test-runner.md"; then
+  echo "test-runner unexpectedly uses plan-only permissions" >&2
+  exit 1
+fi
 
 grep -q 'agent-workspace:v8:commands:start' "$P/docs/COMMANDS.md"
 cat >> "$P/docs/COMMANDS.md" <<'MD'
@@ -236,7 +239,10 @@ fi
 # Hook security + privacy.
 printf '{"hook_event_name":"UserPromptSubmit","cwd":"%s","prompt":"fix typo with sk-super-secret"}\n' "$P" | python3 "$P/.agents/runtime/agent_workspace.py" > "$TMP/trivial"
 [[ ! -s "$TMP/trivial" ]]
-! grep -R -q 'sk-super-secret' "$P/.agents/state"
+if grep -R -q 'sk-super-secret' "$P/.agents/state"; then
+  echo "prompt secret leaked into persisted agent state" >&2
+  exit 1
+fi
 python3 - <<PY
 import json
 from pathlib import Path
@@ -264,7 +270,10 @@ mkdir -p "$TMP/session-end-disabled-vault"
 printf '{"hook_event_name":"SessionEnd","cwd":"%s","reason":"test"}\n' "$P" \
   | AGENT_WORKSPACE_VAULT="$TMP/session-end-disabled-vault" \
     python3 "$P/.agents/runtime/agent_workspace.py"
-! find "$TMP/session-end-disabled-vault" -type f | grep -q .
+if find "$TMP/session-end-disabled-vault" -type f -print -quit | grep -q .; then
+  echo "SessionEnd unexpectedly persisted data to the Vault" >&2
+  exit 1
+fi
 
 # Regression: malformed stdin JSON is a known, accepted fail-open failure
 # mode -- this hook is a secondary deterministic guard, not the enforcement
@@ -326,8 +335,14 @@ ratchery refresh --path "$P" >/dev/null
 grep -q '"context7"' "$P/.mcp.json"
 grep -q 'agent-workspace:mcp:context7:start' "$P/.codex/config.toml"
 ratchery mcp disable context7 --path "$P" >/dev/null
-[[ ! -f "$P/.mcp.json" ]] || ! grep -q '"context7"' "$P/.mcp.json"
-! grep -q 'agent-workspace:mcp:context7:start' "$P/.codex/config.toml"
+if [[ -f "$P/.mcp.json" ]] && grep -q '"context7"' "$P/.mcp.json"; then
+  echo "disabled Context7 server remained in .mcp.json" >&2
+  exit 1
+fi
+if grep -q 'agent-workspace:mcp:context7:start' "$P/.codex/config.toml"; then
+  echo "disabled Context7 server remained in Codex config" >&2
+  exit 1
+fi
 
 # Preserve user hook arrays across refresh.
 python3 - <<PY
@@ -403,7 +418,10 @@ grep -q 'Bug One' "$VAULT/VAULT-INDEX.md"
 mkdir -p "$VAULT/session-logs"
 printf -- '---\nproject: "tiny"\n---\n\n# Legacy Session\n' > "$VAULT/session-logs/legacy.md"
 ratchery vault-refresh >/dev/null
-! grep -q 'Legacy Session' "$VAULT/VAULT-INDEX.md"
+if grep -q 'Legacy Session' "$VAULT/VAULT-INDEX.md"; then
+  echo "legacy global session log leaked into the Vault index" >&2
+  exit 1
+fi
 ratchery vault-migrate-session-logs | grep -q 'Would move: session-logs/legacy.md'
 [[ -f "$VAULT/session-logs/legacy.md" ]]
 ratchery vault-migrate-session-logs --apply | grep -q 'Moved: session-logs/legacy.md'
@@ -467,7 +485,10 @@ ratchery vault-qmd-setup > "$TMP/qmd-plan"
 grep -q -- '--index ratchery-vault collection add' "$TMP/qmd-plan"
 grep -q -- '--index ratchery-vault context add' "$TMP/qmd-plan"
 grep -q -- '--index ratchery-vault embed -c vault' "$TMP/qmd-plan"
-! grep -q 'collection add' "$QMD_TEST_LOG"
+if grep -q 'collection add' "$QMD_TEST_LOG"; then
+  echo "QMD setup plan unexpectedly mutated the collection" >&2
+  exit 1
+fi
 ratchery vault-qmd-status >/dev/null
 grep -q "cwd=$HOME" "$QMD_TEST_LOG"
 rm -f "$HOME/.local/bin/qmd"
