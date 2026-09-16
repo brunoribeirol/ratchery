@@ -44,14 +44,11 @@ jobs:
       - name: Shell syntax check (installer, command shims, integration suite)
         run: bash -n install.sh bin/ratchery bin/agent-workspace tests/run-tests.sh
 
-      - name: Shellcheck (install.sh, tests/run-tests.sh) -- informational only
-        # Non-blocking (continue-on-error) deliberately: shellcheck has never
-        # run against these scripts before, so its first pass could easily
-        # surface a wall of pre-existing style findings that would need
-        # triage before this can safely gate merges. Surfacing findings now,
-        # without breaking main on day one, is the responsible middle
-        # ground -- flip to blocking once someone's actually reviewed a run.
-        continue-on-error: true
+      - name: Shellcheck (install.sh, command shims, integration suite)
+        # GitHub's Ubuntu image provides ShellCheck. Keep this inside the
+        # existing Linux matrix contexts so no new Ruleset check is required;
+        # macOS legs still exercise bash syntax and the full integration suite.
+        if: runner.os == 'Linux'
         run: shellcheck install.sh bin/ratchery bin/agent-workspace tests/run-tests.sh
 
       - name: Verify MANIFEST.json integrity (existence, size, sha256, totals)

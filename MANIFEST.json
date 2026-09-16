@@ -1,8 +1,8 @@
 {
   "name": "ratchery",
-  "version": "1.0.0-rc.1",
-  "channel": "prerelease",
-  "generated_at": "2026-09-16T02:20:02+00:00",
+  "version": "1.0.0",
+  "channel": "stable",
+  "generated_at": "2026-09-16T04:27:07+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 280,
-  "total_bytes_excluding_manifest": 1329184,
+  "file_count_excluding_manifest": 285,
+  "total_bytes_excluding_manifest": 1385725,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "29482b254f23927c75ee7fdc8c2c96fbfd6c2dac7594cc77637502a8f18980e0",
-      "size_bytes": 24466
+      "sha256": "de28004bad196eeb1fa7e85f2f906399f5203a09eb2f3058740d377db8262dfa",
+      "size_bytes": 26650
     },
     {
       "path": "CLAUDE.md",
@@ -215,8 +215,8 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "65b64344ea6bbcd8b28eee1dc9c39c6e2767e7d952c8c47524f3e78d176dc3e4",
-      "size_bytes": 12368
+      "sha256": "091205a2c33da9d0eab8734319206c02a962841af0c448a77e95021df9918246",
+      "size_bytes": 12918
     },
     {
       "path": "LICENSE",
@@ -230,18 +230,18 @@
     },
     {
       "path": "Makefile",
-      "sha256": "c434f1182778dd03d6c5ee0471362edd2a6300263df914480c46b8a77062f8ae",
-      "size_bytes": 1757
+      "sha256": "7adbe93ec3712503a8606c1277686a5616f2a079b6340927eaacf28fdd0b8ac0",
+      "size_bytes": 1745
     },
     {
       "path": "README.md",
-      "sha256": "43113d1c75c7758aa218652e166a1da26b5c37b87529461ca16dd89a6ef76114",
-      "size_bytes": 13228
+      "sha256": "8d2d21d6e2405ac32490c8757f475baae969962684b280b9b6cb82ba65b77362",
+      "size_bytes": 14362
     },
     {
       "path": "SECURITY.md",
-      "sha256": "9d94f4e6d3f9c077b26cc7a06b2308ea71636f0ec1ed0186994158474bab6ba3",
-      "size_bytes": 8532
+      "sha256": "380ae40e2fd11af66dbc00411cec7597156dc2d3e1f9565c163d1b8a70e23e5b",
+      "size_bytes": 8515
     },
     {
       "path": "action.yml",
@@ -810,8 +810,8 @@
     },
     {
       "path": "docs/00-START-HERE.md",
-      "sha256": "96f72010c8438787821d592aeec01595955b1560338a8941c2ac772f8e741ea0",
-      "size_bytes": 2869
+      "sha256": "3d8740bbae4694c4805299d16a4404997a2038e4d0330ecffbfcc5e11245f79b",
+      "size_bytes": 2951
     },
     {
       "path": "docs/02-ARCHITECTURE.md",
@@ -855,8 +855,8 @@
     },
     {
       "path": "docs/10-SECURITY.md",
-      "sha256": "a4101a9a3b7669216c2258b943295ae3e8bc0b6ea49f32f19e5f607158653ea2",
-      "size_bytes": 8856
+      "sha256": "61586949fb3b66f8ff6a8946c9aa05d6b557cbe28a9d68c57da4c9c910ded690",
+      "size_bytes": 9099
     },
     {
       "path": "docs/11-HOOKS-AUTOMATION.md",
@@ -910,8 +910,8 @@
     },
     {
       "path": "docs/CI_GATE.md",
-      "sha256": "fedf572ab41febba6e21b8e831f50272bef4f277906772f44ae214bfb7836781",
-      "size_bytes": 3587
+      "sha256": "62e73a059f2e469998d15d64d42488c51d341067a5b3ec2316a37abe711424cf",
+      "size_bytes": 3768
     },
     {
       "path": "docs/COMMANDS.md",
@@ -920,18 +920,23 @@
     },
     {
       "path": "docs/DEVELOPER-GUIDE.md",
-      "sha256": "fd55f7418714ed79eb5efa30b434a394828815a12f5be52a4a12321164b6e369",
-      "size_bytes": 11277
+      "sha256": "9f3a6ef7e3e59d3b1f89da4cfb7a09307dbcf99a143f37af40aed59fda29f862",
+      "size_bytes": 11443
     },
     {
       "path": "docs/INSTALLATION.md",
-      "sha256": "5b6c9dc5d426cdbfba052057e5a12dbb49c7ea36e2be37b2cc35dfa8aed6bc35",
-      "size_bytes": 8911
+      "sha256": "09b93dbc81186ef4b2154a0b5e9cef7bf04fdd7e75affcb8dcc18a1b9da53bd6",
+      "size_bytes": 10877
     },
     {
       "path": "docs/MEMORY.md",
       "sha256": "1e2296a6461facd9368f11f55fb73c4677078569db1a9216db51abcfc5985378",
       "size_bytes": 7408
+    },
+    {
+      "path": "docs/OPENSSF.md",
+      "sha256": "f4c33d7654a73e1c013247fb1ca0c3de1b93074656075387e52ba1c1e3369b71",
+      "size_bytes": 6191
     },
     {
       "path": "docs/PROJECT_CONTEXT.md",
@@ -940,13 +945,13 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "ac6f4665fa65076e8fe4d1540cd4fcb3ca57c2d5153a836e3efca32d25c99e64",
-      "size_bytes": 15977
+      "sha256": "67aac5054fed872cca827c8c92b2872cbfa7e3294fa9ad94e53ecefd0035a313",
+      "size_bytes": 17150
     },
     {
       "path": "docs/ROADMAP.md",
-      "sha256": "c6fc676720fe371007e05f6401ca89e862b9ea2424ff97c8f4c24be9cd42fe96",
-      "size_bytes": 10507
+      "sha256": "47698a5d379fcc6feace54d508965463e2fd4a1ad95e466016743a0eb78193d9",
+      "size_bytes": 10591
     },
     {
       "path": "docs/TOOL_POLICY.md",
@@ -1094,6 +1099,11 @@
       "size_bytes": 5490
     },
     {
+      "path": "docs/specs/stable-homebrew-openssf-preparation.md",
+      "sha256": "da85baf0949c4729f8ae36131846984caee08343905ca01ab0db1bc7bb771d19",
+      "size_bytes": 4206
+    },
+    {
       "path": "docs/specs/team-durable-risk-and-mcp.md",
       "sha256": "dcabf2fa133a43d3f7c12ce3f6c454aad111986168321a79073bf80c95fd75f9",
       "size_bytes": 2398
@@ -1137,6 +1147,11 @@
       "path": "docs/work/2026-09-13-ratchery-memory-reconstruction.md",
       "sha256": "d3fae30e9585e3e2c9c8a29c7768386eb4f1738702deec9528de9574cee717ff",
       "size_bytes": 4313
+    },
+    {
+      "path": "docs/work/2026-09-15-stable-homebrew-openssf-readiness.md",
+      "sha256": "7b6ca3055cd33c4eb224421ba1b8654e69b20d6e9d0240583752dd73af1d73dd",
+      "size_bytes": 11119
     },
     {
       "path": "docs/work/TASK_TEMPLATE.md",
@@ -1255,8 +1270,8 @@
     },
     {
       "path": "lib/agent_workspace.py",
-      "sha256": "a829c7375683b9b69601769622e78f2abea74999e187e641d66146a104260685",
-      "size_bytes": 232482
+      "sha256": "7a9df59660fbf360622bb3a481d08ad9a682f18ae3d89ae50575503005b6c575",
+      "size_bytes": 242932
     },
     {
       "path": "lib/context_engine.py",
@@ -1270,8 +1285,8 @@
     },
     {
       "path": "lib/hook_runtime.py",
-      "sha256": "ee7b93222407d236c6652aa1af297eda87c44da00b7a30b4a220e7c9cdb9d76f",
-      "size_bytes": 13489
+      "sha256": "29ca8565de43af0045d89dd6bc42c4695a00e317b399f69a84c028b9d87b5fdd",
+      "size_bytes": 13484
     },
     {
       "path": "lib/memory_engine.py",
@@ -1305,8 +1320,8 @@
     },
     {
       "path": "scripts/smoke-test-release.py",
-      "sha256": "cc634a0af6d434e43431239c0ff2d86564af66dab57515e054a38d45a53fcaf2",
-      "size_bytes": 12270
+      "sha256": "ce7dbdcc3c9e2a730d4dca6875c675b1a6622bb00b298da4298fa1782f195422",
+      "size_bytes": 13753
     },
     {
       "path": "scripts/verify-action-pins.py",
@@ -1325,8 +1340,8 @@
     },
     {
       "path": "tests/run-tests.sh",
-      "sha256": "341ec475fb7f1538612f579545a936a14323e6660a3465eca2ddf5c29832210f",
-      "size_bytes": 23838
+      "sha256": "77938e343ad9ac2a4e6afcfa75136a05d6056f51535f76983670ccd1eac40571",
+      "size_bytes": 24427
     },
     {
       "path": "tests/test_action_contract.py",
@@ -1342,6 +1357,11 @@
       "path": "tests/test_adaptive_engine.py",
       "sha256": "276196d7519ee128b81c16afa838b10b48467dfc2afcb24cf2de6f5c06c65578",
       "size_bytes": 18451
+    },
+    {
+      "path": "tests/test_ci_workflow_contract.py",
+      "sha256": "6e615388cc5fdeb317df978b3dddd84d65e62e1a3a2061f10e570f63b6157c3b",
+      "size_bytes": 2393
     },
     {
       "path": "tests/test_client_canary_contract.py",
@@ -1380,8 +1400,8 @@
     },
     {
       "path": "tests/test_merge_and_slug.py",
-      "sha256": "4ffba53b5a885b306e88667197185393ac08fa3c7f15319ffe905c89df50d2e5",
-      "size_bytes": 22643
+      "sha256": "d8d3d677eff47b4954afa391e9c36324b92b3005065e113ba15356143f9ece3d",
+      "size_bytes": 25327
     },
     {
       "path": "tests/test_release_artifacts.py",
@@ -1395,8 +1415,13 @@
     },
     {
       "path": "tests/test_scorecard_workflow_contract.py",
-      "sha256": "e5d30c3067552e9fa822734f237dc4295dabb6acbaa128a2b585d77473e6eeef",
-      "size_bytes": 2491
+      "sha256": "2cfde540cc783c81e102e24e45ceea1ee757e579eb917fd7202bdfdb1c0441d8",
+      "size_bytes": 3026
+    },
+    {
+      "path": "tests/test_setup_command.py",
+      "sha256": "599cd4832b44c7ae7ad76b8a3a75c371070c5bcc27ff57b67d1f0345596e5d65",
+      "size_bytes": 9162
     },
     {
       "path": "tests/test_tool_policy.py",

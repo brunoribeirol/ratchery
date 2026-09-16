@@ -5,11 +5,12 @@ consideration, and what's still speculative. Nothing in "Next" or
 "Later / exploratory" is a commitment or a timeline — treat those sections as
 "under consideration," not "coming soon."
 
-## Current release candidate (v1.0.0-rc.1)
+## Current stable line (v1.0.0)
 
-The capabilities below are implemented and locally validated. They are not a
-public-release claim until the private GitHub repository's hosted checks,
-Rulesets, prerelease artifact, and attestations have been verified.
+The capabilities below are implemented. Stable publication still requires the
+exact release commit's protected CI, CodeQL, client canary, signed tag,
+artifacts, checksums, SBOM, and attestations to pass; this heading does not
+replace those gates.
 
 - **Adaptive Engine (T0-T3)** — deterministic risk tiering
   (`lib/adaptive_engine.py`) with per-tier requirements (spec mode, required
@@ -80,8 +81,9 @@ Rulesets, prerelease artifact, and attestations have been verified.
   `requirements.spec_mode` and walks the matching template
   (`docs/specs/DELTA_SPEC_TEMPLATE.md` for T1/T2,
   `docs/specs/FULL_SPEC_TEMPLATE.md` for T3's full phase-gated flow).
-- **`make test`** — one entry point running the same compile/integration/unit
-  steps CI runs.
+- **Portable local gates** — `make test` runs compile, Ruff, integration,
+  unit, manifest, Action-pin, and documentation-link checks; Linux CI adds
+  blocking ShellCheck and the separate CodeQL workflow provides Python SAST.
 - **Exact release-artifact smoke gate** — the tag workflow and
   `make release-smoke` safely extract, install, initialize, and diagnose the
   actual manifest-backed tarball in an isolated environment before publication.
@@ -111,13 +113,13 @@ should expect in the next release without further evaluation:
   can be accurate across clients without exposing prompts, adding a daemon, or
   pretending a local hook is an authoritative billing boundary.
 
-## After first public release
+## After stable release
 
-- **Homebrew tap** — create the final-owner tap only after the stable command,
-  installed namespace, repository URL, signed tag, and verified release archive
-  exist. First split package-manager runtime installation from user-specific
-  Vault onboarding, then require pinned URLs/checksums plus macOS/Linux formula
-  audit and isolated smoke tests. See `docs/PUBLISHING.md`.
+- **Homebrew tap** — `ratchery setup` now separates package-manager runtime
+  installation from user-specific Vault onboarding. Create the tap only after
+  stable `v1.0.0` exists, then require its exact release URL/checksum plus
+  macOS/Linux Formula audit and isolated setup/doctor tests. See
+  `docs/PUBLISHING.md`.
 
 ## Later / exploratory
 

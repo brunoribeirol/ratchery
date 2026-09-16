@@ -8,9 +8,9 @@ before reporting — the issue may already be fixed.
 
 | Version | Supported |
 | ------- | --------- |
-| Latest `1.0.0` release candidate (before stable launch) | Yes |
-| Latest stable release (after launch) | Yes |
-| Older releases | No |
+| Latest stable `1.x` release | Yes |
+| Pre-releases older than the latest stable | No |
+| Older stable releases | No |
 
 ## Reporting a Vulnerability
 

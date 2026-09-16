@@ -15,7 +15,7 @@ import sys
 import tempfile
 import tomllib
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -400,6 +400,76 @@ class TestFrontmatterIssues(unittest.TestCase):
     def test_valid_frontmatter_no_issues(self):
         issues = aw.frontmatter_issues(self._write("---\ntitle: clean\nstatus: active\n---\n\n# Body\n"))
         self.assertEqual(issues, [])
+
+
+class TestVaultSymlinkSafety(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._tmp.name)
+        self.vault = self.tmp / "vault"
+        self.vault.mkdir()
+        (self.vault / "AGENTS.md").write_text("managed\n")
+        (self.vault / "CLAUDE.md").write_text("managed\n")
+        (self.vault / "VAULT-INDEX.md").write_text(
+            f"# Index\n{aw.INDEX_START}\nempty\n{aw.INDEX_END}\n"
+        )
+        self.outside = self.tmp / "outside.md"
+        self.outside.write_text(
+            '---\ntitle: Secret: should-not-be-read\n---\n\nneedle-outside\n'
+        )
+        (self.vault / "linked.md").symlink_to(self.outside)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_vault_doctor_warns_without_inspecting_symlink_target(self):
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            result = aw.vault_audit(self.vault)
+
+        output = stdout.getvalue()
+        self.assertEqual(result, 0)
+        self.assertIn("Symlink in Vault was not inspected: linked.md", output)
+        self.assertNotIn("quote scalar", output)
+        self.assertNotIn("Secret", output)
+
+    def test_vault_doctor_does_not_read_symlinked_required_index(self):
+        index = self.vault / "VAULT-INDEX.md"
+        index.unlink()
+        index.symlink_to(self.outside)
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            result = aw.vault_audit(self.vault)
+
+        output = stdout.getvalue()
+        self.assertEqual(result, 1)
+        self.assertIn("VAULT-INDEX.md must be a regular non-symlink file", output)
+        self.assertNotIn("quote scalar", output)
+        self.assertNotIn("Secret", output)
+
+    def test_yaml_fixer_does_not_follow_vault_symlink(self):
+        before = self.outside.read_bytes()
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            result = aw.fix_frontmatter_yaml(self.vault, apply=True)
+
+        self.assertEqual(result, 0)
+        self.assertIn("Frontmatter YAML fixes: 0 file(s).", stdout.getvalue())
+        self.assertEqual(self.outside.read_bytes(), before)
+
+    def test_lexical_search_does_not_follow_vault_symlink(self):
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(aw, "cfg", return_value={"vault_path": str(self.vault)}),
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            result = aw.fallback_vault_search("needle-outside")
+
+        self.assertEqual(result, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertEqual(stderr.getvalue(), "")
 
 
 class TestChooseVaultSlug(unittest.TestCase):

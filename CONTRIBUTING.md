@@ -36,7 +36,7 @@ don't need this.
 
 ## Running the tests
 
-Run everything CI runs, in one command:
+Run the portable CI gates in one command:
 
 ```bash
 make test
@@ -51,9 +51,17 @@ python3 -m py_compile lib/*.py             # byte-compile check
 ruff check lib/ scripts/ tests/ bin/       # lint (pip install ruff==0.6.2 to match ci.yml)
 python3 scripts/verify-manifest.py         # MANIFEST.json matches the tracked tree
 python3 scripts/verify-action-pins.py      # every external Action uses a full commit SHA
+python3 scripts/verify-doc-links.py        # local Markdown paths and heading fragments
+make shellcheck                            # required for shell changes; installed on Linux CI
 ```
 
-All of the above must pass before a PR is opened. If you add new behavior,
+GitHub's Linux matrix legs run ShellCheck as a blocking gate. It is kept out of
+`make test` only because it is not preinstalled on every supported contributor
+host; install it and run `make shellcheck` whenever a listed shell file changes.
+The separate least-privilege CodeQL workflow performs Python source analysis on
+pull requests and `main` pushes.
+
+All applicable checks above must pass before a PR is opened. If you add new behavior,
 add or extend tests that cover it — untested behavior changes will be asked
 to add coverage in review.
 

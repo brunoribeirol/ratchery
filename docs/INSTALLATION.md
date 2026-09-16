@@ -2,6 +2,14 @@
 
 This is the real `install.sh` flag reference and install/upgrade behavior.
 
+There are two supported boundaries:
+
+- `install.sh` installs a verified source/release tree into a user prefix and
+  then configures that user account.
+- A package manager installs only the immutable runtime. The user then runs
+  `ratchery setup` explicitly; a Formula must never choose a Vault or mutate
+  agent configuration during `brew install`.
+
 ## Prerequisites
 
 - **Python 3.11+** (required). Ratchetry parses and semantically validates the generated
@@ -63,6 +71,42 @@ Notes on each:
   candidate vs. currently-installed version, and exits. **Writes nothing to disk.**
 - `--yes` — skips the interactive `Continue? [y/N]` confirmation prompt; useful for
   non-interactive/CI installs.
+
+## Setup after a package-manager install
+
+`ratchery setup` is the supported post-install command for Homebrew and other
+runtime-only package managers. It uses the same managed blocks, ownership
+checks, Vault backup, project-workspace layout, preflight, and doctor paths as
+the source installer, but it does not copy or replace the installed runtime.
+
+Preview first:
+
+```bash
+ratchery setup --vault ~/ObsidianVault --projects-root ~/Projects \
+  --project-layout categorized --external-tools none --dry-run
+```
+
+Apply after reviewing the plan:
+
+```bash
+ratchery setup --vault ~/ObsidianVault --projects-root ~/Projects \
+  --project-layout categorized --external-tools none --yes
+```
+
+The flags are `--vault` (required existing directory), `--projects-root`
+(default `~/Projects`), `--project-layout flat|categorized`,
+`--vault-migration safe|preserve`, `--external-tools none|recommended`,
+`--dry-run`, and `--yes`. Without `--yes`, setup requires an interactive yes;
+EOF or any other answer fails closed without writing. The `recommended` tools
+policy still installs nothing—it prints reviewable guidance only.
+
+The command is idempotent. Running it again refreshes Ratchetry-owned content,
+preserves human-owned content, and creates the same external Vault backups used
+by `vault-install`. If the final doctor finds malformed existing Vault content,
+setup returns non-zero with repair guidance; it does not silently call a fixer.
+Vault, projects-workspace, and global managed targets must be real directories
+and regular files rather than symlinks; setup rejects an unsafe layout before
+writing configuration.
 
 ## Dry-run example
 

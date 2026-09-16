@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: brunoribeirol/ratchery@v1
+      - uses: brunoribeirol/ratchery@v1.0.0
         with:
           path: .
           deep: "true"
@@ -35,6 +35,10 @@ jobs:
 No install step, no dependency beyond Python 3.11+ — the action runs its own
 bundled `lib/agent_workspace.py` directly (stdlib-only), it does not require
 `ratchery` to be installed on the runner.
+
+The exact tag is intentional. Ratchetry release tags are signed and immutable;
+the project does not publish a moving `v1` ref whose meaning can change after a
+workflow review.
 
 ## Inputs
 
