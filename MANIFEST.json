@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0-rc.1",
   "channel": "prerelease",
-  "generated_at": "2026-09-15T12:03:20+00:00",
+  "generated_at": "2026-09-16T02:20:02+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -16,7 +16,7 @@
     "default_session_end_hook": false
   },
   "file_count_excluding_manifest": 280,
-  "total_bytes_excluding_manifest": 1328608,
+  "total_bytes_excluding_manifest": 1329184,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "ce489256d037a868e5d543b5b4845bbb4868e43db5956e99d412dc479ae417b1",
-      "size_bytes": 24168
+      "sha256": "29482b254f23927c75ee7fdc8c2c96fbfd6c2dac7594cc77637502a8f18980e0",
+      "size_bytes": 24466
     },
     {
       "path": "CLAUDE.md",
@@ -1390,8 +1390,8 @@
     },
     {
       "path": "tests/test_release_workflow_contract.py",
-      "sha256": "ab82bbf90f99217c51f427a7ee82415bb820530c34c9dc8dc7c9f9123d97e665",
-      "size_bytes": 2991
+      "sha256": "9f3a933b586ad65e1d5ef03adfd1c2afae2a706b94826ba6e7078763c2ee8855",
+      "size_bytes": 3269
     },
     {
       "path": "tests/test_scorecard_workflow_contract.py",
