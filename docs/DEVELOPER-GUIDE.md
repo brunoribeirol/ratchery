@@ -131,9 +131,11 @@ Each inserts `lib/` onto `sys.path` directly (`sys.path.insert(0, str(Path(__fil
 / "lib"))`) rather than relying on an installed package — match that pattern for a new test
 module rather than introducing a test framework dependency.
 
-Run everything with `make test`. To isolate only the shell integration path, run
-`bash tests/run-tests.sh`; unit tests are a separate auto-discovered target so failures are
-easy to localize and CI exercises both paths explicitly.
+Run the portable gates with `make test`. To isolate only the shell integration
+path, run `bash tests/run-tests.sh`; unit tests are a separate auto-discovered
+target so failures are easy to localize and CI exercises both paths explicitly.
+GitHub's Linux legs also run blocking ShellCheck. Run `make shellcheck` locally
+whenever changing `install.sh`, either command shim, or `tests/run-tests.sh`.
 
 ## Regenerating MANIFEST.json
 

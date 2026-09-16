@@ -1,9 +1,8 @@
 .PHONY: test compile lint unit integration manifest verify release-smoke shellcheck clean
 
-# Runs everything CI runs (ci.yml), in the same order, so a contributor gets
-# the same signal locally before pushing. See CONTRIBUTING.md. (Previously
-# omitted lint/verify despite this claim -- see
-# docs/audits/2026-09-05-pre-publish-review.md finding 13.)
+# Runs the portable CI gates. GitHub's Linux legs additionally run the optional
+# `make shellcheck` gate because ShellCheck is preinstalled there; contributors
+# editing shell code should install it and run that target locally too.
 test: compile lint integration unit verify
 
 compile:
@@ -37,9 +36,9 @@ release-smoke:
 	python3 scripts/build-release.py --output-dir "$$release_dir" >/dev/null; \
 	python3 scripts/smoke-test-release.py "$$release_dir"/*.tar.gz
 
-# Not part of `test` -- informational in CI too (see ci.yml), not everyone
-# has shellcheck installed locally. Run manually before touching install.sh
-# or tests/run-tests.sh if you have it.
+# Not part of `test` because ShellCheck is not a runtime/dev dependency on every
+# supported host. It is blocking on GitHub's Linux CI legs and should be run
+# locally before touching any listed shell file.
 shellcheck:
 	shellcheck install.sh bin/ratchery bin/agent-workspace tests/run-tests.sh
 

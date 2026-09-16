@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "scorecard.yml"
+README = ROOT / "README.md"
 
 
 def job_block(text: str, name: str, next_name: str | None = None) -> str:
@@ -55,6 +56,20 @@ class TestScorecardWorkflowContract(unittest.TestCase):
         self.assertEqual(self.text.count("ossf/scorecard-action@"), 1)
         self.assertEqual(self.text.count("persist-credentials: false"), 1)
         self.assertNotIn("actions/upload-artifact@", self.text)
+
+    def test_readme_displays_only_the_verified_scorecard_badge(self) -> None:
+        readme = README.read_text()
+        self.assertIn(
+            "https://api.scorecard.dev/projects/github.com/"
+            "brunoribeirol/ratchery/badge",
+            readme,
+        )
+        self.assertIn(
+            "https://scorecard.dev/viewer/?uri="
+            "github.com/brunoribeirol/ratchery",
+            readme,
+        )
+        self.assertNotIn("bestpractices.coreinfrastructure.org/projects/", readme)
 
 
 if __name__ == "__main__":
