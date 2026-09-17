@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFIX="${HOME}/.local"
 VAULT=""
+VAULT_MODE="preserve"
 PROJECTS_ROOT="${HOME}/Projects"
 PROJECT_LAYOUT="flat"
 TOOLS="none"
@@ -15,12 +16,13 @@ usage() {
   cat <<'USAGE'
 Usage: bash install.sh [options]
 
-Required:
-  --vault PATH                    Existing Obsidian vault
-
 Paths:
   --projects-root PATH            Default parent for projects (default: ~/Projects)
   --prefix PATH                   Install prefix (default: ~/.local)
+
+Optional memory:
+  --vault PATH                    Existing Obsidian vault
+  --no-vault                      Explicitly disable Vault memory
 
 Behavior:
   --project-layout MODE           flat | categorized (default: flat)
@@ -33,7 +35,14 @@ USAGE
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --vault) VAULT="${2:?missing path}"; shift 2 ;;
+    --vault)
+      [[ "$VAULT_MODE" == "preserve" ]] || { echo "--vault and --no-vault are mutually exclusive" >&2; exit 2; }
+      VAULT="${2:?missing path}"; VAULT_MODE="configure"; shift 2
+      ;;
+    --no-vault)
+      [[ "$VAULT_MODE" == "preserve" ]] || { echo "--vault and --no-vault are mutually exclusive" >&2; exit 2; }
+      VAULT_MODE="disable"; shift
+      ;;
     --projects-root) PROJECTS_ROOT="${2:?missing path}"; shift 2 ;;
     --prefix) PREFIX="${2:?missing path}"; shift 2 ;;
     --project-layout) PROJECT_LAYOUT="${2:?missing mode}"; shift 2 ;;
@@ -46,8 +55,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -n "$VAULT" ]] || { echo "--vault is required" >&2; exit 2; }
-[[ -d "$VAULT" ]] || { echo "Vault does not exist: $VAULT" >&2; exit 2; }
+if [[ "$VAULT_MODE" == "configure" ]]; then
+  [[ -d "$VAULT" ]] || { echo "Vault does not exist: $VAULT" >&2; exit 2; }
+fi
 [[ "$TOOLS" == "none" || "$TOOLS" == "recommended" ]] || { echo "Invalid external-tools policy" >&2; exit 2; }
 [[ "$PROJECT_LAYOUT" == "flat" || "$PROJECT_LAYOUT" == "categorized" ]] || { echo "Invalid project layout" >&2; exit 2; }
 [[ "$MIGRATION" == "safe" || "$MIGRATION" == "preserve" ]] || { echo "Invalid vault migration mode" >&2; exit 2; }
@@ -87,8 +97,20 @@ PY
 )"
 fi
 
+if [[ "$VAULT_MODE" == "configure" ]]; then
+  VAULT_DISPLAY="$VAULT"
+elif [[ "$VAULT_MODE" == "disable" ]]; then
+  VAULT_DISPLAY="not configured (explicit)"
+else
+  VAULT_DISPLAY="preserve existing selection; otherwise not configured"
+fi
+
 if [[ $DRY_RUN -eq 1 ]]; then
-  python3 "$ROOT/lib/agent_workspace.py" vault-plan --vault "$VAULT" --migration "$MIGRATION"
+  if [[ "$VAULT_MODE" == "configure" ]]; then
+    python3 "$ROOT/lib/agent_workspace.py" vault-plan --vault "$VAULT" --migration "$MIGRATION"
+  else
+    echo "Vault memory: $VAULT_DISPLAY"
+  fi
   cat <<DRYRUN
 
 Dry run only. No files were changed.
@@ -113,7 +135,7 @@ Install Ratchetry v$VERSION
   Previous:        $PREVIOUS
   Runtime:         $SHARE
   Command:         $BIN/ratchery
-  Vault:           $VAULT
+  Vault memory:    $VAULT_DISPLAY
   Projects root:   $PROJECTS_ROOT
   Project layout:  $PROJECT_LAYOUT
   Vault migration: $MIGRATION
@@ -176,14 +198,22 @@ rollback_runtime() {
 }
 trap rollback_runtime ERR
 
-python3 "$SHARE/lib/agent_workspace.py" global-config \
-  --vault "$VAULT" \
-  --projects-root "$PROJECTS_ROOT" \
-  --project-layout "$PROJECT_LAYOUT" \
+CONFIG_ARGS=(
+  --projects-root "$PROJECTS_ROOT"
+  --project-layout "$PROJECT_LAYOUT"
   --external-tools "$TOOLS"
+)
+if [[ "$VAULT_MODE" == "configure" ]]; then
+  CONFIG_ARGS+=(--vault "$VAULT")
+elif [[ "$VAULT_MODE" == "disable" ]]; then
+  CONFIG_ARGS+=(--no-vault)
+fi
+python3 "$SHARE/lib/agent_workspace.py" global-config "${CONFIG_ARGS[@]}"
 
 python3 "$SHARE/lib/agent_workspace.py" install-global
-python3 "$SHARE/lib/agent_workspace.py" vault-install --migration "$MIGRATION"
+if [[ "$VAULT_MODE" == "configure" ]]; then
+  python3 "$SHARE/lib/agent_workspace.py" vault-install --migration "$MIGRATION"
+fi
 trap - ERR
 
 if [[ "$TOOLS" == "recommended" ]]; then
@@ -192,7 +222,7 @@ if [[ "$TOOLS" == "recommended" ]]; then
 fi
 
 if ! python3 "$SHARE/lib/agent_workspace.py" doctor-global; then
-  echo "Post-install doctor found Vault/content issues. The runtime is installed; review the errors, use vault-fix-yaml if appropriate, then rerun doctor-global." >&2
+  echo "Post-install doctor found configuration issues. The runtime is installed; review the errors, then rerun doctor-global." >&2
 fi
 
 cat <<DONE
@@ -209,7 +239,9 @@ Useful first commands:
   ratchery doctor-global --deep
   ratchery tools-status
   ratchery tools-recommend
-  ratchery vault-qmd-setup        # plan only; optional
+
+Optional durable memory:
+  ratchery setup --vault /path/to/ObsidianVault --projects-root "$PROJECTS_ROOT" --yes
 
 Create a categorized project:
   ratchery new my-project --category personal

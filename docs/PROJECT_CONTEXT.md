@@ -5,8 +5,9 @@
 Ratchetry is an opinionated, batteries-included operating layer for AI-assisted
 software development. It turns a normal repository into a well-configured
 Claude Code and OpenAI Codex workspace with safe permissions, curated agents
-and Skills, reusable project templates, durable memory, diagnostics, and
-cost-aware tool routing.
+and Skills, reusable project templates, diagnostics, and cost-aware tool
+routing. Durable memory is a first-class optional workflow rather than an
+installation prerequisite.
 
 The product deliberately ships more capability than it activates. A small
 project receives a small working set; specialized agents, process, external
@@ -74,8 +75,8 @@ always-on tax. "Available" never means "loaded in every session."
 - four baseline read/review/test/security agents;
 - progressive-disclosure Skills and context rules;
 - managed configuration, backups, refresh, diagnostics, and rollback;
-- project-to-Vault identity, explicit `workspace-resume`/`workspace-save`, and
-  a machine-readable provider-neutral handoff.
+- optional project-to-Vault identity, explicit `workspace-resume`/`workspace-save`,
+  and a machine-readable provider-neutral handoff when memory is configured.
 
 ### Adaptive control plane
 
@@ -124,13 +125,14 @@ an instruction to install them.
 
 ## Core user journeys
 
-1. Install globally with explicit Vault/projects paths and preview changes.
+1. Install the core with an explicit projects path and preview changes; add a Vault only
+   when durable memory is wanted.
 2. Run `ratchery init` in a new or existing repository.
 3. Record real project risk facts and review the resulting tier policy.
 4. Work with a minimal context contract and invoke specialized capabilities
    only when their trigger applies.
-5. Resume from curated project memory, exchange a bounded handoff when another
-   agent client continues the work, and explicitly save meaningful outcomes.
+5. When optional memory is enabled, resume from curated project memory, exchange a bounded
+   handoff when another agent client continues the work, and explicitly save outcomes.
 6. Run `doctor`, `refresh`, and rollback without losing human configuration.
 7. Inspect local cost, receive optional budget/spike warnings, and benchmark an
    optimizer before deciding whether it earns activation.

@@ -260,6 +260,38 @@ def smoke_release(archive_path: Path) -> None:
             [
                 str(command),
                 "setup",
+                "--projects-root",
+                str(setup_projects),
+                "--project-layout",
+                "categorized",
+                "--external-tools",
+                "none",
+                "--yes",
+            ],
+            cwd=base,
+            env=setup_environment,
+            label="installed package-manager core setup",
+        )
+        _run(
+            [str(command), "doctor-global"],
+            cwd=base,
+            env=setup_environment,
+            label="installed package-manager core doctor",
+        )
+        setup_config = json.loads(
+            (setup_home / ".config" / "ratchery" / "config.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        if setup_config.get("vault_path") is not None:
+            raise ReleaseSmokeError("core setup unexpectedly configured Vault memory")
+
+        # The same installed artifact must be able to add memory later without
+        # requiring a reinstall or a different package.
+        _run(
+            [
+                str(command),
+                "setup",
                 "--vault",
                 str(setup_vault),
                 "--projects-root",
@@ -272,13 +304,13 @@ def smoke_release(archive_path: Path) -> None:
             ],
             cwd=base,
             env=setup_environment,
-            label="installed package-manager setup",
+            label="installed optional-memory setup",
         )
         _run(
             [str(command), "doctor-global"],
             cwd=base,
             env=setup_environment,
-            label="installed package-manager doctor",
+            label="installed optional-memory doctor",
         )
 
         project = projects / "smoke-project"

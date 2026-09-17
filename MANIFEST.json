@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.0.0",
   "channel": "stable",
-  "generated_at": "2026-09-16T04:27:07+00:00",
+  "generated_at": "2026-09-17T11:31:16+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 285,
-  "total_bytes_excluding_manifest": 1385725,
+  "file_count_excluding_manifest": 288,
+  "total_bytes_excluding_manifest": 1418226,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "de28004bad196eeb1fa7e85f2f906399f5203a09eb2f3058740d377db8262dfa",
-      "size_bytes": 26650
+      "sha256": "550671e33d86103685da4a7e4a12289079d995cab654d4f7f877506c8f4b8aaa",
+      "size_bytes": 27983
     },
     {
       "path": "CLAUDE.md",
@@ -235,8 +235,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "8d2d21d6e2405ac32490c8757f475baae969962684b280b9b6cb82ba65b77362",
-      "size_bytes": 14362
+      "sha256": "5779001ba827b517483fc5b24b90ab7da526e6b257085ca220d8abc5b5bfea29",
+      "size_bytes": 15455
     },
     {
       "path": "SECURITY.md",
@@ -810,8 +810,8 @@
     },
     {
       "path": "docs/00-START-HERE.md",
-      "sha256": "3d8740bbae4694c4805299d16a4404997a2038e4d0330ecffbfcc5e11245f79b",
-      "size_bytes": 2951
+      "sha256": "e86abdb08628726e99f01a713f9aea449100e05364af4ec62b9fb6d2f52ea64d",
+      "size_bytes": 3272
     },
     {
       "path": "docs/02-ARCHITECTURE.md",
@@ -925,8 +925,8 @@
     },
     {
       "path": "docs/INSTALLATION.md",
-      "sha256": "09b93dbc81186ef4b2154a0b5e9cef7bf04fdd7e75affcb8dcc18a1b9da53bd6",
-      "size_bytes": 10877
+      "sha256": "f43bc4fcc91823f4988c9bf4d1a0c669798a563ba1ee487cb36ec8e25c33d358",
+      "size_bytes": 12147
     },
     {
       "path": "docs/MEMORY.md",
@@ -940,13 +940,13 @@
     },
     {
       "path": "docs/PROJECT_CONTEXT.md",
-      "sha256": "2c7a79b2303a433b1451b2abd830d475e5e4ea1841c95d033db2c1801f73a68d",
-      "size_bytes": 9903
+      "sha256": "d626e8030dc6c74c381133de452599b5b60f2a662609b2b3c88e819dbfd8c3de",
+      "size_bytes": 10083
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "67aac5054fed872cca827c8c92b2872cbfa7e3294fa9ad94e53ecefd0035a313",
-      "size_bytes": 17150
+      "sha256": "4e1fb2c79e6657592f57ad2defda7736378345560ef1aa26befb1c6746186e19",
+      "size_bytes": 17289
     },
     {
       "path": "docs/ROADMAP.md",
@@ -960,8 +960,8 @@
     },
     {
       "path": "docs/USER-GUIDE.md",
-      "sha256": "abe5b7199215cf25f8b0fca991e3703bc1e82972d4734cf4602e26735e968384",
-      "size_bytes": 19908
+      "sha256": "636fdfa578981a6f94580de000b0406421264cb7e4a283d0b893f1e25c257a20",
+      "size_bytes": 19992
     },
     {
       "path": "docs/WORKFLOW.md",
@@ -1004,19 +1004,24 @@
       "size_bytes": 3969
     },
     {
+      "path": "docs/decisions/ADR-007-optional-memory-community-core.md",
+      "sha256": "8756c6693d3f25129cfddfe01289936e6d3cfd7a47897d5c066e7c18fd724462",
+      "size_bytes": 2954
+    },
+    {
       "path": "docs/decisions/ADR_TEMPLATE.md",
       "sha256": "b0448d507cff40a292311bd8be9d6b619b8a59acf5ce39773e5ed1d068d7eb09",
       "size_bytes": 209
     },
     {
       "path": "docs/decisions/README.md",
-      "sha256": "6ee7967c8a4e17e46c73b8839e9961b2c13a5b783116fbcaf0edf65d6bf5367e",
-      "size_bytes": 1114
+      "sha256": "f1d535801a67fcfa7486c0f13632f3ccf39f4b7a37148e760bb53bd31206aac5",
+      "size_bytes": 1229
     },
     {
       "path": "docs/research-external.md",
-      "sha256": "a675e4017790014919e0b2014d5712d40aa9bd5994fd2a7027e9c984ecb75f10",
-      "size_bytes": 68289
+      "sha256": "a1872acb200b84257645de0f03e897df6f9c98b80eb88476e65a0a80dfaf4c32",
+      "size_bytes": 74029
     },
     {
       "path": "docs/specs/DELTA_SPEC_TEMPLATE.md",
@@ -1042,6 +1047,11 @@
       "path": "docs/specs/codex-pre-publish-fixes.md",
       "sha256": "53c60b54576c9f59544f2addd2fe975da98afddb584139911faf7cab954aec4d",
       "size_bytes": 9741
+    },
+    {
+      "path": "docs/specs/community-first-core-mode.md",
+      "sha256": "d29ee3ea9c64780ecfd9ec2b04968425e8253ae448878c086aeaf0071ea78b84",
+      "size_bytes": 3713
     },
     {
       "path": "docs/specs/cost-security-measurement.md",
@@ -1154,6 +1164,11 @@
       "size_bytes": 11119
     },
     {
+      "path": "docs/work/2026-09-16-community-first-onboarding.md",
+      "sha256": "e32e480c03bbee9cb003c6d7861f1be5d6add0f6ce92c9d3272f743e8de308be",
+      "size_bytes": 5938
+    },
+    {
       "path": "docs/work/TASK_TEMPLATE.md",
       "sha256": "ae74b15886b2015bca3bc0c3d3a16d1418dd8e589113b6314d4dc2814378cdd8",
       "size_bytes": 205
@@ -1260,8 +1275,8 @@
     },
     {
       "path": "install.sh",
-      "sha256": "381ee6ec43241f5b562db5cb777494c48990441603a8b9e6a2c23b5b8d6890be",
-      "size_bytes": 8520
+      "sha256": "92c74d3ebfa00ca64aad25e310129660f89b76e6bd0dc4d59775959542e0a651",
+      "size_bytes": 9499
     },
     {
       "path": "lib/adaptive_engine.py",
@@ -1270,8 +1285,8 @@
     },
     {
       "path": "lib/agent_workspace.py",
-      "sha256": "7a9df59660fbf360622bb3a481d08ad9a682f18ae3d89ae50575503005b6c575",
-      "size_bytes": 242932
+      "sha256": "285d511cd21d6f3e5ad1c6c2cbbdd8b49e0f3c2c495ab28bf14095ff6a44f826",
+      "size_bytes": 244589
     },
     {
       "path": "lib/context_engine.py",
@@ -1320,8 +1335,8 @@
     },
     {
       "path": "scripts/smoke-test-release.py",
-      "sha256": "ce7dbdcc3c9e2a730d4dca6875c675b1a6622bb00b298da4298fa1782f195422",
-      "size_bytes": 13753
+      "sha256": "3782dbe57b0225373a01cb77f0853aeaeba736fd4820c84eb9e45922f1c806fb",
+      "size_bytes": 14832
     },
     {
       "path": "scripts/verify-action-pins.py",
@@ -1340,8 +1355,8 @@
     },
     {
       "path": "tests/run-tests.sh",
-      "sha256": "77938e343ad9ac2a4e6afcfa75136a05d6056f51535f76983670ccd1eac40571",
-      "size_bytes": 24427
+      "sha256": "1c94ae8baef266b69050b69ee9417180b3bbef3aeb518b1fdc4267f5da5b48f7",
+      "size_bytes": 26006
     },
     {
       "path": "tests/test_action_contract.py",
@@ -1420,8 +1435,8 @@
     },
     {
       "path": "tests/test_setup_command.py",
-      "sha256": "599cd4832b44c7ae7ad76b8a3a75c371070c5bcc27ff57b67d1f0345596e5d65",
-      "size_bytes": 9162
+      "sha256": "7263c0d047d9344abcfcc7f3d8432729b80abbe20ee868cbb1c3940f3b974d39",
+      "size_bytes": 13489
     },
     {
       "path": "tests/test_tool_policy.py",

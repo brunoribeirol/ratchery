@@ -2,7 +2,8 @@
 
 Day-to-day usage of Ratchetry once it's installed (`INSTALLATION.md`). For
 the full daily-workflow reference see `07-DAILY-WORKFLOW.md`; this document focuses on
-tiering, cost measurement, optional capabilities, and the Vault workflow with concrete commands.
+tiering, cost measurement, optional capabilities, and—when configured—the Vault workflow
+with concrete commands. Core project initialization and doctors do not require a Vault.
 
 ## Creating a new project
 

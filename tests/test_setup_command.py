@@ -66,6 +66,18 @@ class TestSetupCommand(unittest.TestCase):
             *extra,
         )
 
+    def core_setup_args(self, *extra: str) -> tuple[str, ...]:
+        return (
+            "setup",
+            "--projects-root",
+            str(self.projects),
+            "--project-layout",
+            "categorized",
+            "--external-tools",
+            "none",
+            *extra,
+        )
+
     def snapshot(self) -> list[tuple[str, bytes]]:
         return [
             (str(path.relative_to(self.tmp)), path.read_bytes())
@@ -80,6 +92,88 @@ class TestSetupCommand(unittest.TestCase):
         self.assertIn("Dry run only. No files were changed.", result.stdout)
         self.assertEqual(self.snapshot(), before)
         self.assertFalse((self.home / ".config/ratchery/config.json").exists())
+
+    def test_core_dry_run_without_vault_is_read_only(self) -> None:
+        before = self.snapshot()
+        result = self.run_cli(*self.core_setup_args("--dry-run"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Vault memory:    not configured (optional)", result.stdout)
+        self.assertIn("Dry run only. No files were changed.", result.stdout)
+        self.assertEqual(self.snapshot(), before)
+        self.assertFalse((self.home / ".config/ratchery/config.json").exists())
+
+    def test_core_apply_without_vault_is_idempotent_and_doctor_clean(self) -> None:
+        first = self.run_cli(*self.core_setup_args("--yes"))
+        self.assertEqual(first.returncode, 0, first.stderr)
+        second = self.run_cli(*self.core_setup_args("--yes"))
+        self.assertEqual(second.returncode, 0, second.stderr)
+
+        config = json.loads(
+            (self.home / ".config/ratchery/config.json").read_text()
+        )
+        self.assertIsNone(config["vault_path"])
+        self.assertEqual(config["projects_root"], str(self.projects.resolve()))
+        self.assertTrue((self.projects / "personal/README.md").is_file())
+        self.assertTrue((self.home / ".claude/CLAUDE.md").is_file())
+        self.assertTrue((self.home / ".codex/AGENTS.md").is_file())
+        self.assertEqual((self.vault / "existing.md").read_text(), "# Keep me\n")
+        self.assertFalse((self.vault / "AGENTS.md").exists())
+
+        doctor = self.run_cli("doctor-global", "--deep")
+        self.assertEqual(doctor.returncode, 0, doctor.stderr)
+        self.assertIn("Vault memory: not configured (optional)", doctor.stdout)
+        self.assertIn("Global doctor: 0 error(s)", doctor.stdout)
+
+    def test_vault_command_without_configuration_is_actionable(self) -> None:
+        setup = self.run_cli(*self.core_setup_args("--yes"))
+        self.assertEqual(setup.returncode, 0, setup.stderr)
+
+        result = self.run_cli("vault-doctor")
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Vault memory is not configured", result.stderr)
+        self.assertIn("ratchery setup --vault <path>", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_doctor_rejects_explicitly_configured_missing_vault(self) -> None:
+        setup = self.run_cli(*self.core_setup_args("--yes"))
+        self.assertEqual(setup.returncode, 0, setup.stderr)
+        config_path = self.home / ".config/ratchery/config.json"
+        config = json.loads(config_path.read_text())
+        config["vault_path"] = str(self.tmp / "missing-vault")
+        config_path.write_text(json.dumps(config))
+
+        doctor = self.run_cli("doctor-global")
+
+        self.assertEqual(doctor.returncode, 1)
+        self.assertIn("ERROR: Configured Vault path is unavailable", doctor.stdout)
+
+    def test_omitted_vault_preserves_existing_memory_selection(self) -> None:
+        first = self.run_cli(*self.setup_args("--yes"))
+        self.assertEqual(first.returncode, 0, first.stderr)
+
+        second = self.run_cli(*self.core_setup_args("--yes"))
+
+        self.assertEqual(second.returncode, 0, second.stderr)
+        config = json.loads(
+            (self.home / ".config/ratchery/config.json").read_text()
+        )
+        self.assertEqual(config["vault_path"], str(self.vault.resolve()))
+        self.assertTrue((self.vault / "AGENTS.md").is_file())
+
+    def test_no_vault_explicitly_disables_memory_without_deleting_it(self) -> None:
+        first = self.run_cli(*self.setup_args("--yes"))
+        self.assertEqual(first.returncode, 0, first.stderr)
+        vault_before = (self.vault / "AGENTS.md").read_bytes()
+
+        disabled = self.run_cli(*self.core_setup_args("--no-vault", "--yes"))
+
+        self.assertEqual(disabled.returncode, 0, disabled.stderr)
+        config = json.loads(
+            (self.home / ".config/ratchery/config.json").read_text()
+        )
+        self.assertIsNone(config["vault_path"])
+        self.assertEqual((self.vault / "AGENTS.md").read_bytes(), vault_before)
 
     def test_apply_is_idempotent_and_doctor_clean(self) -> None:
         first = self.run_cli(*self.setup_args("--yes"))
