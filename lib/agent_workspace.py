@@ -582,6 +582,31 @@ def save_cfg(data: dict[str, Any]) -> None:
     write_json(config_path(), data)
 
 
+def configured_vault_path(override: str | Path | None = None) -> Path:
+    """Return an explicit/configured Vault path or fail with setup guidance."""
+    raw = override if override is not None else cfg().get("vault_path")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        raise ValueError(
+            "Vault memory is not configured. Run `ratchery setup --vault <path>` "
+            "to enable it."
+        )
+    return Path(raw).expanduser()
+
+
+def setup_vault_path(vault: str | None, no_vault: bool) -> Path | None:
+    """Resolve setup's explicit enable/disable/preserve memory selection."""
+    if no_vault:
+        return None
+    if vault:
+        return Path(vault)
+    configured = cfg().get("vault_path")
+    if configured is None or configured == "":
+        return None
+    if not isinstance(configured, str):
+        raise ValueError("Configured Vault path must be a string or null")
+    return Path(configured)
+
+
 def git_root(path: Path) -> Path:
     resolved_path = path.resolve()
     if exists("git"):
@@ -1614,9 +1639,7 @@ def looks_like_legacy_canonical_index(text: str) -> bool:
 
 def vault_refresh(vault: Path | None = None) -> None:
     if vault is None:
-        vp = cfg().get("vault_path")
-        if not vp: raise SystemExit("Vault path is not configured. Run 'ratchery global-config --vault <path> --projects-root <path>' first.")
-        vault = Path(vp)
+        vault = configured_vault_path()
     vault = validate_vault_install_targets(vault)
     path = vault / "VAULT-INDEX.md"
     old = read_text(path)
@@ -1701,7 +1724,7 @@ def validate_vault_install_targets(vault: Path) -> Path:
 
 
 def vault_install(migration: str = "safe") -> Path | None:
-    conf = cfg(); vault = validate_vault_install_targets(Path(conf["vault_path"])); assets = package_root() / "assets/vault"
+    vault = validate_vault_install_targets(configured_vault_path()); assets = package_root() / "assets/vault"
     plan = vault_plan(vault, migration); print_vault_plan(plan)
     rels = touched_vault_paths(vault); backup = backup_vault(vault, rels, "vault-install") if rels else None
     if migration == "safe" and plan["legacy_kit_detected"]:
@@ -1738,7 +1761,7 @@ def frontmatter_issues(path: Path) -> list[str]:
 
 
 def fix_frontmatter_yaml(vault: Path | None = None, apply: bool = False) -> int:
-    if vault is None: vault = Path(cfg()["vault_path"])
+    if vault is None: vault = configured_vault_path()
     vault = validate_vault_root(vault); changes: list[tuple[Path, str]] = []
     for path in sorted(vault.rglob("*.md")):
         if path.is_symlink() or not path.is_file():
@@ -1770,7 +1793,7 @@ def fix_frontmatter_yaml(vault: Path | None = None, apply: bool = False) -> int:
 
 
 def vault_audit(vault: Path | None = None) -> int:
-    if vault is None: vault = Path(cfg()["vault_path"])
+    if vault is None: vault = configured_vault_path()
     vault = validate_vault_root(vault); errors: list[str] = []; warnings: list[str] = []
     index = ""
     for filename in ["AGENTS.md", "CLAUDE.md", "VAULT-INDEX.md"]:
@@ -1857,7 +1880,7 @@ def setup_projects_workspace(root: Path, layout: str = "flat") -> None:
 
 def setup_workspace(
     *,
-    vault: Path,
+    vault: Path | None,
     projects_root: Path,
     project_layout: str = "flat",
     vault_migration: str = "safe",
@@ -1873,7 +1896,8 @@ def setup_workspace(
     third-party tools.
     """
     try:
-        vault = validate_vault_install_targets(vault)
+        if vault is not None:
+            vault = validate_vault_install_targets(vault)
         projects_root = validate_projects_workspace_targets(projects_root, project_layout)
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
@@ -1882,15 +1906,16 @@ def setup_workspace(
     if preflight() != 0:
         return 1
 
-    plan = vault_plan(vault, vault_migration)
+    plan = vault_plan(vault, vault_migration) if vault is not None else None
     # Surface deterministic ownership collisions before confirmation or any
     # write. global_guidance() revalidates at the mutation boundary to close
     # the ordinary check/use gap as far as this local process can.
     validate_global_guidance_targets()
-    print_vault_plan(plan)
+    if plan is not None:
+        print_vault_plan(plan)
     print()
     print("Ratchetry setup")
-    print(f"  Vault:           {vault}")
+    print(f"  Vault memory:    {vault if vault is not None else 'not configured (optional)'}")
     print(f"  Projects root:   {projects_root}")
     print(f"  Project layout:  {project_layout}")
     print(f"  Vault migration: {vault_migration}")
@@ -1913,7 +1938,7 @@ def setup_workspace(
 
     data = {
         "version": VERSION,
-        "vault_path": str(vault),
+        "vault_path": str(vault) if vault is not None else None,
         "projects_root": str(projects_root),
         "project_layout": project_layout,
         "external_tools": external_tools,
@@ -1928,15 +1953,16 @@ def setup_workspace(
     save_cfg(data)
     setup_projects_workspace(projects_root, project_layout)
     global_guidance()
-    vault_install(vault_migration)
+    if vault is not None:
+        vault_install(vault_migration)
     if external_tools == "recommended":
         tools_install()
 
     doctor_result = global_doctor()
     if doctor_result != 0:
         print(
-            "Setup completed, but doctor found Vault/content issues. Review the "
-            "errors, use vault-fix-yaml if appropriate, then rerun doctor-global.",
+            "Setup completed, but doctor found configuration issues. Review the "
+            "errors and rerun doctor-global.",
             file=sys.stderr,
         )
         return doctor_result
@@ -2816,7 +2842,7 @@ def qmd_context_configured() -> bool:
 
 
 def qmd_plan() -> list[list[str]]:
-    vault = Path(cfg()["vault_path"]).expanduser().resolve()
+    vault = configured_vault_path().resolve()
     commands: list[list[str]] = []
     if not qmd_configured():
         commands.append(qmd_base() + ["collection", "add", str(vault), "--name", QMD_COLLECTION, "--mask", "**/*.md"])
@@ -2887,7 +2913,7 @@ def vault_qmd_reindex(apply: bool = False) -> int:
 
 
 def fallback_vault_search(query: str, limit: int = 8) -> int:
-    vault = validate_vault_root(Path(cfg()["vault_path"])); tokens = [t.lower() for t in re.findall(r"[A-Za-zÀ-ÿ0-9_-]{3,}", query)]
+    vault = validate_vault_root(configured_vault_path()); tokens = [t.lower() for t in re.findall(r"[A-Za-zÀ-ÿ0-9_-]{3,}", query)]
     scored: list[tuple[int, Path, str]] = []
     for path in vault.rglob("*.md"):
         if any(part.startswith(".") for part in path.relative_to(vault).parts): continue
@@ -4885,7 +4911,14 @@ def stale_tools_lock_entries(lock_path: Path | None = None) -> list[str]:
 
 def global_doctor(deep: bool = False) -> int:
     conf = cfg(); errors: list[str] = []; warnings: list[str] = []
-    if not conf.get("vault_path") or not Path(conf["vault_path"]).exists(): errors.append("Vault path missing")
+    vault_path = conf.get("vault_path")
+    if vault_path is not None and not isinstance(vault_path, str):
+        errors.append("Configured Vault path must be a string or null")
+        vault_path = None
+    elif vault_path and not Path(vault_path).exists():
+        errors.append("Configured Vault path is unavailable")
+    elif not vault_path:
+        print("Vault memory: not configured (optional)")
     if not conf.get("projects_root") or not Path(conf["projects_root"]).exists(): errors.append("Projects root missing")
     for path in [Path.home() / ".claude/CLAUDE.md", Path.home() / ".codex/AGENTS.md", Path.home() / ".agents/skills"]:
         if not path.exists(): errors.append(f"Missing {path}")
@@ -4923,7 +4956,7 @@ def global_doctor(deep: bool = False) -> int:
     if sys.version_info < (3, 11): errors.append("Python 3.11+ required")
     qmd_state, qmd_message = qmd_security_state()
     if qmd_state in {"blocked", "unknown"}: warnings.append(qmd_message + "; QMD integration disabled")
-    elif deep and qmd_state == "safe" and not qmd_configured(): warnings.append("Safe QMD installed but Vault collection is not configured")
+    elif deep and vault_path and qmd_state == "safe" and not qmd_configured(): warnings.append("Safe QMD installed but Vault collection is not configured")
     warnings.extend(tool_catalog_issues())
     warnings.extend(stale_tools_lock_entries())
 
@@ -4931,7 +4964,7 @@ def global_doctor(deep: bool = False) -> int:
         ok, detail = native_doctor("codex", ["doctor"], 25)
         print("Codex native doctor:", "OK" if ok else "WARN", "-", detail)
         if not ok and "unavailable" not in detail: warnings.append("Codex native doctor did not complete cleanly")
-    if deep and qmd_state == "safe" and qmd_configured():
+    if deep and vault_path and qmd_state == "safe" and qmd_configured():
         try:
             result = qmd_run(["doctor"], timeout=30)
             print("QMD doctor:", "OK" if result.returncode == 0 else f"WARN exit={result.returncode}")
@@ -4942,8 +4975,8 @@ def global_doctor(deep: bool = False) -> int:
     for item in errors: print("ERROR:", item)
     for item in warnings: print("WARN:", item)
     vault_rc = 0
-    if not errors and conf.get("vault_path"):
-        print("Running Vault doctor..."); vault_rc = vault_audit(Path(conf["vault_path"]))
+    if not errors and vault_path:
+        print("Running Vault doctor..."); vault_rc = vault_audit(Path(vault_path))
     print(f"Global doctor: {len(errors)} error(s), {len(warnings)} warning(s).")
     return 1 if errors or vault_rc else 0
 
@@ -4953,9 +4986,11 @@ def main() -> None:
     parser.add_argument("--version", action="version", version=VERSION)
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    gc = sub.add_parser("global-config", help="Write the global ~/.ratchery config (vault path, projects root, layout)."); gc.add_argument("--vault", required=True); gc.add_argument("--projects-root", required=True); gc.add_argument("--project-layout", choices=["flat", "categorized"], default="flat"); gc.add_argument("--external-tools", choices=["none", "recommended"], default="none")
+    gc = sub.add_parser("global-config", help="Write the global ~/.ratchery config (optional Vault, projects root, layout)."); gc_vault = gc.add_mutually_exclusive_group(); gc_vault.add_argument("--vault", help="Existing Obsidian Vault path (optional)."); gc_vault.add_argument("--no-vault", action="store_true", help="Explicitly disable Vault memory."); gc.add_argument("--projects-root", required=True); gc.add_argument("--project-layout", choices=["flat", "categorized"], default="flat"); gc.add_argument("--external-tools", choices=["none", "recommended"], default="none")
     setup = sub.add_parser("setup", help="Configure this user account after a package manager installs Ratchetry.")
-    setup.add_argument("--vault", required=True, help="Existing Obsidian Vault path.")
+    setup_vault = setup.add_mutually_exclusive_group()
+    setup_vault.add_argument("--vault", help="Existing Obsidian Vault path (optional durable memory).")
+    setup_vault.add_argument("--no-vault", action="store_true", help="Explicitly disable Vault memory.")
     setup.add_argument("--projects-root", default=str(Path.home() / "Projects"), help="Default parent for projects (default: ~/Projects).")
     setup.add_argument("--project-layout", choices=["flat", "categorized"], default="flat")
     setup.add_argument("--vault-migration", choices=["safe", "preserve"], default="safe")
@@ -5204,13 +5239,15 @@ def main() -> None:
 
 def _dispatch(args: argparse.Namespace) -> None:
     if args.cmd == "global-config":
-        vault = validate_vault_install_targets(Path(args.vault))
+        vault = setup_vault_path(args.vault, args.no_vault)
+        if vault is not None:
+            vault = validate_vault_install_targets(vault)
         projects_root = validate_projects_workspace_targets(
             Path(args.projects_root), args.project_layout
         )
         data = {
             "version": VERSION,
-            "vault_path": str(vault),
+            "vault_path": str(vault) if vault is not None else None,
             "projects_root": str(projects_root),
             "project_layout": args.project_layout,
             "external_tools": args.external_tools,
@@ -5220,7 +5257,7 @@ def _dispatch(args: argparse.Namespace) -> None:
     elif args.cmd == "setup":
         raise SystemExit(
             setup_workspace(
-                vault=Path(args.vault),
+                vault=setup_vault_path(args.vault, args.no_vault),
                 projects_root=Path(args.projects_root),
                 project_layout=args.project_layout,
                 vault_migration=args.vault_migration,
@@ -5233,12 +5270,12 @@ def _dispatch(args: argparse.Namespace) -> None:
     elif args.cmd == "preflight": raise SystemExit(preflight(args.strict))
     elif args.cmd == "vault-install": vault_install(args.migration)
     elif args.cmd == "vault-plan":
-        vault = Path(args.vault).expanduser() if args.vault else Path(cfg()["vault_path"]); print_vault_plan(vault_plan(vault, args.migration))
+        vault = configured_vault_path(args.vault); print_vault_plan(vault_plan(vault, args.migration))
     elif args.cmd == "vault-doctor": raise SystemExit(vault_audit(Path(args.vault) if args.vault else None))
     elif args.cmd == "vault-refresh": vault_refresh(Path(args.vault) if args.vault else None)
     elif args.cmd == "vault-fix-yaml": raise SystemExit(fix_frontmatter_yaml(Path(args.vault) if args.vault else None, args.apply))
     elif args.cmd == "vault-migrate-session-logs":
-        vault = Path(args.vault).expanduser() if args.vault else Path(cfg()["vault_path"])
+        vault = configured_vault_path(args.vault)
         plan = migrate_session_logs(vault, args.apply)
         for move in plan["moves"]:
             verb = "Moved" if args.apply else "Would move"

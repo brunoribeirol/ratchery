@@ -135,14 +135,16 @@ Vault or write agent files into the build user's home.
    Python interpreter, and expose only `ratchery` from `bin`. Do not expose the
    legacy `agent-workspace` compatibility alias through a new package.
 3. Keep installation non-interactive. In `test do`, use Homebrew's temporary
-   `testpath`/`HOME`, create an empty Vault, then run a real no-network contract:
+   `testpath`/`HOME`, then run the default core-only no-network contract:
 
    ```text
-   ratchery setup --vault <test-vault> --projects-root <test-projects> --yes
+   ratchery setup --projects-root <test-projects> --yes
    ratchery doctor-global
    ratchery --version
    ```
 
+   The release smoke additionally creates an empty test Vault and reruns setup with
+   `--vault` to prove that optional memory can be enabled on the same installation.
 4. Test both a source build and the installed/bottled command; a version-only
    assertion is insufficient because it would not exercise package layout or
    user-scoped setup.

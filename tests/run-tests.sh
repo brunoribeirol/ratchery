@@ -28,6 +28,21 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
 mkdir -p "$HOME"
 
+# The community core must be previewable without creating or selecting an
+# Obsidian Vault. This exercises the source installer contract, independently
+# from the package-manager `ratchery setup` tests.
+CORE_DRY_PROJECTS="$TMP/core-dry-projects"
+core_dry_output="$TMP/core-dry-output"
+bash "$PKG/install.sh" \
+  --prefix "$TMP/core-dry-prefix" \
+  --projects-root "$CORE_DRY_PROJECTS" \
+  --no-vault \
+  --project-layout flat \
+  --external-tools none \
+  --dry-run >"$core_dry_output"
+grep -q 'Vault memory: not configured (explicit)' "$core_dry_output"
+[[ ! -e "$CORE_DRY_PROJECTS" ]]
+
 VAULT="$TMP/vault"
 PROJECTS="$TMP/Projects"
 mkdir -p "$VAULT"/{projects,session-logs,decisions,bugs-solved,commands,references,graphify,templates,tcc,academic,career,Clippings,.obsidian}
@@ -505,6 +520,36 @@ CODEX
 chmod +x "$HOME/.local/bin/codex"
 export CODEX_DOCTOR_LOG="$TMP/codex-doctor.log"
 ratchery doctor-global --deep >/dev/null
+
+# A complete source install also supports core-only mode. Isolate HOME/XDG so
+# this proof cannot reuse the configured Vault from the main integration flow.
+CORE_HOME="$TMP/core-home"
+CORE_PROJECTS="$TMP/core-projects"
+mkdir -p "$CORE_HOME"
+HOME="$CORE_HOME" \
+XDG_CONFIG_HOME="$CORE_HOME/.config" \
+XDG_STATE_HOME="$CORE_HOME/.local/state" \
+PATH="/usr/local/bin:/usr/bin:/bin" \
+bash "$PKG/install.sh" \
+  --prefix "$CORE_HOME/.local" \
+  --projects-root "$CORE_PROJECTS" \
+  --no-vault \
+  --project-layout flat \
+  --external-tools none \
+  --yes >/dev/null
+HOME="$CORE_HOME" \
+XDG_CONFIG_HOME="$CORE_HOME/.config" \
+XDG_STATE_HOME="$CORE_HOME/.local/state" \
+PATH="$CORE_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin" \
+ratchery doctor-global | grep -q 'Global doctor: 0 error(s)'
+python3 - "$CORE_HOME/.config/ratchery/config.json" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    config = json.load(handle)
+assert config["vault_path"] is None
+PY
 grep -q doctor "$CODEX_DOCTOR_LOG"
 rm -f "$HOME/.local/bin/codex"
 unset CODEX_DOCTOR_LOG
