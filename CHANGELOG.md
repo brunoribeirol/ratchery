@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Added
+
+- Core-only onboarding now works without an Obsidian Vault. Source installs and
+  `ratchery setup` persist `vault_path: null`, install the same global safety/context
+  guidance, prepare the projects workspace, and pass `doctor-global`; durable memory can
+  be enabled later by rerunning setup with an explicit existing Vault.
+- Memory selection is upgrade-safe: omitting both flags preserves an existing selection,
+  while `--no-vault` explicitly switches to core-only mode without deleting Vault files.
+- Black-box setup and Bash integration coverage distinguish an unconfigured optional Vault
+  from an explicitly configured path that became unavailable, and ensure Vault-only
+  commands fail with actionable setup guidance rather than a traceback.
+
+### Changed
+
+- Public onboarding now leads with the security/cost-aware repository outcome and a short
+  core quickstart. Obsidian memory is presented as a first-class optional enhancement.
+- External research was refreshed across AkitaOnRails, Lucas Rosati, and adjacent
+  cross-provider/memory setups. No additional default dependency cleared the marginal
+  value, permission, overlap, and cost bar.
+
+### Removed
+
+- Removed the named third-party project comparison from README positioning. Historical
+  attribution and evaluation remain in the dated research record.
+
 ## v1.0.0 - 2026-09-16
 
 First stable Ratchetry release. It retains the verified RC's security and

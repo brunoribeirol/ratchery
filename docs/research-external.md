@@ -556,3 +556,87 @@ not clear the marginal-value bar: they duplicate existing observability, archite
 or Obsidian capabilities without solving a current Ratchetry gap. No Rust rewrite follows
 from these repositories; Rust remains appropriate for an isolated future daemon/sandbox/
 high-throughput component only if profiling and product requirements justify one.
+
+## 2026-09-16 targeted addendum: community usability and adjacent agent setups
+
+The current re-check changes Ratchetry's onboarding, not its dependency list. The strongest
+shared trait in visible community projects is a crisp problem, a short setup, and an
+immediate observable result. Ratchetry already has broader enforcement and lifecycle
+coverage, but requiring Obsidian before first use hid that value. The resulting product
+change is a core-only install with optional memory; see ADR-007.
+
+**ai-memory** now presents a particularly clear team-memory product: cross-agent,
+cross-machine workstreams, many client adapters, Git-backed Markdown, local search, MCP/HTTP
+access, attribution, and audit. It still adds a daemon/server, SQLite, hooks, authentication,
+retention policy, and automatic sanitized capture. That is a credible experimental one-of
+backend for a team profile, not a universal core component and not something to stack with
+the built-in Vault backend. Source: https://github.com/akitaonrails/ai-memory
+
+**ai-jail** remains useful defense in depth for users who explicitly need a wrapper around
+an agent process. Its own documented limits—platform differences, unrestricted network
+when enabled, credential exposure when agent state is mounted, Docker privilege, and no
+claim of VM-grade hostile-code isolation—make automatic activation inappropriate. Keep the
+current manual experiment classification. Source: https://github.com/akitaonrails/ai-jail
+
+**ai-usagebar** covers a distinct observability question from ccusage: remaining provider
+quota/credits and reset time rather than retrospective task cost. It also needs broad access
+to provider state, local credential files, or the platform keychain and therefore expands a
+sensitive boundary merely to improve a status display. Verdict: document as a possible
+user-selected companion; do not add it to the Ratchetry catalog or core until its credential
+paths and incremental value are reviewed per provider. Source:
+https://github.com/akitaonrails/ai-usagebar
+
+**llm-coding-benchmark** continues to support Ratchetry's measured-cost direction. Its most
+important transferable result is that the same model can behave materially differently
+across harnesses and that forced multi-agent delegation often increases time/cost. That
+argues against making an orchestrator the default. Ratchetry already has the relevant
+fixed-suite, configuration-identity, cost, success, and repeated-trial concepts; no runtime
+dependency is warranted. Source: https://github.com/akitaonrails/llm-coding-benchmark
+
+**my-skills** is intentionally a personal cross-client Skill collection. Per-Skill links
+and focused verification/security/release workflows are useful patterns, but importing the
+catalog would duplicate Ratchetry Skills and increase instruction maintenance. The smaller
+evidence-gated set remains the correct default. Source:
+https://github.com/akitaonrails/my-skills
+
+**claude-code-memory-setup** is easy to understand because it names one problem, shows a
+short install path, and makes its retrieval workflow concrete. Automatic chat export and
+Graphify installation trade that simplicity for transcript privacy and supply-chain
+surface, and the published token claim is not independent evidence for Ratchetry. Keep the
+lesson—clear time to value—without making raw transcript capture or Graphify default.
+Source: https://github.com/lucasrosati/claude-code-memory-setup
+
+**claude-security-agents** packages red-team and blue-team personas with concrete outputs,
+but prompt roles are not an enforcement boundary and an editing security persona can widen
+permissions or dependencies. Ratchetry already supplies security review, security rules,
+tier activation, deterministic hooks, and sandbox policy. The useful idea is the concrete
+attack/fix narrative, not another default agent pair. Source:
+https://github.com/lucasrosati/claude-security-agents
+
+**claude-maestro** makes worktree/tmux orchestration approachable with one script, status
+files, locks, and inter-agent messages. It is Claude-specific and multiplies inference,
+coordination, filesystem, and merge cost. That conflicts with a low-cost universal default
+and with the benchmark evidence against forced delegation. Revisit only as an external,
+explicit team recipe after measured demand. Source:
+https://github.com/lucasrosati/claude-maestro
+
+Three other current projects reinforce narrower future directions without clearing the v1
+integration bar:
+
+- **agent-parity** demonstrates the appeal of one shared setup across more clients. Before
+  adding Cursor, Kiro, or another provider, Ratchetry needs a documented adapter contract
+  and compatibility tests so portability does not weaken the Claude/Codex security model.
+  Source: https://github.com/libkim/agent-parity
+- **engram-agent-memory** is another local, agent-agnostic SQLite/FTS/MCP memory backend.
+  It overlaps ai-memory and must compete in the same one-of evaluation rather than becoming
+  a second permanent memory layer. Source:
+  https://github.com/syntax-syndicate/engram-agent-memory
+- **vexjoy-agent** exposes a large catalog behind one plain-language `/do` entry point. The
+  single obvious entry point is a good UX lesson; copying dozens of agents, Skills, hooks,
+  and scripts would violate Ratchetry's cost model. Source:
+  https://github.com/notque/vexjoy-agent
+
+**Decision:** add no new default external tool from this review. Ship the lower-friction
+core mode, retain Obsidian as an opt-in memory enhancement, and evaluate future provider or
+team-memory adapters as mutually exclusive profiles with explicit permissions and local
+quality/cost evidence. Popularity is discovery evidence, not a security or adoption gate.

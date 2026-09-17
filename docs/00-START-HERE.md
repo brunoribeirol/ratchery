@@ -1,10 +1,14 @@
 # Start Here
 
-**Ratchetry 1.0** is a batteries-included, low-overhead operating layer for Claude Code,
-Codex, and durable Obsidian memory. It installs a safe, curated workspace and uses its
+**Ratchetry 1.0** is a batteries-included, low-overhead operating layer for Claude Code
+and Codex. It installs a safe, curated workspace and uses its
 Adaptive Engine, Context Engine, and Tool Router to activate only the rigor, context, agents,
 Skills, and optional tools whose benefit justifies their cost. Product scope and non-goals
 are canonical in [Project Context](PROJECT_CONTEXT.md).
+
+Start with the core-only path in [Installation](INSTALLATION.md): no Vault, daemon, paid
+service, MCP server, or third-party optimizer is required. Add the explicit Obsidian memory
+workflow later only if cross-session continuity is valuable to you.
 
 Read in this order when needed:
 
@@ -38,6 +42,8 @@ Read in this order when needed:
    matrix](decision-matrix.md) and [external research](research-external.md)
    are optional design provenance, not prerequisites or current behavior specs.
 
-Core rule: source code remains in repositories; curated durable knowledge remains in Obsidian; runtime/config live outside both.
+Core rule: source code remains in repositories and runtime/config live outside them. When
+optional memory is enabled, curated durable knowledge lives in Obsidian rather than in raw
+transcripts or provider-owned session state.
 
 Upgrade policy: do not create a new setup version merely because a tool released a newer version. Update only for a relevant security issue, upstream breaking change, real migration bug, removal of custom complexity by a native capability, or measured workflow improvement.

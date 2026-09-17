@@ -7,9 +7,15 @@
 [![Stdlib only](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](docs/ARCHITECTURE.md)
 [Docs](docs/00-START-HERE.md) · [Architecture](docs/ARCHITECTURE.md) · [Issues](https://github.com/brunoribeirol/ratchery/issues)
 
-Ratchetry turns a normal repository into a well-configured workspace for Claude Code and
-OpenAI Codex: safe permissions, curated agents and Skills, reusable templates, durable
-Obsidian memory, cost-aware context rules, diagnostics, refresh, and rollback.
+Ratchetry is a local-first setup for safer, lower-waste AI-assisted development. It turns
+a normal repository into a ready-to-use Claude Code and OpenAI Codex workspace with
+reviewable permissions, risk-aware project rules, curated agents and Skills, bounded
+context, diagnostics, refresh, and rollback.
+
+The practical goal is simple: stop rebuilding your agent setup in every repository, stop
+loading every possible tool into every session, and stop relying on prompt text as the
+only safety boundary. Ratchetry does not call a model, run a daemon, upload your code, or
+auto-install third-party tools.
 
 It is **batteries included, not batteries always running**. The setup ships broad capability,
 but specialized agents, process, external tools, and repository context load only when the
@@ -17,19 +23,30 @@ project or task justifies their token, permission, dependency, and maintenance c
 
 > **Maximum useful capability, minimum justified cost.**
 
+## The shortest useful path
+
+```bash
+git clone https://github.com/brunoribeirol/ratchery.git
+cd ratchery
+bash install.sh --projects-root "$HOME/Projects" --dry-run
+bash install.sh --projects-root "$HOME/Projects" --yes
+
+cd /path/to/your/repository
+ratchery init
+ratchery tier-set   # confirms low-risk defaults; use --help and real risk flags when needed
+ratchery doctor --deep
+```
+
+That installs the dependency-free core and configures the current repository. Obsidian
+memory is an optional enhancement, not a prerequisite. The installer preserves human-owned
+configuration and installs no external optimizer, scanner, MCP server, or memory service.
+On later setup/upgrade runs, omitting both memory flags preserves the existing choice;
+`--no-vault` is the explicit way to disable the integration without deleting Vault files.
+
 The Adaptive Engine is the control plane inside that setup. It combines a codebase profile
 with explicit human-owned risk facts to select a T0-T3 policy, then applies a one-way risk
-ratchet so recorded rigor cannot quietly drop without an acknowledged, logged decision. The
-tier can require documentation, agents, Skills, testing, and security review; the CI gate
-(`action.yml`) verifies machine-checkable configuration, but does not pretend that file
-presence proves a human review or test was performed.
-
-Ratchetry builds on the persistent-memory and context-efficiency problem explored by
-[`claude-code-memory-setup`](https://github.com/lucasrosati/claude-code-memory-setup), then
-productizes the wider Claude Code + Codex + Obsidian operating layer: deterministic local
-safeguards, preservation of human configuration, adaptive rigor, and optional tools selected
-only when their benefit exceeds their cost. The canonical product contract is
-[`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md).
+ratchet so recorded rigor cannot quietly drop without an acknowledged, logged decision.
+The canonical product contract is [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md).
 
 > **Compatibility note:** `ratchery` is the primary command and its config lives
 > at `~/.config/ratchery/`. Existing private-development installs may keep using
@@ -99,7 +116,7 @@ opening an issue or PR for one of them; the full argument is in `docs/PROJECT_CO
 
 ```text
 Projects: ~/Projects
-Vault:    ~/Obsidian Vault
+Vault:    not configured by default (optional Obsidian memory)
 Runtime:  ~/.local/share/ratchery
 Command:  ~/.local/bin/ratchery
 Config:   ~/.config/ratchery/config.json
@@ -108,15 +125,15 @@ State:    ~/.local/state/ratchery/
 
 ## Install
 
-Create or select an existing Obsidian Vault before running the installer; the path supplied
-to `--vault` must already exist. Use `--dry-run` first to preview every planned change.
+Use `--dry-run` first to preview every planned change. The default path installs the core
+without a memory backend:
 
 ```bash
 git clone https://github.com/brunoribeirol/ratchery.git
 cd ratchery
-bash install.sh --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
-  --project-layout categorized --external-tools none --dry-run   # preview, no writes
-bash install.sh --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
+bash install.sh --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --dry-run
+bash install.sh --projects-root "$HOME/Projects" \
   --project-layout categorized --external-tools none --yes
 ```
 
@@ -125,7 +142,6 @@ Then:
 ```bash
 ratchery --version
 ratchery doctor-global --deep
-ratchery vault-doctor
 ratchery tools-status
 ```
 
@@ -137,11 +153,28 @@ future package-manager install, preview and apply the same supported onboarding
 contract explicitly:
 
 ```bash
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --dry-run
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --yes
+```
+
+### Optional durable memory
+
+If you want curated cross-session memory and provider-neutral handoffs, point Ratchetry at
+an existing Obsidian Vault. The same command upgrades a core-only installation:
+
+```bash
 ratchery setup --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
   --project-layout categorized --external-tools none --dry-run
 ratchery setup --vault "$HOME/Obsidian Vault" --projects-root "$HOME/Projects" \
   --project-layout categorized --external-tools none --yes
+ratchery vault-doctor
 ```
+
+Omitting both `--vault` and `--no-vault` preserves an existing memory selection. Use
+`ratchery setup --no-vault ...` only when you intentionally want core-only mode; it changes
+configuration but never deletes the Vault or its notes.
 
 The Homebrew tap is intentionally not advertised until its formula passes the
 stable-asset, checksum, macOS/Linux audit, and isolated setup/doctor gates in

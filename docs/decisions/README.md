@@ -11,6 +11,7 @@ it.
 - [ADR-004: Rebrand without breaking persisted ownership markers](ADR-004-compatibility-safe-ratchery-rebrand.md)
 - [ADR-005: Stage privately and publish provenance-backed releases](ADR-005-private-staging-and-release-provenance.md)
 - [ADR-006: Gate the first prerelease on hosted feature availability](ADR-006-plan-aware-public-prerelease.md)
+- [ADR-007: Keep memory first-class but optional to the community core](ADR-007-optional-memory-community-core.md)
 
 Use [ADR_TEMPLATE.md](ADR_TEMPLATE.md) for a new durable decision. Superseded
 records stay in this directory with their status and replacement link updated;
