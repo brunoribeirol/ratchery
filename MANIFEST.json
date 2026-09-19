@@ -1,8 +1,8 @@
 {
   "name": "ratchery",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "channel": "stable",
-  "generated_at": "2026-09-17T11:31:16+00:00",
+  "generated_at": "2026-09-19T15:44:18+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,13 +15,13 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 288,
-  "total_bytes_excluding_manifest": 1418226,
+  "file_count_excluding_manifest": 290,
+  "total_bytes_excluding_manifest": 1424185,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
-      "sha256": "ee7b93222407d236c6652aa1af297eda87c44da00b7a30b4a220e7c9cdb9d76f",
-      "size_bytes": 13489
+      "sha256": "0ccb86821fce50f0eb3820fa060023cce1d4de47ca3a32f86c3dce0d63beafbf",
+      "size_bytes": 13484
     },
     {
       "path": ".agents/state/active-agents.json",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "550671e33d86103685da4a7e4a12289079d995cab654d4f7f877506c8f4b8aaa",
-      "size_bytes": 27983
+      "sha256": "0d2db8165bbfdb5b7ac40b5e1ec8aa29ba23deacdd59ed6b3facf38b95eca475",
+      "size_bytes": 28208
     },
     {
       "path": "CLAUDE.md",
@@ -235,7 +235,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "5779001ba827b517483fc5b24b90ab7da526e6b257085ca220d8abc5b5bfea29",
+      "sha256": "2c36041226efa4a4bf1c909d0a7538e5c5ff4111c6f873fd07ef9f4276e0fec1",
       "size_bytes": 15455
     },
     {
@@ -810,7 +810,7 @@
     },
     {
       "path": "docs/00-START-HERE.md",
-      "sha256": "e86abdb08628726e99f01a713f9aea449100e05364af4ec62b9fb6d2f52ea64d",
+      "sha256": "43c8be432fdd67254fbf126971d356a1cae8239502219f83aea3b5f120ba301c",
       "size_bytes": 3272
     },
     {
@@ -910,7 +910,7 @@
     },
     {
       "path": "docs/CI_GATE.md",
-      "sha256": "62e73a059f2e469998d15d64d42488c51d341067a5b3ec2316a37abe711424cf",
+      "sha256": "6b0bc88de4050086fe9e7148c572b2ae6f10584fd05044b4ed302a4f538d817d",
       "size_bytes": 3768
     },
     {
@@ -935,8 +935,8 @@
     },
     {
       "path": "docs/OPENSSF.md",
-      "sha256": "f4c33d7654a73e1c013247fb1ca0c3de1b93074656075387e52ba1c1e3369b71",
-      "size_bytes": 6191
+      "sha256": "d509f20e103f2f579989ff2d6f1c6af57462c8884aae4182efbf35a793861864",
+      "size_bytes": 6233
     },
     {
       "path": "docs/PROJECT_CONTEXT.md",
@@ -945,12 +945,12 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "4e1fb2c79e6657592f57ad2defda7736378345560ef1aa26befb1c6746186e19",
-      "size_bytes": 17289
+      "sha256": "79532ebcbc18f43840dffe102678ba1660a5a8ef62a224497eeddc94e40c0b2b",
+      "size_bytes": 17307
     },
     {
       "path": "docs/ROADMAP.md",
-      "sha256": "47698a5d379fcc6feace54d508965463e2fd4a1ad95e466016743a0eb78193d9",
+      "sha256": "879cb3c659de4eaa1476c40a8e334b65e60b84e66ad012f5641695e410833419",
       "size_bytes": 10591
     },
     {
@@ -1119,6 +1119,11 @@
       "size_bytes": 2398
     },
     {
+      "path": "docs/specs/v1.1.0-community-release.md",
+      "sha256": "ca798d8cbe4ebc2eb2a71b9805090607efa0a5664a7d0b51b1891c8b624e8678",
+      "size_bytes": 2340
+    },
+    {
       "path": "docs/work/2026-09-06-setup-first-transformation.md",
       "sha256": "48d1b6dc8e3f18239bc92b40f745ec22899479d798c14426c91dbceba8e358eb",
       "size_bytes": 5721
@@ -1167,6 +1172,11 @@
       "path": "docs/work/2026-09-16-community-first-onboarding.md",
       "sha256": "e32e480c03bbee9cb003c6d7861f1be5d6add0f6ce92c9d3272f743e8de308be",
       "size_bytes": 5938
+    },
+    {
+      "path": "docs/work/2026-09-17-v1.1.0-distribution.md",
+      "sha256": "a6569d004e42f15f63f2abb36d8fbbd840deffce1ad331753a2cba070eef3eaa",
+      "size_bytes": 3049
     },
     {
       "path": "docs/work/TASK_TEMPLATE.md",
@@ -1285,7 +1295,7 @@
     },
     {
       "path": "lib/agent_workspace.py",
-      "sha256": "285d511cd21d6f3e5ad1c6c2cbbdd8b49e0f3c2c495ab28bf14095ff6a44f826",
+      "sha256": "b0759ebb9e77db7e372c53018b80e0c3f688ba904ae8dbb98da2ccc8a56dd120",
       "size_bytes": 244589
     },
     {
@@ -1300,7 +1310,7 @@
     },
     {
       "path": "lib/hook_runtime.py",
-      "sha256": "29ca8565de43af0045d89dd6bc42c4695a00e317b399f69a84c028b9d87b5fdd",
+      "sha256": "0ccb86821fce50f0eb3820fa060023cce1d4de47ca3a32f86c3dce0d63beafbf",
       "size_bytes": 13484
     },
     {
@@ -1375,7 +1385,7 @@
     },
     {
       "path": "tests/test_ci_workflow_contract.py",
-      "sha256": "6e615388cc5fdeb317df978b3dddd84d65e62e1a3a2061f10e570f63b6157c3b",
+      "sha256": "e5b5e7fd872157422816f685d22055b510cfcec91901f8f38f44860ac8627401",
       "size_bytes": 2393
     },
     {
@@ -1440,8 +1450,8 @@
     },
     {
       "path": "tests/test_tool_policy.py",
-      "sha256": "c49781a7acb8a4e8aadfde109ae61e2f62ae2a44a5d5cd863331497c08244593",
-      "size_bytes": 14924
+      "sha256": "12b04b86288a9e818beece83a0393259202db778a5f53e3dcd72c51c73868fe3",
+      "size_bytes": 15214
     },
     {
       "path": "tests/test_tool_router.py",
