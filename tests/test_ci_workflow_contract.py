@@ -38,9 +38,9 @@ class TestCiWorkflowContract(unittest.TestCase):
 
     def test_downstream_action_uses_exact_immutable_stable_tag(self) -> None:
         docs = CI_GATE.read_text()
-        self.assertIn("uses: brunoribeirol/ratchery@v1.0.0", docs)
+        self.assertIn("uses: brunoribeirol/ratchery@v1.1.0", docs)
         self.assertNotIn("uses: brunoribeirol/ratchery@v1\n", docs)
-        self.assertNotIn("brunoribeirol/ratchery@v1.0.0-rc", docs)
+        self.assertNotIn("brunoribeirol/ratchery@v1.1.0-rc", docs)
 
     def test_codeql_is_python_only_and_least_privilege(self) -> None:
         text = CODEQL.read_text()
