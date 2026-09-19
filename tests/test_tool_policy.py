@@ -23,6 +23,13 @@ class TestToolCatalog(unittest.TestCase):
     def test_hook_runtime_reports_the_current_product_version(self):
         self.assertEqual(hook.VERSION, aw.VERSION)
 
+    def test_repository_hook_snapshot_matches_the_shipped_runtime(self):
+        root = Path(__file__).resolve().parents[1]
+        self.assertEqual(
+            (root / ".agents/runtime/agent_workspace.py").read_bytes(),
+            (root / "lib/hook_runtime.py").read_bytes(),
+        )
+
     def test_shipped_catalog_is_valid_and_has_no_external_always_mode(self):
         self.assertEqual(aw.tool_catalog_issues(), [])
         catalog = aw.load_tool_catalog()

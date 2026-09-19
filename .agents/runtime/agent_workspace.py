@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-VERSION = "1.0.0-rc.1"
+VERSION = "1.1.0"
 
 GIT_LOCAL_ENVIRONMENT = {
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",

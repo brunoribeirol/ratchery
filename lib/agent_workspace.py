@@ -36,7 +36,7 @@ import efficiency as ef
 import memory_engine as me
 import tool_router as tr
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 # The "v8" embedded below is the managed-block MERGE-FORMAT version, not the
 # software's VERSION above -- it identifies the marker syntax merge_project_json()/
 # managed()/replace_managed_block() use to find and update their own content inside
