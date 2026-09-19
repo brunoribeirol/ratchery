@@ -5,7 +5,7 @@ consideration, and what's still speculative. Nothing in "Next" or
 "Later / exploratory" is a commitment or a timeline — treat those sections as
 "under consideration," not "coming soon."
 
-## Current stable line (v1.0.0)
+## Current stable line (v1.1.0)
 
 The capabilities below are implemented. Stable publication still requires the
 exact release commit's protected CI, CodeQL, client canary, signed tag,
@@ -117,7 +117,7 @@ should expect in the next release without further evaluation:
 
 - **Homebrew tap** — `ratchery setup` now separates package-manager runtime
   installation from user-specific Vault onboarding. Create the tap only after
-  stable `v1.0.0` exists, then require its exact release URL/checksum plus
+  stable `v1.1.0` exists, then require its exact release URL/checksum plus
   macOS/Linux Formula audit and isolated setup/doctor tests. See
   `docs/PUBLISHING.md`.
 

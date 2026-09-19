@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v1.1.0 - 2026-09-19
+
+Community-first release. Ratchetry now delivers its security- and cost-aware
+core without requiring an Obsidian Vault, while preserving the existing
+explicit memory workflow as an opt-in enhancement.
+
 ### Added
 
 - Core-only onboarding now works without an Obsidian Vault. Source installs and

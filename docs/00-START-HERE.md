@@ -1,6 +1,6 @@
 # Start Here
 
-**Ratchetry 1.0** is a batteries-included, low-overhead operating layer for Claude Code
+**Ratchetry 1.1** is a batteries-included, low-overhead operating layer for Claude Code
 and Codex. It installs a safe, curated workspace and uses its
 Adaptive Engine, Context Engine, and Tool Router to activate only the rigor, context, agents,
 Skills, and optional tools whose benefit justifies their cost. Product scope and non-goals

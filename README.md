@@ -53,7 +53,7 @@ The canonical product contract is [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTE
 > `agent-workspace` during the 1.x migration window; both commands execute the
 > same installed runtime. The old name is not used for new documentation or paths.
 
-## What's in v1.0
+## What's in v1.1
 
 - **Safe dual-CLI workspace** -- shared `AGENTS.md` contract, minimal Claude adapter,
   fail-closed sandbox, credential/environment protection, restricted network, and a

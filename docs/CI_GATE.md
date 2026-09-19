@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: brunoribeirol/ratchery@v1.0.0
+      - uses: brunoribeirol/ratchery@v1.1.0
         with:
           path: .
           deep: "true"

@@ -65,8 +65,8 @@ green Scorecard as proof that no source vulnerability exists.
 
 1. Merge the stable-preparation PR and require its six CI jobs plus CodeQL to
    pass on the exact commit.
-2. Publish and verify signed stable `v1.0.0`, its four assets, checksums, SPDX
-   SBOM, and both attestations.
+2. Publish and verify the latest signed stable release (`v1.1.0` for this
+   application), its four assets, checksums, SPDX SBOM, and both attestations.
 3. Sign in at [bestpractices.dev](https://www.bestpractices.dev/en/projects/new)
    with the maintainer account and create the Ratchetry project entry.
 4. Complete metal Passing and OSPS Baseline Level 1 using current live wording,

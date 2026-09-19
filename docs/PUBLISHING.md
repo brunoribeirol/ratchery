@@ -119,11 +119,11 @@ make release-smoke
    replace, or reuse a published tag.
 8. Confirm the Release contains all four assets and both attestations verify.
 
-## Homebrew tap after stable v1.0.0
+## Homebrew tap from stable v1.1.0
 
-The verified RC proves the artifact boundary, and `ratchery setup` now provides
+The verified releases prove the artifact boundary, and `ratchery setup` now provides
 the separate user-onboarding boundary. Do not publish the tap until stable
-`v1.0.0` and its checksum/attestations exist. A package-manager install cannot
+`v1.1.0` and its checksum/attestations exist. A package-manager install cannot
 run the source installer because Homebrew formulae must not choose a user's
 Vault or write agent files into the build user's home.
 
@@ -162,9 +162,9 @@ the supported distribution mechanism.
 ## GitHub settings checklist for private staging and public launch
 
 These settings do not travel with a fork or repository transfer. The first
-public-launch transaction and `v1.0.0-rc.1` recovery are complete; retain this
-checklist as the reproducible control contract. Publishing stable `v1.0.0`
-remains a separate maintainer decision.
+public-launch transaction, `v1.0.0-rc.1` recovery, and stable `v1.0.0`
+publication are complete; retain this checklist as the reproducible control
+contract for future repositories and visibility transitions.
 
 ### Capability preflight
 
