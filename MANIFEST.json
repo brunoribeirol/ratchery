@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.1.0",
   "channel": "stable",
-  "generated_at": "2026-09-19T15:44:18+00:00",
+  "generated_at": "2026-09-22T14:31:27+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 290,
-  "total_bytes_excluding_manifest": 1424185,
+  "file_count_excluding_manifest": 292,
+  "total_bytes_excluding_manifest": 1432874,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "0d2db8165bbfdb5b7ac40b5e1ec8aa29ba23deacdd59ed6b3facf38b95eca475",
-      "size_bytes": 28208
+      "sha256": "e27e4e63210af516339b911b0cc2b935c733f6512bfaffb1cc49cdc9065a5ba1",
+      "size_bytes": 28670
     },
     {
       "path": "CLAUDE.md",
@@ -235,8 +235,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "2c36041226efa4a4bf1c909d0a7538e5c5ff4111c6f873fd07ef9f4276e0fec1",
-      "size_bytes": 15455
+      "sha256": "d7fed609ccb72ed4d7fceb5d52654c4db92f7635107252e9a0a5dff91077e0a8",
+      "size_bytes": 16115
     },
     {
       "path": "SECURITY.md",
@@ -925,8 +925,8 @@
     },
     {
       "path": "docs/INSTALLATION.md",
-      "sha256": "f43bc4fcc91823f4988c9bf4d1a0c669798a563ba1ee487cb36ec8e25c33d358",
-      "size_bytes": 12147
+      "sha256": "69f06b8a7907c5212d375a0941653d451e73bcd656b5f9a24258fef6e4f28ca3",
+      "size_bytes": 13289
     },
     {
       "path": "docs/MEMORY.md",
@@ -935,8 +935,8 @@
     },
     {
       "path": "docs/OPENSSF.md",
-      "sha256": "d509f20e103f2f579989ff2d6f1c6af57462c8884aae4182efbf35a793861864",
-      "size_bytes": 6233
+      "sha256": "a2e815dbdbc90dad2b56d31356709b2a3f39c4771ca8665dd307005a0f6b5a1e",
+      "size_bytes": 6732
     },
     {
       "path": "docs/PROJECT_CONTEXT.md",
@@ -945,8 +945,8 @@
     },
     {
       "path": "docs/PUBLISHING.md",
-      "sha256": "79532ebcbc18f43840dffe102678ba1660a5a8ef62a224497eeddc94e40c0b2b",
-      "size_bytes": 17307
+      "sha256": "90854936f1ff3c8787722015134071dbff69c6011dfb22157124612a22c26568",
+      "size_bytes": 17827
     },
     {
       "path": "docs/ROADMAP.md",
@@ -1064,6 +1064,11 @@
       "size_bytes": 5098
     },
     {
+      "path": "docs/specs/homebrew-openssf-handoff.md",
+      "sha256": "a871d54f44c82c344a852ac88378ac549a3de12417bc65b9d04438e4ff1cd5a3",
+      "size_bytes": 2016
+    },
+    {
       "path": "docs/specs/manifest-untracked-release-files.md",
       "sha256": "4a3d2f171f25c06e63b807a1d6b62e20b3987bf55c3f20ed9192d7972d9c95e9",
       "size_bytes": 2236
@@ -1177,6 +1182,11 @@
       "path": "docs/work/2026-09-17-v1.1.0-distribution.md",
       "sha256": "a6569d004e42f15f63f2abb36d8fbbd840deffce1ad331753a2cba070eef3eaa",
       "size_bytes": 3049
+    },
+    {
+      "path": "docs/work/2026-09-21-homebrew-openssf-handoff.md",
+      "sha256": "6857890520a4b3a0babec4a884e0d0f28583bc37ceeae62f044ac238c9266b3b",
+      "size_bytes": 3390
     },
     {
       "path": "docs/work/TASK_TEMPLATE.md",
