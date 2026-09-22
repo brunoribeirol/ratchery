@@ -26,10 +26,9 @@ project or task justifies their token, permission, dependency, and maintenance c
 ## The shortest useful path
 
 ```bash
-git clone https://github.com/brunoribeirol/ratchery.git
-cd ratchery
-bash install.sh --projects-root "$HOME/Projects" --dry-run
-bash install.sh --projects-root "$HOME/Projects" --yes
+brew install brunoribeirol/tap/ratchery
+ratchery setup --projects-root "$HOME/Projects" --dry-run
+ratchery setup --projects-root "$HOME/Projects" --yes
 
 cd /path/to/your/repository
 ratchery init
@@ -37,9 +36,10 @@ ratchery tier-set   # confirms low-risk defaults; use --help and real risk flags
 ratchery doctor --deep
 ```
 
-That installs the dependency-free core and configures the current repository. Obsidian
-memory is an optional enhancement, not a prerequisite. The installer preserves human-owned
-configuration and installs no external optimizer, scanner, MCP server, or memory service.
+That installs the dependency-free core, explicitly configures your user workspace, and
+configures the current repository. Obsidian memory is an optional enhancement, not a
+prerequisite. Setup preserves human-owned configuration and installs no external optimizer,
+scanner, MCP server, or memory service.
 On later setup/upgrade runs, omitting both memory flags preserves the existing choice;
 `--no-vault` is the explicit way to disable the integration without deleting Vault files.
 
@@ -125,7 +125,27 @@ State:    ~/.local/state/ratchery/
 
 ## Install
 
-Use `--dry-run` first to preview every planned change. The default path installs the core
+### Homebrew
+
+The verified public tap is the shortest supported installation path on macOS or Linux:
+
+```bash
+brew install brunoribeirol/tap/ratchery
+ratchery --version
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --dry-run
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --yes
+ratchery doctor-global --deep
+```
+
+The Formula installs only the immutable runtime. `setup` remains an explicit, reviewable
+step and defaults to core-only mode for a new user. It never guesses a Vault path or
+auto-installs optional tools.
+
+### Source installation
+
+Use `--dry-run` first to preview every planned change. This path installs the same core
 without a memory backend:
 
 ```bash
@@ -148,9 +168,8 @@ ratchery tools-status
 Full flag reference and upgrade/rollback behavior: `docs/INSTALLATION.md`.
 
 Package managers install only the immutable runtime. They must never guess a
-Vault path or write agent configuration during package installation. After any
-future package-manager install, preview and apply the same supported onboarding
-contract explicitly:
+Vault path or write agent configuration during package installation. Preview
+and apply the supported onboarding contract explicitly:
 
 ```bash
 ratchery setup --projects-root "$HOME/Projects" \
@@ -176,9 +195,9 @@ Omitting both `--vault` and `--no-vault` preserves an existing memory selection.
 `ratchery setup --no-vault ...` only when you intentionally want core-only mode; it changes
 configuration but never deletes the Vault or its notes.
 
-The Homebrew tap is intentionally not advertised until its formula passes the
-stable-asset, checksum, macOS/Linux audit, and isolated setup/doctor gates in
-`docs/PUBLISHING.md`.
+The Homebrew Formula passed the stable-asset/checksum boundary, strict online
+new-formula audit, style check, source installation, isolated setup/doctor tests,
+and protected macOS/Linux jobs recorded in `docs/PUBLISHING.md`.
 
 Release archives are deterministic and ship with SHA-256 checksums, an SPDX
 2.3 SBOM, and GitHub/Sigstore provenance. Verification commands and the exact

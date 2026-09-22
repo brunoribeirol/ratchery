@@ -79,6 +79,46 @@ Notes on each:
 - `--yes` — skips the interactive `Continue? [y/N]` confirmation prompt; useful for
   non-interactive/CI installs.
 
+## Homebrew
+
+The official tap packages the immutable `v1.1.0` runtime and was validated on
+macOS and Linux:
+
+```bash
+brew install brunoribeirol/tap/ratchery
+ratchery --version
+```
+
+Installation deliberately does not choose a projects root, enable a Vault, or
+write agent configuration. Preview and apply user-scoped setup separately:
+
+```bash
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --dry-run
+ratchery setup --projects-root "$HOME/Projects" \
+  --project-layout categorized --external-tools none --yes
+ratchery doctor-global --deep
+```
+
+Update or remove the packaged runtime with Homebrew:
+
+```bash
+brew update
+brew upgrade ratchery
+brew uninstall ratchery
+```
+
+Uninstalling the Formula does not delete `~/.config/ratchery`,
+`~/.local/state/ratchery`, initialized project files, or an optional Vault.
+Those are user-owned state and must be reviewed separately.
+
+If another installation appears earlier in `PATH`, `brew --prefix ratchery`
+identifies the Homebrew prefix. Inspect the packaged command directly with:
+
+```bash
+"$(brew --prefix ratchery)/bin/ratchery" --version
+```
+
 ## Setup after a package-manager install
 
 `ratchery setup` is the supported post-install command for Homebrew and other

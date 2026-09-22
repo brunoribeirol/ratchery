@@ -121,11 +121,18 @@ make release-smoke
 
 ## Homebrew tap from stable v1.1.0
 
-The verified releases prove the artifact boundary, and `ratchery setup` now provides
-the separate user-onboarding boundary. Do not publish the tap until stable
-`v1.1.0` and its checksum/attestations exist. A package-manager install cannot
-run the source installer because Homebrew formulae must not choose a user's
-Vault or write agent files into the build user's home.
+Status: **published and verified**. The public
+[`brunoribeirol/homebrew-tap`](https://github.com/brunoribeirol/homebrew-tap)
+Formula pins the immutable stable `v1.1.0` archive. Protected
+[PR #2](https://github.com/brunoribeirol/homebrew-tap/pull/2) merged the exact
+reviewed tree as commit
+[`837424e`](https://github.com/brunoribeirol/homebrew-tap/commit/837424e7ed9133ce854a83e998b4c07b51180216)
+after macOS 26 and Ubuntu checks passed on both the PR head and merge commit.
+
+The verified release proves the artifact boundary, while `ratchery setup`
+provides the separate user-onboarding boundary. A package-manager install does
+not run the source installer because a Formula must not choose a user's Vault
+or write agent files into the build user's home.
 
 1. Pin the Formula to the immutable stable GitHub Release archive, verify the
    release asset's SHA-256 against `SHA256SUMS.txt`, and depend on a current
@@ -148,16 +155,23 @@ Vault or write agent files into the build user's home.
 4. Test both a source build and the installed/bottled command; a version-only
    assertion is insufficient because it would not exercise package layout or
    user-scoped setup.
-5. Run `brew audit --strict --online`, `brew style`, and install tests on
-   supported macOS and Linux runners before documenting `brew tap`/`brew
-   install` in README. For a future submission to homebrew/core, also run the
-   stricter new-formula audit required by Homebrew at that time.
+5. Run `brew audit --strict --online --new`, `brew style`, and install tests on
+   supported macOS and Linux runners before documenting `brew install` in
+   README. The published v1.1.0 Formula passed these gates plus a second public
+   source installation, `brew test`, and direct installed-command version
+   check.
 6. Automate formula bumps only after the signed tag, archive smoke,
    attestations, and GitHub Release all succeed; use a narrowly scoped token for
    the tap repository.
 
-Until those gates pass, the release archive plus checksum/attestation path is
-the supported distribution mechanism.
+Install the verified Formula with:
+
+```bash
+brew install brunoribeirol/tap/ratchery
+```
+
+Future Formula bumps must repeat the same immutable-release and protected-PR
+transaction before their install command is advertised.
 
 ## GitHub settings checklist for private staging and public launch
 
