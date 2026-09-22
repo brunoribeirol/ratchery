@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Added
+
+- The verified public Homebrew tap is now documented as the shortest install
+  path: `brew install brunoribeirol/tap/ratchery`, followed by the explicit,
+  reviewable `ratchery setup` user-configuration step.
+
+### Changed
+
+- Installation and publishing guidance now records the protected macOS/Linux
+  Formula checks, public source installation test, upgrade/uninstall boundary,
+  and the remaining human-attestation step for OpenSSF Best Practices.
+
 ## v1.1.0 - 2026-09-19
 
 Community-first release. Ratchetry now delivers its security- and cost-aware

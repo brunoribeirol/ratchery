@@ -1,7 +1,8 @@
 # OpenSSF evidence and application boundary
 
-Status: **preparation only**. Ratchetry publishes an automated OpenSSF
-Scorecard result, but it has not yet earned or displayed an OpenSSF Best
+Status: **ready for maintainer submission**. Ratchetry publishes an automated
+OpenSSF Scorecard result and now has a verified stable release and public
+Homebrew distribution, but it has not yet earned or displayed an OpenSSF Best
 Practices badge.
 
 These are separate programs:
@@ -41,6 +42,7 @@ and choose Met, Unmet, Unknown, or N/A with a literal justification.
 | New-feature test policy | [CONTRIBUTING](https://github.com/brunoribeirol/ratchery/blob/main/CONTRIBUTING.md#running-the-tests), [tests](https://github.com/brunoribeirol/ratchery/tree/main/tests) | Tests required for behavior changes and recent public evidence |
 | Static analysis | [CodeQL workflow](https://github.com/brunoribeirol/ratchery/blob/main/.github/workflows/codeql.yml), [Ruff/ShellCheck CI](https://github.com/brunoribeirol/ratchery/blob/main/.github/workflows/ci.yml) | Python SAST plus blocking lint/shell analysis before stable release |
 | Supply-chain integrity | [Publishing](https://github.com/brunoribeirol/ratchery/blob/main/docs/PUBLISHING.md), [Releases](https://github.com/brunoribeirol/ratchery/releases) | Signed immutable tags, checksums, SPDX SBOM, deterministic archive, Sigstore provenance |
+| Package distribution | [Homebrew tap](https://github.com/brunoribeirol/homebrew-tap), [Formula PR](https://github.com/brunoribeirol/homebrew-tap/pull/2), [Formula](https://github.com/brunoribeirol/homebrew-tap/blob/main/Formula/ratchery.rb) | Public acquisition path, immutable release pin, and protected macOS/Linux validation |
 | Repository posture | [Scorecard](https://scorecard.dev/viewer/?uri=github.com/brunoribeirol/ratchery), [Scorecard workflow](https://github.com/brunoribeirol/ratchery/blob/main/.github/workflows/scorecard.yml) | Automated public repository-health evidence; not a substitute for source SAST |
 | Governance reality | [MAINTAINERS](https://github.com/brunoribeirol/ratchery/blob/main/MAINTAINERS.md) | Accurately records the current single-maintainer state |
 
@@ -63,16 +65,18 @@ green Scorecard as proof that no source vulnerability exists.
 
 ## Submission sequence
 
-1. Merge the stable-preparation PR and require its six CI jobs plus CodeQL to
-   pass on the exact commit.
-2. Publish and verify the latest signed stable release (`v1.1.0` for this
-   application), its four assets, checksums, SPDX SBOM, and both attestations.
-3. Sign in at [bestpractices.dev](https://www.bestpractices.dev/en/projects/new)
-   with the maintainer account and create the Ratchetry project entry.
-4. Complete metal Passing and OSPS Baseline Level 1 using current live wording,
-   this evidence map, and explicit justifications.
-5. Add a badge only after the public application reports the earned level. Use
-   the exact application-generated project ID/URL; never guess it in advance.
+- [x] Merge the stable-preparation PR and require its six CI jobs plus CodeQL
+  to pass on the exact commit.
+- [x] Publish and verify stable `v1.1.0`, its four assets, checksums, SPDX SBOM,
+  and both attestations.
+- [x] Publish and independently install/test the public Homebrew Formula after
+  its protected macOS/Linux checks pass.
+- [ ] Sign in at [bestpractices.dev](https://www.bestpractices.dev/en/projects/new)
+  with the maintainer account and create the Ratchetry project entry.
+- [ ] Complete metal Passing and OSPS Baseline Level 1 using current live wording,
+  this evidence map, and explicit justifications.
+- [ ] Add a badge only after the public application reports the earned level. Use
+  the exact application-generated project ID/URL; never guess it in advance.
 
 The application is a human attestation and therefore cannot be completed or
 approved by repository automation alone.
