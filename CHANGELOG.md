@@ -4,6 +4,19 @@
 
 ### Added
 
+- Capability Registry v2 resolves every shipped agent and global Skill to versioned
+  provenance, Claude/Codex coverage, permission/network ceilings, source resources, and a
+  computed SHA-256 digest while preserving the existing activation/install keys.
+- `ratchery skills list/show/validate/eval` and expanded
+  `ratchery agents list/show/validate/eval` commands provide read-only inspection plus 42
+  deterministic positive/negative routing fixtures without model or network calls.
+- Seven goal-oriented advisory workflows cover repository orientation, implementation,
+  debugging, security audit/hardening, release preparation, and migration. The dedicated
+  security-hardening Skill/workflow requires structured findings, explicit approval before
+  remediation, closure tests, and independent re-review.
+- `ratchery radar status/show/stale/validate` exposes an 11-entry offline technology radar
+  with adopted/trial/assess/hold decisions and explicit recheck dates. It never polls,
+  installs, or enables an upstream project.
 - The verified public Homebrew tap is now documented as the shortest install
   path: `brew install brunoribeirol/tap/ratchery`, followed by the explicit,
   reviewable `ratchery setup` user-configuration step.

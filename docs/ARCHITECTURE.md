@@ -19,7 +19,7 @@ security, etc.) and is cross-referenced below rather than duplicated.
 
 ## Module boundaries
 
-The runtime is seven Python modules under `lib/`, all stdlib-only:
+The runtime is eight Python modules under `lib/`, all stdlib-only:
 
 | Module | Responsibility |
 |---|---|
@@ -29,11 +29,12 @@ The runtime is seven Python modules under `lib/`, all stdlib-only:
 | `lib/tool_router.py` | Pure task-kind → tool routing table (no I/O) |
 | `lib/efficiency.py` | Pure ccusage aggregate validation, benchmark task-set/snapshot/report schemas, and budget evaluation |
 | `lib/memory_engine.py` | Pure validation and rendering for the bounded provider-neutral handoff schema |
+| `lib/capability_system.py` | Read-only capability provenance/digests, deterministic routing evals, goal workflows, approval gates, and offline technology radar |
 | `lib/hook_runtime.py` | The secondary `PreToolUse` regex guard installed into `.agents/runtime/agent_workspace.py` in every project (see "Two-layer security model" below) |
 
-`agent_workspace.py` is the entry point and orchestrator; the other six are sibling
+`agent_workspace.py` is the entry point and orchestrator; the other seven are sibling
 modules it imports/deploys and calls into — it does not duplicate their logic. Unlike the
-other five imported siblings, `hook_runtime.py` is never imported directly: `agent_workspace.py`
+other six imported siblings, `hook_runtime.py` is never imported directly: `agent_workspace.py`
 copies it verbatim into each project (`.agents/runtime/agent_workspace.py`) as the file
 Claude Code's `PreToolUse` hook actually invokes at runtime, and `doctor --deep` later
 hash-verifies that deployed copy against this same source file before ever executing
@@ -43,6 +44,7 @@ why the module boundary matters here).
 
 ```python
 import adaptive_engine as ae
+import capability_system as cs
 import context_engine as ce
 import efficiency as ef
 import memory_engine as me
@@ -52,11 +54,11 @@ import tool_router as tr
 This works regardless of how `ratchery` is invoked (the `bin/ratchery` shim,
 a direct `python3 lib/agent_workspace.py` call, or the installed copy under
 `~/.local/share/ratchery/lib/`) because Python always puts the running script's own
-directory at `sys.path[0]`. Since `adaptive_engine.py`, `context_engine.py`,
-`efficiency.py`, `memory_engine.py`, and `tool_router.py` live next to
+directory at `sys.path[0]`. Since `adaptive_engine.py`, `capability_system.py`,
+`context_engine.py`, `efficiency.py`, `memory_engine.py`, and `tool_router.py` live next to
 `agent_workspace.py` in the same `lib/` directory, the plain
 `import adaptive_engine` resolves without any path manipulation, `PYTHONPATH` setup, or
-package `__init__.py` — as long as the seven files are copied together, which the
+package `__init__.py` — as long as the eight files are copied together, which the
 validated `MANIFEST.json` staging step in `install.sh` guarantees.
 
 `agent_workspace.py` still owns `inspect_project()`/`profile()`
@@ -84,6 +86,7 @@ full rationale.
                                 ├──calls (tools-recommend)──▶ tool_router.py
                                 ├──calls (usage/benchmark/budget)──▶ efficiency.py
                                 ├──calls (memory handoff schema)──▶ memory_engine.py
+                                ├──calls (catalog/workflows/radar)──▶ capability_system.py
                                 └──deploys a verbatim copy──▶ hook_runtime.py
                                    (.agents/runtime/agent_workspace.py)
 ```

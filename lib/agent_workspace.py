@@ -31,6 +31,7 @@ except ImportError:  # pragma: no cover - preflight reports this runtime as unsu
 # script's own directory at sys.path[0], so this resolves regardless of cwd
 # or how ratchery was invoked (bin shim, direct python3 call, etc.).
 import adaptive_engine as ae
+import capability_system as cs
 import context_engine as ce
 import efficiency as ef
 import memory_engine as me
@@ -5218,10 +5219,82 @@ def main() -> None:
     astat = sub.add_parser("agents-status", help="Show which agents are active in this project and why.")
     astat.add_argument("--path", default=".")
 
-    aen = sub.add_parser("agents", help="Explicitly enable/disable an on-demand agent for this project.")
+    skills_parser = sub.add_parser(
+        "skills", help="Inspect and validate the versioned global Skill catalog."
+    )
+    skills_sub = skills_parser.add_subparsers(dest="skills_cmd", required=True)
+    skills_list = skills_sub.add_parser("list", help="List shipped global Skills.")
+    skills_list.add_argument("--json", action="store_true")
+    skills_show = skills_sub.add_parser("show", help="Show one resolved Skill contract.")
+    skills_show.add_argument("name")
+    skills_show.add_argument("--json", action="store_true")
+    skills_validate = skills_sub.add_parser(
+        "validate", help="Validate Skill metadata, resources, and behavior fixtures."
+    )
+    skills_validate.add_argument("--json", action="store_true")
+    skills_eval = skills_sub.add_parser(
+        "eval", help="Run deterministic zero-LLM Skill routing evals."
+    )
+    skills_eval.add_argument("--json", action="store_true")
+
+    aen = sub.add_parser(
+        "agents", help="Inspect agents or explicitly enable/disable an on-demand agent."
+    )
     aen_sub = aen.add_subparsers(dest="agents_cmd", required=True)
+    agents_list = aen_sub.add_parser("list", help="List shipped agent contracts.")
+    agents_list.add_argument("--json", action="store_true")
+    agents_show = aen_sub.add_parser("show", help="Show one resolved agent contract.")
+    agents_show.add_argument("name")
+    agents_show.add_argument("--json", action="store_true")
+    agents_validate = aen_sub.add_parser(
+        "validate", help="Validate agent metadata, client parity, and behavior fixtures."
+    )
+    agents_validate.add_argument("--json", action="store_true")
+    agents_eval = aen_sub.add_parser(
+        "eval", help="Run deterministic zero-LLM agent routing evals."
+    )
+    agents_eval.add_argument("--json", action="store_true")
     aen_enable = aen_sub.add_parser("enable", help="Enable an on-demand agent for this project."); aen_enable.add_argument("name"); aen_enable.add_argument("--path", default=".")
     aen_disable = aen_sub.add_parser("disable", help="Disable an agent that was previously enabled for this project."); aen_disable.add_argument("name"); aen_disable.add_argument("--path", default=".")
+
+    workflows_parser = sub.add_parser(
+        "workflows", help="Discover goal-oriented advisory workflows."
+    )
+    workflows_sub = workflows_parser.add_subparsers(
+        dest="workflows_cmd", required=True
+    )
+    workflows_list = workflows_sub.add_parser("list", help="List available workflows.")
+    workflows_list.add_argument("--json", action="store_true")
+    workflows_show = workflows_sub.add_parser("show", help="Show one workflow contract.")
+    workflows_show.add_argument("workflow")
+    workflows_show.add_argument("--json", action="store_true")
+    workflows_recommend = workflows_sub.add_parser(
+        "recommend", help="Recommend workflows for a stated goal without invoking them."
+    )
+    workflows_recommend.add_argument("--goal", required=True)
+    workflows_recommend.add_argument("--json", action="store_true")
+    workflows_validate = workflows_sub.add_parser(
+        "validate", help="Validate workflow references and approval gates."
+    )
+    workflows_validate.add_argument("--json", action="store_true")
+
+    radar_parser = sub.add_parser(
+        "radar", help="Inspect the offline curated technology radar."
+    )
+    radar_sub = radar_parser.add_subparsers(dest="radar_cmd", required=True)
+    radar_status = radar_sub.add_parser("status", help="Summarize radar decisions.")
+    radar_status.add_argument("--json", action="store_true")
+    radar_show = radar_sub.add_parser("show", help="Show one technology entry.")
+    radar_show.add_argument("entry")
+    radar_show.add_argument("--json", action="store_true")
+    radar_stale = radar_sub.add_parser(
+        "stale", help="List entries whose explicit recheck date has passed."
+    )
+    radar_stale.add_argument("--json", action="store_true")
+    radar_validate = radar_sub.add_parser(
+        "validate", help="Validate radar provenance and review dates offline."
+    )
+    radar_validate.add_argument("--json", action="store_true")
 
     mcp_parser = sub.add_parser("mcp", help="Opt in/out of an optional MCP integration (never auto-injected).")
     mcp_sub = mcp_parser.add_subparsers(dest="mcp_cmd", required=True)
@@ -5432,6 +5505,61 @@ def _dispatch(args: argparse.Namespace) -> None:
         install_agents(path, p, out)
         print("Risk answers reviewed and saved to .agents/state/risk-answers.json")
         print(f"Effective tier: {out['effective_tier']} ({out['tier_name']})")
+    elif args.cmd == "skills":
+        root = package_root()
+        if args.skills_cmd == "list":
+            capabilities = cs.list_capabilities(root, "skill")
+            if args.json:
+                print(json.dumps(capabilities, ensure_ascii=False, indent=2))
+            else:
+                for item in capabilities:
+                    print(
+                        f"{item['name']} {item['version']} -- {item['description']} "
+                        f"[permission={item['permission_ceiling']}, network={item['network']}]"
+                    )
+        elif args.skills_cmd == "show":
+            detail = cs.capability_detail(root, "skill", args.name)
+            if args.json:
+                print(json.dumps(detail, ensure_ascii=False, indent=2))
+            else:
+                print(f"Skill: {detail['name']} {detail['version']}")
+                print(f"Description: {detail['description']}")
+                print(f"Clients: {', '.join(detail['clients'])}")
+                print(f"Permission ceiling: {detail['permission_ceiling']}")
+                print(f"Network: {detail['network']}")
+                print(f"Digest: {detail['digest']}")
+                print(f"Sources: {', '.join(detail['sources'])}")
+                print(f"Signals: {', '.join(detail['signals'])}")
+                print(f"Non-triggers: {', '.join(detail['anti_signals']) or 'none'}")
+        elif args.skills_cmd == "validate":
+            result = cs.validate_capabilities(root, "skill")
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for error in result["errors"]:
+                    print(f"ERROR: {error}")
+                for warning in result["warnings"]:
+                    print(f"WARN: {warning}")
+                print(
+                    f"Skill catalog: {result['counts'].get('skill', 0)} entries -- "
+                    f"{'PASS' if result['ok'] else 'FAIL'}"
+                )
+            if not result["ok"]:
+                raise SystemExit(1)
+        elif args.skills_cmd == "eval":
+            result = cs.run_capability_evals(root, "skill")
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for item in result["results"]:
+                    state = "PASS" if item["passed"] else "FAIL"
+                    print(f"[{state}] {item['id']} -> {', '.join(item['selected']) or 'none'}")
+                print(
+                    f"Skill behavior evals: {result['total'] - result['failed']}/"
+                    f"{result['total']} passed."
+                )
+            if not result["passed"]:
+                raise SystemExit(1)
     elif args.cmd == "agents-status":
         path = git_root(Path(args.path).resolve())
         require_safe_project_layout(path)
@@ -5458,13 +5586,71 @@ def _dispatch(args: argparse.Namespace) -> None:
             for name in sorted(orphaned):
                 print(f"  {name}")
     elif args.cmd == "agents":
-        path = git_root(Path(args.path).resolve())
-        require_safe_project_layout(path)
-        assets = package_root() / "assets/project"
-        registry = agent_registry().get("agents", {})
-        name = args.name
-        if name not in registry:
-            print(f"Unknown agent: {name}. Run 'ratchery agents-status' to see valid names."); raise SystemExit(1)
+        root = package_root()
+        if args.agents_cmd == "list":
+            capabilities = cs.list_capabilities(root, "agent")
+            if args.json:
+                print(json.dumps(capabilities, ensure_ascii=False, indent=2))
+            else:
+                for item in capabilities:
+                    print(
+                        f"{item['name']} {item['version']} -- {item['description']} "
+                        f"[permission={item['permission_ceiling']}, network={item['network']}]"
+                    )
+        elif args.agents_cmd == "show":
+            detail = cs.capability_detail(root, "agent", args.name)
+            if args.json:
+                print(json.dumps(detail, ensure_ascii=False, indent=2))
+            else:
+                print(f"Agent: {detail['name']} {detail['version']}")
+                print(f"Description: {detail['description']}")
+                print(f"Clients: {', '.join(detail['clients'])}")
+                print(f"Permission ceiling: {detail['permission_ceiling']}")
+                print(f"Network: {detail['network']}")
+                print(f"Digest: {detail['digest']}")
+                print(f"Sources: {', '.join(detail['sources'])}")
+                print(f"Signals: {', '.join(detail['signals'])}")
+                print(f"Non-triggers: {', '.join(detail['anti_signals']) or 'none'}")
+        elif args.agents_cmd == "validate":
+            result = cs.validate_capabilities(root, "agent")
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for error in result["errors"]:
+                    print(f"ERROR: {error}")
+                for warning in result["warnings"]:
+                    print(f"WARN: {warning}")
+                print(
+                    f"Agent catalog: {result['counts'].get('agent', 0)} entries -- "
+                    f"{'PASS' if result['ok'] else 'FAIL'}"
+                )
+            if not result["ok"]:
+                raise SystemExit(1)
+        elif args.agents_cmd == "eval":
+            result = cs.run_capability_evals(root, "agent")
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for item in result["results"]:
+                    state = "PASS" if item["passed"] else "FAIL"
+                    print(f"[{state}] {item['id']} -> {', '.join(item['selected']) or 'none'}")
+                print(
+                    f"Agent behavior evals: {result['total'] - result['failed']}/"
+                    f"{result['total']} passed."
+                )
+            if not result["passed"]:
+                raise SystemExit(1)
+        else:
+            path = git_root(Path(args.path).resolve())
+            require_safe_project_layout(path)
+            assets = root / "assets/project"
+            registry = agent_registry().get("agents", {})
+            name = args.name
+            if name not in registry:
+                print(
+                    f"Unknown agent: {name}. Run 'ratchery agents list' to see valid names."
+                )
+                raise SystemExit(1)
         if args.agents_cmd == "enable":
             md = assets / ".claude/agents" / f"{name}.md"
             toml = assets / ".codex/agents" / f"{name.replace('-', '_')}.toml"
@@ -5487,6 +5673,117 @@ def _dispatch(args: argparse.Namespace) -> None:
             for target in [path / ".claude/agents" / f"{name}.md", path / ".codex/agents" / f"{name.replace('-', '_')}.toml"]:
                 if target.exists(): target.unlink(); removed = True
             print(f"Disabled '{name}'." if removed else f"'{name}' was not installed.")
+    elif args.cmd == "workflows":
+        root = package_root()
+        if args.workflows_cmd == "list":
+            workflows = cs.list_workflows(root)
+            if args.json:
+                print(json.dumps(workflows, ensure_ascii=False, indent=2))
+            else:
+                for item in workflows:
+                    approval = "approval-gated" if item["requires_approval"] else "advisory"
+                    mutation = "may mutate" if item["mutates"] else "read-only"
+                    print(f"{item['id']} -- {item['title']} [{mutation}; {approval}]")
+        elif args.workflows_cmd == "show":
+            workflow = cs.workflow_detail(root, args.workflow)
+            if args.json:
+                print(json.dumps(workflow, ensure_ascii=False, indent=2))
+            else:
+                print(f"Workflow: {workflow['title']} ({workflow['id']})")
+                print(workflow["summary"])
+                print(f"Mutates: {'yes' if workflow['mutates'] else 'no'}")
+                print(
+                    f"Approval gate: {'required' if workflow['requires_approval'] else 'not required'}"
+                )
+                for position, step in enumerate(workflow["steps"], 1):
+                    refs = ", ".join(step["capabilities"]) or "human decision"
+                    print(f"{position}. {step['id']} ({step['type']}): {refs}")
+                    print(f"   {step['outcome']}")
+        elif args.workflows_cmd == "recommend":
+            matches = cs.recommend_workflows(root, args.goal)
+            if args.json:
+                print(json.dumps(matches, ensure_ascii=False, indent=2))
+            elif matches:
+                print("Advisory recommendations (nothing was enabled or invoked):")
+                for item in matches:
+                    print(
+                        f"  {item['id']} -- {item['title']} "
+                        f"(matched: {', '.join(item['matched_signals'])})"
+                    )
+            else:
+                print("No deterministic workflow match. Run `ratchery workflows list`.")
+        elif args.workflows_cmd == "validate":
+            result = cs.validate_workflows(root)
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for error in result["errors"]:
+                    print(f"ERROR: {error}")
+                print(
+                    f"Workflow registry: {result.get('count', 0)} entries -- "
+                    f"{'PASS' if result['ok'] else 'FAIL'}"
+                )
+            if not result["ok"]:
+                raise SystemExit(1)
+    elif args.cmd == "radar":
+        root = package_root()
+        if args.radar_cmd == "status":
+            validation = cs.validate_radar(root)
+            if not validation["ok"]:
+                if args.json:
+                    print(json.dumps(validation, ensure_ascii=False, indent=2))
+                else:
+                    for error in validation["errors"]:
+                        print(f"ERROR: {error}")
+                raise SystemExit(1)
+            summary = cs.radar_summary(root)
+            if args.json:
+                print(json.dumps(summary, ensure_ascii=False, indent=2))
+            else:
+                print(f"Technology radar: {summary['count']} entries (offline)")
+                print(
+                    "Decisions: "
+                    + ", ".join(
+                        f"{name}={count}" for name, count in summary["decisions"].items()
+                    )
+                )
+                print(f"Stale: {', '.join(summary['stale']) or 'none'}")
+        elif args.radar_cmd == "show":
+            entry = cs.radar_detail(root, args.entry)
+            if args.json:
+                print(json.dumps(entry, ensure_ascii=False, indent=2))
+            else:
+                print(f"{entry['name']} ({entry['id']})")
+                print(f"Decision: {entry['decision']} | Upstream status: {entry['status']}")
+                print(f"URL: {entry['url']}")
+                print(f"Relevance: {entry['relevance']}")
+                print(f"Rationale: {entry['rationale']}")
+                print(f"Next action: {entry['next_action']}")
+                print(
+                    f"Reviewed: {entry['last_reviewed']} | Recheck by: {entry['recheck_by']}"
+                )
+        elif args.radar_cmd == "stale":
+            entries = [entry for entry in cs.list_radar(root) if entry["stale"]]
+            if args.json:
+                print(json.dumps(entries, ensure_ascii=False, indent=2))
+            elif entries:
+                for entry in entries:
+                    print(f"{entry['id']} -- recheck was due {entry['recheck_by']}")
+            else:
+                print("No technology radar entries are past their recheck date.")
+        elif args.radar_cmd == "validate":
+            result = cs.validate_radar(root)
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                for error in result["errors"]:
+                    print(f"ERROR: {error}")
+                print(
+                    f"Technology radar: {result.get('count', 0)} entries -- "
+                    f"{'PASS' if result['ok'] else 'FAIL'}"
+                )
+            if not result["ok"]:
+                raise SystemExit(1)
     elif args.cmd == "mcp":
         path = git_root(Path(args.path).resolve())
         if args.mcp_cmd == "enable":

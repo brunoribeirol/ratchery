@@ -239,6 +239,44 @@ def smoke_release(archive_path: Path) -> None:
         if compatibility_version.stdout != primary_version.stdout:
             raise ReleaseSmokeError("compatibility command does not run the primary runtime")
 
+        # Capability contracts are part of the immutable runtime, not source-only
+        # developer metadata. Validate the installed archive and one advisory route.
+        for capability_command in (
+            ("skills", "validate"),
+            ("agents", "validate"),
+            ("workflows", "validate"),
+            ("radar", "validate"),
+        ):
+            _run(
+                [str(command), *capability_command],
+                cwd=base,
+                env=environment,
+                label=f"installed {' '.join(capability_command)}",
+            )
+        workflow = _run(
+            [
+                str(command),
+                "workflows",
+                "recommend",
+                "--goal",
+                "security audit",
+                "--json",
+            ],
+            cwd=base,
+            env=environment,
+            label="installed workflow recommendation",
+        )
+        try:
+            workflow_report = json.loads(workflow.stdout)
+        except json.JSONDecodeError as exc:
+            raise ReleaseSmokeError(
+                "installed workflow recommendation emitted invalid JSON"
+            ) from exc
+        if not workflow_report or workflow_report[0].get("id") != "security-audit":
+            raise ReleaseSmokeError(
+                "installed workflow recommendation did not select security-audit"
+            )
+
         # Exercise the package-manager boundary from the installed artifact,
         # not from the source tree. A Formula installs the runtime first and
         # then asks the user to configure a separate HOME explicitly.

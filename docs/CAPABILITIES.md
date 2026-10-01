@@ -1,0 +1,105 @@
+# Capabilities and Workflows
+
+Ratchetry ships a curated capability catalog rather than loading every available agent,
+Skill, MCP server, or tool into every session. This document explains how to choose an
+outcome, inspect the exact contract, and verify the catalog without invoking a model or
+accessing the network.
+
+## Start with the goal
+
+```bash
+ratchery workflows list
+ratchery workflows recommend --goal "understand this repository"
+ratchery workflows recommend --goal "implement a feature"
+ratchery workflows recommend --goal "audit security"
+ratchery workflows show prepare-release
+```
+
+`recommend` uses explicit phrases from the versioned workflow registry. Its result is an
+advisory plan: nothing is installed, enabled, invoked, or edited. If no phrase matches, use
+`workflows list`; Ratchetry does not guess through a hidden model call.
+
+The shipped workflows are:
+
+- `understand-repository` -- bounded exploration, then investigation/architecture only if
+  evidence requires it;
+- `implement-feature` -- tier-appropriate plan/spec, implementation, tests, and review;
+- `debug-failure` -- root-cause diagnosis, approval, minimal fix, and regression evidence;
+- `security-audit` -- read-only threat boundary and verified findings;
+- `security-hardening` -- selected findings, approval, fixes, closure tests, and re-review;
+- `prepare-release` -- inventory, dependency/security, artifacts, and immutable-action gate;
+- `migrate-system` -- impact/rollback map, spec, approval, execution, and verification.
+
+## Inspect Skills and agents
+
+```bash
+ratchery skills list
+ratchery skills show security-hardening
+ratchery skills validate
+ratchery skills eval
+
+ratchery agents list
+ratchery agents show security-reviewer
+ratchery agents validate
+ratchery agents eval
+```
+
+`show` resolves the canonical registry metadata with the shipped files and reports:
+
+- semantic version and Ratchetry origin;
+- Claude and Codex coverage;
+- permission ceiling and network policy;
+- positive signals and explicit non-triggers;
+- source/resource paths and a computed SHA-256 digest;
+- the clients' native agent permission declarations when applicable.
+
+The digest is observational evidence, not a remote trust claim or signature. Validation
+fails on registry/disk drift, missing client pairs, unsafe/symlinked assets, invalid policy,
+unknown eval references, or failing behavior fixtures.
+
+## What the behavior evals prove
+
+The fixtures are deterministic and zero-LLM. They submit short task descriptions to the
+same explicit signal/anti-signal matcher used for advisory capability recommendations and
+assert required and forbidden selections. This catches catalog drift and dangerous
+over-selection cheaply in CI.
+
+They do **not** claim to measure the private routing behavior of Claude or Codex. Real-client
+compatibility remains a separate no-inference canary, and task quality/cost remains a
+separate repeated benchmark.
+
+## Security hardening boundary
+
+Use `security-audit` when the requested outcome is findings only. Use
+`security-hardening` only when verified findings exist and remediation is requested. Each
+finding must include:
+
+```text
+id | severity | asset | evidence | scenario | remediation | closure_test | status
+```
+
+The workflow stops at an explicit approval step before a fix. A finding never grants
+permission to install dependencies, change schema/auth, write unrelated files, commit,
+push, publish, or expose a secret. Resolution requires both the evidence path and closure
+test to pass, followed by independent re-review for sensitive or cross-cutting changes.
+
+## Technology radar
+
+```bash
+ratchery radar status
+ratchery radar show mcp-registry
+ratchery radar stale
+ratchery radar validate
+```
+
+The radar records the source, current review decision, rationale, licensing-review state,
+last review, and next recheck for technologies Ratchetry may learn from. The decisions are:
+
+- `adopted` -- incorporated into Ratchetry's current design;
+- `trial` -- bounded experiment with explicit evidence;
+- `assess` -- worth continued review, not approved for activation;
+- `hold` -- deliberately deferred or rejected for current product scope.
+
+These commands are offline and read-only. There is no automatic polling, arbitrary Skill
+import, MCP installation, or update job. External research remains an explicit task so
+untrusted upstream content is reviewed as data before any separate implementation change.

@@ -74,6 +74,8 @@ always-on tax. "Available" never means "loaded in every session."
 - fail-closed sandbox and credential/environment protections;
 - four baseline read/review/test/security agents;
 - progressive-disclosure Skills and context rules;
+- a versioned capability catalog, offline routing evals, and goal-oriented advisory
+  workflows that expose permission/network boundaries before use;
 - managed configuration, backups, refresh, diagnostics, and rollback;
 - optional project-to-Vault identity, explicit `workspace-resume`/`workspace-save`,
   and a machine-readable provider-neutral handoff when memory is configured.
@@ -85,6 +87,7 @@ always-on tax. "Available" never means "loaded in every session."
 - one-way risk ratchet with logged downgrade acknowledgement;
 - tier/capability-based agent, Skill, documentation, test, and review policy;
 - task-to-tool routing that prefers the lowest-cost sufficient mechanism.
+- offline technology-radar review dates and explicit adopted/trial/assess/hold decisions.
 
 The control plane serves the setup. It is a differentiating mechanism, not the
 whole product identity.
@@ -159,6 +162,9 @@ generation. `lib/tool_router.py` owns deterministic tool recommendations.
 budget evaluation.
 `lib/memory_engine.py` owns the bounded provider-neutral handoff schema and
 rendering; the CLI owns Vault identity, safe storage, and backup operations.
+`lib/capability_system.py` owns capability provenance/digests, deterministic
+routing evals, goal-oriented workflows, approval gates, and the offline
+technology radar.
 `lib/hook_runtime.py` is deployed into projects as the secondary local guard.
 Assets under `assets/` are the shipped global, project, and Vault templates.
 

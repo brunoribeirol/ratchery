@@ -48,6 +48,42 @@ with explicit human-owned risk facts to select a T0-T3 policy, then applies a on
 ratchet so recorded rigor cannot quietly drop without an acknowledged, logged decision.
 The canonical product contract is [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md).
 
+## Choose the outcome, not the internal component
+
+Ratchetry can recommend a reviewable workflow before you decide which agent or Skill to
+use. Recommendations are deterministic and advisory: they do not invoke a model, enable an
+MCP server, install a tool, or edit the repository.
+
+```bash
+ratchery workflows list
+ratchery workflows recommend --goal "understand this repository"
+ratchery workflows recommend --goal "audit security"
+ratchery workflows show security-hardening
+```
+
+Inspect the exact shipped contracts and their offline behavior fixtures:
+
+```bash
+ratchery skills list
+ratchery skills show security-scan
+ratchery skills validate
+ratchery skills eval
+
+ratchery agents list
+ratchery agents show security-reviewer
+ratchery agents validate
+ratchery agents eval
+
+ratchery radar status
+ratchery radar stale
+```
+
+Every resolved capability reports its origin, version, Claude/Codex coverage, permission
+ceiling, network policy, source files, and computed SHA-256 digest. The technology radar is
+also offline: it records what the project has adopted, is assessing, or has deliberately put
+on hold; it never polls or installs upstream projects. See
+[`docs/CAPABILITIES.md`](docs/CAPABILITIES.md).
+
 > **Compatibility note:** `ratchery` is the primary command and its config lives
 > at `~/.config/ratchery/`. Existing private-development installs may keep using
 > `agent-workspace` during the 1.x migration window; both commands execute the
@@ -67,7 +103,9 @@ The canonical product contract is [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTE
   default path.
 - **Curated capabilities** -- four baseline read/review/security/test agents plus tier-gated,
   capability-conditional, and on-demand agents and Skills. The global installer provides core
-  Skills; project `init`/`refresh` installs only the applicable project agent/Skill set.
+  Skills; project `init`/`refresh` installs only the applicable project agent/Skill set. A
+  versioned registry, computed content digests, cross-client validation, and deterministic
+  positive/negative fixtures keep the catalog reviewable.
 - **Adaptive control plane** -- deterministic T0-T3 classification, risk ratchet, capability
   detection, and a unit-tested Tool Router. Use `tier`, `tier-set`, `agents-status`, and
   `tools-recommend` to inspect the decisions.
