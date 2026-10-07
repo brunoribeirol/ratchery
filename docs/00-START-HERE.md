@@ -19,7 +19,9 @@ Read in this order when needed:
    the optional directory layout in [Projects Workspace](03-PROJECTS-WORKSPACE.md).
 3. Configure the clients through [Claude Code](05-CLAUDE-CODE.md) and
    [Codex](06-CODEX.md). The [Daily Workflow](07-DAILY-WORKFLOW.md) and
-   [Workflow](WORKFLOW.md) explain how the pieces fit together.
+   [Workflow](WORKFLOW.md) explain how the pieces fit together. Use
+   [Capabilities and Workflows](CAPABILITIES.md) to choose a goal, inspect exact
+   agent/Skill contracts, run offline behavior evals, or review the technology radar.
 4. Continue work across agent clients with [Provider-neutral Memory](MEMORY.md).
    Control context cost with [Profiles and Context](08-PROFILES-CONTEXT.md) and
    [Context and Tokens](17-CONTEXT-TOKENS.md), then measure changes with

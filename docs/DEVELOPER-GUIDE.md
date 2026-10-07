@@ -42,11 +42,19 @@ no filler. To add one:
 
 1. Create `assets/global/skills/<name>/SKILL.md` following the format above.
 2. Add its name to `assets/global/skills/registry.json`'s `skills.available` list.
+   Add a matching `metadata.skills` entry with deterministic signals/non-triggers,
+   permission and network ceilings, and at least one registered behavior eval ID.
    `global_guidance()` refuses registry/disk drift, so an unregistered directory or a
    registered missing Skill fails installation instead of silently changing the catalog.
    A user-owned same-name destination is also preserved with an explicit collision error;
    `doctor-global` verifies managed markers, canonical symlinks/copies, and Skill content.
 3. Regenerate `MANIFEST.json` (see below) since it's a new shipped file.
+
+Run `ratchery skills validate` and `ratchery skills eval` before the broader suite.
+The first command checks inventory, metadata, resources, provenance, client coverage,
+and references; the second exercises the actual deterministic signal matcher against
+`assets/global/evals/capability-routing.json`. These fixtures measure Ratchetry's advisory
+routing contract, not the private model behavior of Claude or Codex.
 
 **Conditional** (stack-triggered) project Skills are a different, narrower mechanism:
 `assets/project/conditional-skills/<skill-name>/SKILL.md`, wired into the capability →
@@ -105,9 +113,26 @@ under `.claude/agents/` and every `*.toml` under `.codex/agents/` with `copy_if_
 so, like the top-level docs, an existing project's hand-edited agent file is never
 overwritten by `refresh`; only genuinely new agent files reach existing projects.
 
+Every shipped pair also needs a matching `metadata.agents` entry and behavior fixture.
+`ratchery agents validate` checks the pair, reports the native permission declarations,
+computes a digest across both files, and runs the zero-LLM fixtures. It does not install an
+agent into a project.
+
 If the new agent should be tier-gated (only expected at T2/T3, say), add it to the relevant
 tier's `required_agents` list in `adaptive_engine.tier_requirements()` — that's what
 `doctor_project()` checks against, not the mere presence of the file.
+
+## Adding workflows or radar entries
+
+Goal-oriented workflows live in `assets/global/workflows/registry.json`. Steps may only
+reference registered capabilities as `skill:<name>` or `agent:<name>`. Any workflow marked
+`requires_approval` must contain an explicit `type: approval` step before mutation.
+`ratchery workflows validate` enforces those references and gates.
+
+The offline technology radar lives in `assets/global/technology-radar.json`. Every entry
+records an HTTPS source, upstream status, Ratchetry decision, rationale, next action,
+licensing review state, and explicit review/recheck dates. `ratchery radar status/show/stale`
+never access the network; updating evidence is a separate, explicit research change.
 
 ## Test suite layout
 

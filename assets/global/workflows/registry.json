@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "_comment": "Goal-oriented advisory workflows. Listing, showing, and recommending never enables or invokes a capability.",
+  "workflows": [
+    {
+      "id": "understand-repository",
+      "title": "Understand an unfamiliar repository",
+      "summary": "Orient by bounded file/line evidence, then expand to architecture only when needed.",
+      "signals": ["understand repository", "understand this codebase", "explore repository", "entender repositório", "conhecer o projeto"],
+      "mutates": false,
+      "requires_approval": false,
+      "steps": [
+        {"id": "orient", "type": "execute", "capabilities": ["skill:repo-explore", "agent:explorer"], "outcome": "Entry points, relevant files, and bounded evidence."},
+        {"id": "expand-if-needed", "type": "conditional", "capabilities": ["skill:repo-investigate", "skill:architecture-map"], "outcome": "Cross-file call paths or architecture map only when initial evidence is insufficient."}
+      ]
+    },
+    {
+      "id": "implement-feature",
+      "title": "Implement a scoped feature",
+      "summary": "Plan/spec according to tier, implement the agreed delta, test, and review.",
+      "signals": ["implement feature", "build a feature", "add functionality", "implementar funcionalidade", "criar feature"],
+      "mutates": true,
+      "requires_approval": false,
+      "steps": [
+        {"id": "scope", "type": "conditional", "capabilities": ["skill:work-plan", "skill:spec-driven-change"], "outcome": "Tier-appropriate scope and evidence paths."},
+        {"id": "implement", "type": "execute", "capabilities": ["agent:developer", "skill:test-driven-development"], "outcome": "Smallest defensible implementation in observable vertical red-green-refactor slices when a runnable seam exists."},
+        {"id": "verify", "type": "execute", "capabilities": ["agent:test-runner", "skill:focused-review", "agent:reviewer"], "outcome": "Behavioral evidence and regression review."}
+      ]
+    },
+    {
+      "id": "debug-failure",
+      "title": "Diagnose and fix a failure",
+      "summary": "Reproduce, isolate the root cause, authorize the fix, and close with regression evidence.",
+      "signals": ["debug failure", "diagnose error", "root cause", "corrigir erro", "diagnosticar falha"],
+      "mutates": true,
+      "requires_approval": true,
+      "steps": [
+        {"id": "diagnose", "type": "execute", "capabilities": ["agent:debugger", "skill:repo-investigate", "skill:systematic-debugging"], "outcome": "Reproduced, minimized, evidence-backed root cause without speculative edits."},
+        {"id": "approve-fix", "type": "approval", "capabilities": [], "outcome": "Human confirms that implementation is in scope."},
+        {"id": "fix-and-test", "type": "execute", "capabilities": ["agent:developer", "agent:test-runner", "skill:record-bug"], "outcome": "Minimal fix, regression test, and reusable note when warranted."}
+      ]
+    },
+    {
+      "id": "security-audit",
+      "title": "Perform a read-only security audit",
+      "summary": "Bound the threat model, collect verified findings, and stop before remediation.",
+      "signals": ["security audit", "security scan", "review security", "auditoria de segurança", "revisar segurança"],
+      "mutates": false,
+      "requires_approval": false,
+      "steps": [
+        {"id": "bound", "type": "execute", "capabilities": ["skill:security-scan", "agent:security-reviewer"], "outcome": "Assets, actors, inputs, boundaries, and inspected scope."},
+        {"id": "report", "type": "execute", "capabilities": ["skill:security-rules-check"], "outcome": "Verified findings separated from defense-in-depth improvements."}
+      ]
+    },
+    {
+      "id": "security-hardening",
+      "title": "Remediate approved security findings",
+      "summary": "Convert verified findings into explicitly selected fixes, closure tests, and independent re-review.",
+      "signals": ["security hardening", "fix security findings", "remediate vulnerabilities", "corrigir falhas de segurança", "endurecer segurança"],
+      "mutates": true,
+      "requires_approval": true,
+      "finding_contract": {
+        "required": ["id", "severity", "asset", "evidence", "scenario", "remediation", "closure_test", "status"],
+        "severities": ["critical", "high", "medium", "low"],
+        "statuses": ["open", "mitigated", "resolved", "accepted"]
+      },
+      "steps": [
+        {"id": "normalize-findings", "type": "execute", "capabilities": ["skill:security-hardening", "agent:security-reviewer"], "outcome": "Stable finding IDs with evidence and closure tests."},
+        {"id": "approve-findings", "type": "approval", "capabilities": [], "outcome": "Human selects exact finding IDs and separately authorizes any dependency, schema, auth, commit, push, or publication change."},
+        {"id": "remediate", "type": "execute", "capabilities": ["agent:security-engineer", "agent:developer"], "outcome": "Smallest approved fixes without weakening the primary boundary."},
+        {"id": "close", "type": "execute", "capabilities": ["agent:test-runner", "agent:security-reviewer", "skill:focused-review"], "outcome": "Closure tests, affected suite, and independent re-review."}
+      ]
+    },
+    {
+      "id": "prepare-release",
+      "title": "Prepare a release",
+      "summary": "Validate inventory, dependencies, security, artifacts, and publication evidence before immutable actions.",
+      "signals": ["prepare release", "publish release", "release readiness", "preparar release", "publicar versão"],
+      "mutates": true,
+      "requires_approval": true,
+      "steps": [
+        {"id": "review", "type": "execute", "capabilities": ["agent:release-manager", "skill:dependency-audit", "skill:security-scan"], "outcome": "Versioned release plan and bounded risk evidence."},
+        {"id": "validate", "type": "execute", "capabilities": ["agent:test-runner", "skill:focused-review"], "outcome": "Tests, inventory, artifact, and documentation evidence."},
+        {"id": "approve-immutable-actions", "type": "approval", "capabilities": [], "outcome": "Separate approval before tag, push, release, package publication, or visibility change."}
+      ]
+    },
+    {
+      "id": "migrate-system",
+      "title": "Plan and execute a migration",
+      "summary": "Map dependencies, specify compatibility and rollback, then gate execution and verification.",
+      "signals": ["plan migration", "execute migration", "migrate system", "planejar migração", "executar migração"],
+      "mutates": true,
+      "requires_approval": true,
+      "steps": [
+        {"id": "map", "type": "execute", "capabilities": ["agent:migration-agent", "skill:architecture-map", "skill:dependency-audit"], "outcome": "Affected boundaries, compatibility, data, and rollback plan."},
+        {"id": "specify", "type": "execute", "capabilities": ["skill:work-plan", "skill:spec-driven-change"], "outcome": "Phase boundaries and observable migration gates."},
+        {"id": "approve", "type": "approval", "capabilities": [], "outcome": "Human authorizes the exact migration phase."},
+        {"id": "execute-and-verify", "type": "execute", "capabilities": ["agent:developer", "agent:test-runner", "agent:reviewer"], "outcome": "Bounded migration with rollback and regression evidence."}
+      ]
+    }
+  ]
+}
