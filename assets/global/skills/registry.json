@@ -52,6 +52,8 @@
       "security-scan": {"signals": ["security scan", "security audit", "pre release security review"], "anti_signals": ["fix approved security findings"], "network": "task-explicit", "evals": ["skill-security-scan-positive"]},
       "spec-driven-change": {"signals": ["write a delta spec", "spec driven change", "phase gated spec"], "anti_signals": ["trivial fix"], "permission_ceiling": "project-edit", "evals": ["skill-spec-driven-change-positive"]},
       "structural-search": {"signals": ["structural search", "syntax aware search", "api migration pattern"], "anti_signals": ["simple string search"], "evals": ["skill-structural-search-positive"]},
+      "systematic-debugging": {"origin": "ratchery; patterns adapted from MIT-licensed mattpocock/skills and obra/superpowers", "signals": ["systematic debugging", "unexplained failure", "intermittent failure", "repeated fix attempts"], "anti_signals": ["known root cause", "implement the known fix"], "evals": ["skill-systematic-debugging-positive", "skill-systematic-debugging-negative"]},
+      "test-driven-development": {"origin": "ratchery; patterns adapted from MIT-licensed mattpocock/skills and obra/superpowers", "signals": ["test driven development", "red green refactor", "behavior first test", "vertical test slice"], "anti_signals": ["documentation only", "generated file", "disposable prototype"], "permission_ceiling": "project-edit", "evals": ["skill-test-driven-development-positive", "skill-test-driven-development-negative"]},
       "work-plan": {"signals": ["plan a complex change", "cross module work plan", "risky migration plan"], "anti_signals": ["trivial edit"], "permission_ceiling": "project-edit", "evals": ["skill-work-plan-positive"]},
       "workspace-resume": {"signals": ["resume this workspace", "returning to this project", "current state is unclear"], "anti_signals": ["new project"], "evals": ["skill-workspace-resume-positive"]},
       "workspace-save": {"signals": ["save workspace state", "persist project handoff", "end this project phase"], "anti_signals": ["raw transcript"], "permission_ceiling": "project-edit", "evals": ["skill-workspace-save-positive"]}
@@ -185,6 +187,8 @@
       "security-scan",
       "spec-driven-change",
       "structural-search",
+      "systematic-debugging",
+      "test-driven-development",
       "work-plan",
       "workspace-resume",
       "workspace-save"

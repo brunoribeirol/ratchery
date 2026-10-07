@@ -8,15 +8,21 @@
   provenance, Claude/Codex coverage, permission/network ceilings, source resources, and a
   computed SHA-256 digest while preserving the existing activation/install keys.
 - `ratchery skills list/show/validate/eval` and expanded
-  `ratchery agents list/show/validate/eval` commands provide read-only inspection plus 42
+  `ratchery agents list/show/validate/eval` commands provide read-only inspection plus 46
   deterministic positive/negative routing fixtures without model or network calls.
+- Native `test-driven-development` and `systematic-debugging` Skills add vertical
+  red/green/refactor delivery and evidence-first root-cause analysis without vendoring or
+  automatically installing an upstream framework.
 - Seven goal-oriented advisory workflows cover repository orientation, implementation,
   debugging, security audit/hardening, release preparation, and migration. The dedicated
   security-hardening Skill/workflow requires structured findings, explicit approval before
   remediation, closure tests, and independent re-review.
-- `ratchery radar status/show/stale/validate` exposes an 11-entry offline technology radar
-  with adopted/trial/assess/hold decisions and explicit recheck dates. It never polls,
-  installs, or enables an upstream project.
+- `ratchery radar status/show/stale/validate/watch` exposes a 17-entry curated technology
+  radar with adopted/trial/assess/hold decisions and explicit recheck dates. Watch mode is
+  offline by default; its explicit online mode reads bounded GitHub repository metadata
+  without following redirects, downloading source, editing the radar, or installing or
+  enabling an upstream project. A daily least-privilege workflow publishes only an
+  advisory run summary.
 - The verified public Homebrew tap is now documented as the shortest install
   path: `brew install brunoribeirol/tap/ratchery`, followed by the explicit,
   reviewable `ratchery setup` user-configuration step.

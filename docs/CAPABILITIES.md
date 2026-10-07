@@ -23,8 +23,10 @@ The shipped workflows are:
 
 - `understand-repository` -- bounded exploration, then investigation/architecture only if
   evidence requires it;
-- `implement-feature` -- tier-appropriate plan/spec, implementation, tests, and review;
-- `debug-failure` -- root-cause diagnosis, approval, minimal fix, and regression evidence;
+- `implement-feature` -- tier-appropriate plan/spec, vertical red/green/refactor slices,
+  implementation, broader tests, and review;
+- `debug-failure` -- reproduce, minimize, test competing hypotheses, prove the root cause,
+  then apply an approved minimal fix with regression evidence;
 - `security-audit` -- read-only threat boundary and verified findings;
 - `security-hardening` -- selected findings, approval, fixes, closure tests, and re-review;
 - `prepare-release` -- inventory, dependency/security, artifacts, and immutable-action gate;
@@ -90,6 +92,8 @@ ratchery radar status
 ratchery radar show mcp-registry
 ratchery radar stale
 ratchery radar validate
+ratchery radar watch
+ratchery radar watch --json
 ```
 
 The radar records the source, current review decision, rationale, licensing-review state,
@@ -100,6 +104,14 @@ last review, and next recheck for technologies Ratchetry may learn from. The dec
 - `assess` -- worth continued review, not approved for activation;
 - `hold` -- deliberately deferred or rejected for current product scope.
 
-These commands are offline and read-only. There is no automatic polling, arbitrary Skill
-import, MCP installation, or update job. External research remains an explicit task so
-untrusted upstream content is reviewed as data before any separate implementation change.
+The regular radar commands and the default `watch` mode are offline and read-only. `watch`
+shows the exact strict GitHub repository endpoints eligible for a later metadata query but
+does not contact them. An explicit `ratchery radar watch --online` query may read bounded
+public repository metadata from `api.github.com`; it never retrieves source files, follows
+redirects, installs a package, edits the radar, or promotes a candidate.
+
+The daily `Technology Watch` workflow runs that same advisory query with only
+`contents: read` and writes its report to the workflow summary. Upstream activity,
+popularity, licensing metadata, or a third-party audit is a prompt for human review, never
+an automatic trust or adoption decision. Arbitrary Skill import, MCP installation, issue
+creation, pull requests, and unattended repository updates remain out of scope.

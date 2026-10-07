@@ -23,6 +23,7 @@ PERMISSION_CEILINGS = {"read-only", "project-edit", "security-gated"}
 RADAR_DECISIONS = {"adopted", "trial", "assess", "hold"}
 RADAR_STATUSES = {"active", "preview", "deprecated"}
 SEMVER_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
+RADAR_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<header>.*?)\n---(?:\n|\Z)", re.DOTALL)
 
 
@@ -513,6 +514,9 @@ def validate_radar(root: Path, today: dt.date | None = None) -> dict[str, Any]:
         entry_id = entry.get("id")
         if not isinstance(entry_id, str) or not entry_id:
             errors.append("Technology radar entry is missing an id")
+            continue
+        if not RADAR_ID_RE.fullmatch(entry_id):
+            errors.append(f"Radar {entry_id!r}: id must be lowercase kebab-case")
             continue
         if entry_id in ids:
             errors.append(f"Duplicate technology radar id: {entry_id}")

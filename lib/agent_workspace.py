@@ -35,6 +35,7 @@ import capability_system as cs
 import context_engine as ce
 import efficiency as ef
 import memory_engine as me
+import technology_watch as tw
 import tool_router as tr
 
 VERSION = "1.1.0"
@@ -5279,7 +5280,7 @@ def main() -> None:
     workflows_validate.add_argument("--json", action="store_true")
 
     radar_parser = sub.add_parser(
-        "radar", help="Inspect the offline curated technology radar."
+        "radar", help="Inspect the curated radar; network watch is opt-in."
     )
     radar_sub = radar_parser.add_subparsers(dest="radar_cmd", required=True)
     radar_status = radar_sub.add_parser("status", help="Summarize radar decisions.")
@@ -5295,6 +5296,16 @@ def main() -> None:
         "validate", help="Validate radar provenance and review dates offline."
     )
     radar_validate.add_argument("--json", action="store_true")
+    radar_watch = radar_sub.add_parser(
+        "watch", help="Report curated upstream changes; network is opt-in."
+    )
+    radar_watch.add_argument(
+        "--online",
+        action="store_true",
+        help="Query only api.github.com for strict GitHub repository entries.",
+    )
+    radar_watch.add_argument("--timeout", type=float, default=10.0)
+    radar_watch.add_argument("--json", action="store_true")
 
     mcp_parser = sub.add_parser("mcp", help="Opt in/out of an optional MCP integration (never auto-injected).")
     mcp_sub = mcp_parser.add_subparsers(dest="mcp_cmd", required=True)
@@ -5783,6 +5794,19 @@ def _dispatch(args: argparse.Namespace) -> None:
                     f"{'PASS' if result['ok'] else 'FAIL'}"
                 )
             if not result["ok"]:
+                raise SystemExit(1)
+        elif args.radar_cmd == "watch":
+            report = tw.build_watch_report(
+                root,
+                online=args.online,
+                token=os.environ.get("GITHUB_TOKEN") if args.online else None,
+                timeout=args.timeout,
+            )
+            if args.json:
+                print(json.dumps(report, ensure_ascii=False, indent=2))
+            else:
+                print(tw.render_markdown(report), end="")
+            if report["errors"]:
                 raise SystemExit(1)
     elif args.cmd == "mcp":
         path = git_root(Path(args.path).resolve())

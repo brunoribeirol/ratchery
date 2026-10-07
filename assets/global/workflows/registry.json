@@ -23,7 +23,7 @@
       "requires_approval": false,
       "steps": [
         {"id": "scope", "type": "conditional", "capabilities": ["skill:work-plan", "skill:spec-driven-change"], "outcome": "Tier-appropriate scope and evidence paths."},
-        {"id": "implement", "type": "execute", "capabilities": ["agent:developer"], "outcome": "Smallest defensible implementation."},
+        {"id": "implement", "type": "execute", "capabilities": ["agent:developer", "skill:test-driven-development"], "outcome": "Smallest defensible implementation in observable vertical red-green-refactor slices when a runnable seam exists."},
         {"id": "verify", "type": "execute", "capabilities": ["agent:test-runner", "skill:focused-review", "agent:reviewer"], "outcome": "Behavioral evidence and regression review."}
       ]
     },
@@ -35,7 +35,7 @@
       "mutates": true,
       "requires_approval": true,
       "steps": [
-        {"id": "diagnose", "type": "execute", "capabilities": ["agent:debugger", "skill:repo-investigate"], "outcome": "Evidence-backed root cause without speculative edits."},
+        {"id": "diagnose", "type": "execute", "capabilities": ["agent:debugger", "skill:repo-investigate", "skill:systematic-debugging"], "outcome": "Reproduced, minimized, evidence-backed root cause without speculative edits."},
         {"id": "approve-fix", "type": "approval", "capabilities": [], "outcome": "Human confirms that implementation is in scope."},
         {"id": "fix-and-test", "type": "execute", "capabilities": ["agent:developer", "agent:test-runner", "skill:record-bug"], "outcome": "Minimal fix, regression test, and reusable note when warranted."}
       ]

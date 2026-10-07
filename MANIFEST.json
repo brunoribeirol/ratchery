@@ -2,7 +2,7 @@
   "name": "ratchery",
   "version": "1.1.0",
   "channel": "stable",
-  "generated_at": "2026-10-01T03:04:59+00:00",
+  "generated_at": "2026-10-07T14:22:33+00:00",
   "upgrade_from": [
     "8.1.0",
     "8.2.0",
@@ -15,8 +15,8 @@
     "qmd_auto_install": false,
     "default_session_end_hook": false
   },
-  "file_count_excluding_manifest": 301,
-  "total_bytes_excluding_manifest": 1529456,
+  "file_count_excluding_manifest": 310,
+  "total_bytes_excluding_manifest": 1571914,
   "files": [
     {
       "path": ".agents/runtime/agent_workspace.py",
@@ -200,8 +200,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "6b7638849b1b94c895f4289046dc72106b27aff510397c3e54bf637f436b784a",
-      "size_bytes": 29701
+      "sha256": "54318e460a8b54961e417293eebb6656daafcbac088df98d580f148761fd7ecc",
+      "size_bytes": 30164
     },
     {
       "path": "CLAUDE.md",
@@ -260,8 +260,8 @@
     },
     {
       "path": "assets/global/evals/capability-routing.json",
-      "sha256": "0650f29696d3cc28f6cf62d3479ea1b2b0b97ae752bcd41cbd66d0a4ccde756b",
-      "size_bytes": 7937
+      "sha256": "be1c524580a8398e55f334927c4ad7dd16db09ff8579468cb4de14df104cd0e3",
+      "size_bytes": 8797
     },
     {
       "path": "assets/global/skills/architecture-map/SKILL.md",
@@ -290,8 +290,8 @@
     },
     {
       "path": "assets/global/skills/registry.json",
-      "sha256": "bd332aafc2963a5ad607832a9d7e911b2a8769ddc1160a1e4d885273f3e40c2c",
-      "size_bytes": 14366
+      "sha256": "e6c253ec3ae4f26f3a24d9c840060416d4ac4e2da43d8e4676ad8e07c41a755f",
+      "size_bytes": 15276
     },
     {
       "path": "assets/global/skills/repo-explore/SKILL.md",
@@ -334,6 +334,26 @@
       "size_bytes": 826
     },
     {
+      "path": "assets/global/skills/systematic-debugging/SKILL.md",
+      "sha256": "e82ef7a25427eb917a6a862d6f8fb52f8f97b0420a922b7b15fd48a27154a177",
+      "size_bytes": 1829
+    },
+    {
+      "path": "assets/global/skills/systematic-debugging/SOURCES.md",
+      "sha256": "226cccef78a8bd5364a6a1d263dc22f70264ef2636f0297a08f63cc191751e55",
+      "size_bytes": 545
+    },
+    {
+      "path": "assets/global/skills/test-driven-development/SKILL.md",
+      "sha256": "cb10db53ea933d813ad2e0e05c891dbb3d18fc3e466145c20d52e94a95f77f74",
+      "size_bytes": 1549
+    },
+    {
+      "path": "assets/global/skills/test-driven-development/SOURCES.md",
+      "sha256": "605b35e119cf9614452769c7e32737507417105d0549be2e9a211f20c44ff14c",
+      "size_bytes": 507
+    },
+    {
       "path": "assets/global/skills/work-plan/SKILL.md",
       "sha256": "05280be2e333fbfa5f178a338831d61a5f651fbe406e60f6a8745761880d56ac",
       "size_bytes": 1376
@@ -350,13 +370,13 @@
     },
     {
       "path": "assets/global/technology-radar.json",
-      "sha256": "682820697d1fa2213df6bd1e874b73f7f8d2222b4ea4b292e91800a738aea9f4",
-      "size_bytes": 7421
+      "sha256": "f1ddedd9b84a79d10c8cc8d80b94407ed4c798a29feb04c9a31962ed47fe74ec",
+      "size_bytes": 11988
     },
     {
       "path": "assets/global/workflows/registry.json",
-      "sha256": "78f759adc2800e96978a8de43625f97fe18af8478937f73e87ad7c64d7cd77d5",
-      "size_bytes": 7174
+      "sha256": "7fd9c24fcfd7c13612f4d0489a6c44e214149e483be282e42bb6f30bd1ec6d4c",
+      "size_bytes": 7337
     },
     {
       "path": "assets/project/.claude/agents/ai-ml-engineer.md",
@@ -930,8 +950,8 @@
     },
     {
       "path": "docs/CAPABILITIES.md",
-      "sha256": "2eba7f47d8c0495007aff6741af394a09bff0cf0f51b213f9f6491633ae7ed39",
-      "size_bytes": 4413
+      "sha256": "629836f9ba014fb262625a80217a6fc7253ccacdb3535cefd22d6171b5d90c46",
+      "size_bytes": 5163
     },
     {
       "path": "docs/CI_GATE.md",
@@ -1154,6 +1174,11 @@
       "size_bytes": 2398
     },
     {
+      "path": "docs/specs/trusted-capability-intake-and-watch.md",
+      "sha256": "e3451f68101a2f1136e3159597e2534361b90fd5f2d925f126ed1edf4aae9d76",
+      "size_bytes": 2946
+    },
+    {
       "path": "docs/specs/v1.1.0-community-release.md",
       "sha256": "ca798d8cbe4ebc2eb2a71b9805090607efa0a5664a7d0b51b1891c8b624e8678",
       "size_bytes": 2340
@@ -1222,6 +1247,11 @@
       "path": "docs/work/2026-09-28-capability-quality-workflows-radar.md",
       "sha256": "fb7e2e14ee080d4c421ab53da4031b5a7c5935a2317bb5fa740dc92d89efc2e7",
       "size_bytes": 5066
+    },
+    {
+      "path": "docs/work/2026-10-06-trusted-capability-intake-and-watch.md",
+      "sha256": "7448af476141846f0f4cd8d501602fb72ceeb8210a6117cc126a8ae58320a38e",
+      "size_bytes": 4429
     },
     {
       "path": "docs/work/TASK_TEMPLATE.md",
@@ -1340,13 +1370,13 @@
     },
     {
       "path": "lib/agent_workspace.py",
-      "sha256": "75a7b657f6bc110740a65944102d596f10c776f417d723420f07d448fd259b5f",
-      "size_bytes": 259014
+      "sha256": "6922ba00fe21ca5a59efef81c636a8fa5303245e5b0077413c062b2f875f7118",
+      "size_bytes": 259981
     },
     {
       "path": "lib/capability_system.py",
-      "sha256": "9532157c51aafafc6aca950185ed7d5806084df2af114c25632e4b46b80fb250",
-      "size_bytes": 23509
+      "sha256": "db6ad2d799ab6dfed886c7b61de55e0d8d48747f2585429ec39709e703dcff9d",
+      "size_bytes": 23716
     },
     {
       "path": "lib/context_engine.py",
@@ -1367,6 +1397,11 @@
       "path": "lib/memory_engine.py",
       "sha256": "697f828b497ee0a34848b8afdea8b65a5ce74da1c99ed814a1711cf38626d6b5",
       "size_bytes": 12409
+    },
+    {
+      "path": "lib/technology_watch.py",
+      "sha256": "7431b8434c0ec574a866fb95c8b58cce975523289d0bc28a0dcae5bd608eaf2c",
+      "size_bytes": 11972
     },
     {
       "path": "lib/tool_router.py",
@@ -1397,6 +1432,11 @@
       "path": "scripts/smoke-test-release.py",
       "sha256": "b96bc72145d21abd0f117ee10b27765122a467ea06a119312b9d624c1063442b",
       "size_bytes": 16213
+    },
+    {
+      "path": "scripts/technology-watch.py",
+      "sha256": "95e0baf105ec81ce4b0a8e85b0e0f7a56e42d3691e234a8424dc119b03fa647d",
+      "size_bytes": 1395
     },
     {
       "path": "scripts/verify-action-pins.py",
@@ -1435,8 +1475,8 @@
     },
     {
       "path": "tests/test_capability_system.py",
-      "sha256": "bb543ef0fae517306b243b982a65b28605a99e5d67b30e98a5cf1e4c95e9bf12",
-      "size_bytes": 6708
+      "sha256": "e6ba74592e1ca963038e94138933d117b07fd8927272eb09f61109283ccec413",
+      "size_bytes": 7607
     },
     {
       "path": "tests/test_ci_workflow_contract.py",
@@ -1502,6 +1542,11 @@
       "path": "tests/test_setup_command.py",
       "sha256": "7263c0d047d9344abcfcc7f3d8432729b80abbe20ee868cbb1c3940f3b974d39",
       "size_bytes": 13489
+    },
+    {
+      "path": "tests/test_technology_watch.py",
+      "sha256": "2c5fda6cede5cf797d64badc07be57fd7fb67ee0763bc2ea4386d1abc158ce1b",
+      "size_bytes": 7500
     },
     {
       "path": "tests/test_tool_policy.py",

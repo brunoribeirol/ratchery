@@ -36,7 +36,7 @@ class CapabilitySystemTests(unittest.TestCase):
         )
 
     def test_shipped_capability_catalogs_validate(self) -> None:
-        for kind, expected_count in (("skill", 16), ("agent", 24)):
+        for kind, expected_count in (("skill", 18), ("agent", 24)):
             with self.subTest(kind=kind):
                 result = cs.validate_capabilities(ROOT, kind)
                 self.assertTrue(result["ok"], result["errors"])
@@ -88,6 +88,18 @@ class CapabilitySystemTests(unittest.TestCase):
         )
         self.assertNotIn("security-hardening", [item["name"] for item in scan_only])
 
+        known_fix = cs.recommend_capabilities(
+            ROOT, "skill", "The known root cause is approved; implement the known fix."
+        )
+        self.assertNotIn("systematic-debugging", [item["name"] for item in known_fix])
+
+        documentation = cs.recommend_capabilities(
+            ROOT, "skill", "Make a documentation only change to a generated file."
+        )
+        self.assertNotIn(
+            "test-driven-development", [item["name"] for item in documentation]
+        )
+
     def test_workflows_validate_and_recommend_by_outcome(self) -> None:
         validation = cs.validate_workflows(ROOT)
         self.assertTrue(validation["ok"], validation["errors"])
@@ -97,6 +109,12 @@ class CapabilitySystemTests(unittest.TestCase):
             ROOT, "Quero implementar funcionalidade com segurança"
         )
         self.assertEqual(matches[0]["id"], "implement-feature")
+        feature = cs.workflow_detail(ROOT, "implement-feature")
+        self.assertIn(
+            "skill:test-driven-development", feature["steps"][1]["capabilities"]
+        )
+        debugging = cs.workflow_detail(ROOT, "debug-failure")
+        self.assertIn("skill:systematic-debugging", debugging["steps"][0]["capabilities"])
 
     def test_security_hardening_has_findings_gate_and_independent_review(self) -> None:
         workflow = cs.workflow_detail(ROOT, "security-hardening")
@@ -127,10 +145,10 @@ class CapabilitySystemTests(unittest.TestCase):
         self.assertEqual(current["stale"], [])
         summary = cs.radar_summary(ROOT, dt.date(2026, 9, 28))
         self.assertEqual(summary["network_access"], "none")
-        self.assertEqual(summary["count"], 11)
+        self.assertEqual(summary["count"], 17)
 
         future = cs.validate_radar(ROOT, dt.date(2027, 4, 1))
-        self.assertEqual(len(future["stale"]), 11)
+        self.assertEqual(len(future["stale"]), 17)
 
     def test_cli_json_contracts(self) -> None:
         commands = (
@@ -138,6 +156,7 @@ class CapabilitySystemTests(unittest.TestCase):
             ("agents", "show", "security-reviewer", "--json"),
             ("workflows", "recommend", "--goal", "security audit", "--json"),
             ("radar", "status", "--json"),
+            ("radar", "watch", "--json"),
         )
         for command in commands:
             with self.subTest(command=command):
@@ -158,6 +177,7 @@ class CapabilitySystemTests(unittest.TestCase):
             ("agents", "validate"),
             ("workflows", "validate"),
             ("radar", "validate"),
+            ("radar", "watch"),
         ):
             result = self.run_cli(*command)
             self.assertEqual(result.returncode, 0, result.stderr)
